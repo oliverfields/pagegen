@@ -1,0 +1,94 @@
+#!/usr/bin/python
+
+from Utility import report_error, report_notice, load_config, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT
+from os.path import expanduser, basename
+from os import getcwd, listdir, sep
+from sys import exit, argv
+from distutils.dir_util import copy_tree
+from Site import Site
+
+
+# Variables
+verbose=False
+
+
+def usage(exit_after=True):
+	print 'Usage: %s [gen|forcegen|init] [-v|--verbose]' % (basename(argv[0]))
+
+	if exit_after:
+		exit(0)
+
+
+def exec_hook(path):
+	''' Run specified hook if executable '''
+	return True
+
+
+def gen_mode(config, verbose=False):
+	site_conf_path=get_site_conf_path()
+
+	if not site_conf_path:
+		report_error(1, "Not in pagegen directory tree, unable to find site.conf in current folder or parent folders")
+
+	site_dir=site_conf_path[:-len(sep+SITECONF)]
+
+	try:
+		s=Site(site_dir, site_conf_path)
+	except Exception as e:
+		report_error(1, "Unable to load site: %s" % e)
+
+
+def forcegen_mode(config, verbose=False):
+	print "forcegen %s" % verbose
+
+
+def init_mode(config, verbose=False):
+	''' Copy skeleton directory to current directory for basic setup '''
+
+	skel_dir=config.get(CONFROOT, 'skel_dir')
+	root_dir=getcwd()
+
+	if listdir(root_dir):
+		report_error(1,"Cannot init in non empty directory '%s'" % root_dir)
+
+	try:
+		if verbose:
+			report_notice("Copying skeleton directory to current directory: '%s' -> '%s'" % (skel_dir, root_dir))
+		copy_tree(skel_dir, root_dir)
+	except Exception as e:
+		report_error(1, "Unable to copy '%s' to '%s': %s" % (skel_dir, root_dir, e))
+
+
+# Parse CLI arguments
+if __name__ == '__main__':
+	try:
+		mode=argv[1]
+	except Exception as e:
+		usage()
+
+	try:
+		verbose_arg=argv[2]
+		if verbose_arg == "-v" or argv[2] == "--verbose":
+			verbose=True
+		else:
+			usage()
+	except Exception:
+		pass
+
+	possible_configs=[
+		getcwd()+sep+PAGEGENCONF,
+		HOME+sep+'.config'+sep+PAGEGENCONF,
+		sep+'etc'+sep+PAGEGENCONF
+	]
+
+	config=load_config(possible_configs)
+
+	if mode == "gen":
+		gen_mode(config, verbose)
+	elif mode == "forcegen":
+		forcegen_mode(config, verbose)
+	elif mode == "init":
+		init_mode(config, verbose)
+	else:
+		usage(exit=False)
+		report_error(1, 'Unknown mode "%s"' % mode)
