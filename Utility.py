@@ -14,7 +14,8 @@ SITECONF='site.conf'
 CONFROOT='root'
 CONTENT_DIR='content'
 DIRDEFAULTFILE='default'
-
+TARGETDIR='site'
+INCLUDEDIR='include'
 
 def report_error(code, message):
 	stderr.write('Error: %s\n' % message)
@@ -66,8 +67,19 @@ def get_site_conf_path():
 		site_dir=''
 		for x in range(0, i):
 			site_dir+=sep+dirs[x]
-		site_conf=site_dir+sep+'site.conf'
+		site_conf=site_dir+sep+SITECONF
 		if isfile(site_conf):
 			return site_conf
 
 	return False
+
+
+def load_file(file):
+	with open (file, "r") as f:
+		data=f.read()#.replace('\n', '')
+	return data
+
+
+def write_file(file, content):
+	with open(file, 'a') as f:
+		f.write(content)

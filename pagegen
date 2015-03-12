@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-from Utility import report_error, report_notice, load_config, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT
-from os.path import expanduser, basename
+from Utility import report_error, report_notice, load_config, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR
+from os.path import expanduser, basename, join
 from os import getcwd, listdir, sep
 from sys import exit, argv
 from distutils.dir_util import copy_tree
@@ -13,7 +13,7 @@ verbose=False
 
 
 def usage(exit_after=True):
-	print 'Usage: %s [gen|forcegen|init] [-v|--verbose]' % (basename(argv[0]))
+	print 'Usage: %s <gen|init>' % (basename(argv[0]))
 
 	if exit_after:
 		exit(0)
@@ -24,7 +24,7 @@ def exec_hook(path):
 	return True
 
 
-def gen_mode(config, verbose=False):
+def gen_mode(config):
 	site_conf_path=get_site_conf_path()
 
 	if not site_conf_path:
@@ -37,23 +37,27 @@ def gen_mode(config, verbose=False):
 	except Exception as e:
 		report_error(1, "Unable to load site: %s" % e)
 
+	try:
+		s.generate_pages(s.pages)
+	except Exception as e:
+		report_error(1, "Unable to generate site: %s" % e)
 
-def forcegen_mode(config, verbose=False):
-	print "forcegen %s" % verbose
+	try:
+		s.move_to_target()
+	except Exception as e:
+		report_error(1, "Unable to copy to target directory '%s': %s" % (s.target_dir, e))
 
 
-def init_mode(config, verbose=False):
+def init_mode(config):
 	''' Copy skeleton directory to current directory for basic setup '''
 
 	skel_dir=config.get(CONFROOT, 'skel_dir')
 	root_dir=getcwd()
 
 	if listdir(root_dir):
-		report_error(1,"Cannot init in non empty directory '%s'" % root_dir)
+		report_error(1,"Cannot init non empty directory '%s'" % root_dir)
 
 	try:
-		if verbose:
-			report_notice("Copying skeleton directory to current directory: '%s' -> '%s'" % (skel_dir, root_dir))
 		copy_tree(skel_dir, root_dir)
 	except Exception as e:
 		report_error(1, "Unable to copy '%s' to '%s': %s" % (skel_dir, root_dir, e))
@@ -66,15 +70,6 @@ if __name__ == '__main__':
 	except Exception as e:
 		usage()
 
-	try:
-		verbose_arg=argv[2]
-		if verbose_arg == "-v" or argv[2] == "--verbose":
-			verbose=True
-		else:
-			usage()
-	except Exception:
-		pass
-
 	possible_configs=[
 		getcwd()+sep+PAGEGENCONF,
 		HOME+sep+'.config'+sep+PAGEGENCONF,
@@ -84,11 +79,9 @@ if __name__ == '__main__':
 	config=load_config(possible_configs)
 
 	if mode == "gen":
-		gen_mode(config, verbose)
-	elif mode == "forcegen":
-		forcegen_mode(config, verbose)
+		gen_mode(config)
 	elif mode == "init":
-		init_mode(config, verbose)
+		init_mode(config)
 	else:
-		usage(exit=False)
+		usage(False)
 		report_error(1, 'Unknown mode "%s"' % mode)
