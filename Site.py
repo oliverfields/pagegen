@@ -7,6 +7,7 @@ from shutil import rmtree
 from Page import Page
 from docutils.core import publish_parts
 from distutils.dir_util import copy_tree
+from re import sub
 
 
 class Site:
@@ -25,6 +26,7 @@ class Site:
 		self.exclude_sitemap=False
 		self.absolute_urls=False
 		self.symlink_include=False
+		self.page_titles=False
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -56,6 +58,11 @@ class Site:
 
 		try:
 			self.symlink_include=config.get(CONFROOT,'symlink_include')
+		except:
+			pass
+
+		try:
+			self.page_titles=config.get(CONFROOT,'page_titles')
 		except:
 			pass
 
@@ -106,14 +113,20 @@ class Site:
 					description=p.headers['description']
 				else:
 					description=''
-
 				page_html=self.update_place_holder(page_html, 'description', description)
 
-				parts=publish_parts(p.rst, writer_name='html')
-				content=parts['body']
+				# Page content
+				if self.page_titles != False:
+					underline=sub('.', '#', p.title)
+					rst=p.title+'\n'+underline+'\n\n'+p.rst
+				else:
+					rst=p.rst
 
+				parts=publish_parts(rst, writer_name='html', settings_overrides={'doctitle_xform':False})
+				content=parts['html_body']
 				page_html=self.update_place_holder(page_html, 'content', content)
 
+				# Menu
 				self.generate_menu(self.pages, p)
 				page_html=self.update_place_holder(page_html, 'menu', p.menu)
 

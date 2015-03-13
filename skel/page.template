@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>{{title}}</title>
-<link rel="stylesheet" href="/include/css/style.css" type="text/css" />
+<base href="{{base_url}}" />
+<link rel="stylesheet" href="{{base_url}}/include/css/style.css" type="text/css" />
 </head>
 <body>
 <header>
