@@ -17,9 +17,6 @@ class Page:
 		self.target_path=''
 		self.html=''
 		self.menu=''
-		self.header=''
-		self.footer=''
-		self.content=''
 		self.extension=''
 
 		self.headers={

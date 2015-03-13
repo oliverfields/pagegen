@@ -20,8 +20,7 @@ class Site:
 		self.omit_menu=False
 		self.ignore=[]
 		self.home_menu_name=''
-		self.header_template=''
-		self.footer_template=''
+		self.page_template=''
 		self.sitemap=''
 		self.exclude_sitemap=False
 
@@ -45,22 +44,15 @@ class Site:
 
 		try:
 			self.exclude_sitemap=config.get(CONFROOT,'exclude_sitemap')
-		except Exception as e:
-			print e
+		except:
+			pass
 
 		try:
-			header_template=join(self.site_dir, 'templates', 'header')
-			self.header_template=load_file(header_template)
+			page_template=join(self.site_dir, 'page.template')
+			self.page_template=load_file(page_template)
 		except:
-			raise Exception("Unable to load header template: '%s'" % header_template)
+			raise Exception("Unable to load page template: '%s'" % page_template)
 
-		try:
-			footer_template=join(self.site_dir, 'templates', 'footer')
-			self.footer_template=load_file(footer_template)
-		except:
-			raise Exception("Unable to load footer template: '%s'" % footer_template)
-
-		
 		content_path=join(self.site_dir, CONTENTDIR)
 		# Try to load home page, ok if not there
 		try:
@@ -80,16 +72,37 @@ class Site:
 		self.check_pages(self.pages)
 
 
+	def update_place_holder(self, template, name, value):
+		return template.replace('{{%s}}' % name, value)
+
+
 	def generate_pages(self, pages):
-		''' Recursively iterate over pages and generate html '''
+		''' Recursively iterate over pages and generate html for pages '''
 		
 		for p in pages:
 			if p.headers['generate html'] == True:
-				self.generate_header(p)
-				self.generate_footer(p)
+
+				page_html=self.page_template
+
+				page_html=self.update_place_holder(page_html, 'base_url', self.base_url)
+				page_html=self.update_place_holder(page_html, 'title', p.title)
+
+				if p.headers['description']:
+					description=p.headers['description']
+				else:
+					description=''
+
+				page_html=self.update_place_holder(page_html, 'description', description)
+
+				parts=publish_parts(p.rst, writer_name='html')
+				content=parts['body']
+
+				page_html=self.update_place_holder(page_html, 'content', content)
+
 				self.generate_menu(self.pages, p)
-				content=self.generate_content(p)
-				p.html=p.header+p.menu+p.content+p.footer
+				page_html=self.update_place_holder(page_html, 'menu', p.menu)
+
+				p.html=page_html
 			else:
 				p.html=p.rst
 
@@ -235,31 +248,10 @@ class Site:
 				page.menu+='<li><a href="%s"%s>%s</a></li>' % (p.url_path, css_class, p.title)
 
 		if level==1:
-			page.menu+='</ul>'
-
-
-	def generate_header(self, page):
-		html=self.header_template.replace('{{base_url}}', self.base_url)
-		html=html.replace('{{title}}', page.title)
-
-		if page.headers['description']:
-			description=page.headers['description']
-		else:
-			description=''
-
-		html=html.replace('{{description}}', description)
-
-		page.header=html
-
-
-	def generate_footer(self, page):
-		page.footer=self.footer_template
-
-
-	def generate_content(self, page):
-		# Use docutils to convert rst to html
-		parts=publish_parts(page.rst, writer_name='html')
-		page.content=parts['body']
+			if page.menu=='<ul>':
+				page.menu=''
+			else:
+				page.menu+='</ul>'
 
 
 	def generate_sitemap(self, pages):
