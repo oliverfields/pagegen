@@ -5,6 +5,7 @@ from os import listdir, getcwd, sep
 from os.path import join, isdir, isfile, expanduser
 from ConfigParser import RawConfigParser
 from io import StringIO
+from re import match
 
 
 # Constants
@@ -12,10 +13,13 @@ PAGEGENCONF='pagegen.conf'
 HOME=expanduser("~")
 SITECONF='site.conf'
 CONFROOT='root'
-CONTENT_DIR='content'
+CONTENTDIR='content'
 DIRDEFAULTFILE='default'
 TARGETDIR='site'
 INCLUDEDIR='include'
+SITEMAPFILE='sitemap.txt'
+HOOKDIR='hooks'
+
 
 def report_error(code, message):
 	stderr.write('Error: %s\n' % message)
@@ -83,3 +87,6 @@ def load_file(file):
 def write_file(file, content):
 	with open(file, 'a') as f:
 		f.write(content)
+
+def is_default_file(file):
+	return match('.*'+DIRDEFAULTFILE+'[.a-z]*$', file)

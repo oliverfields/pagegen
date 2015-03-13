@@ -2,7 +2,7 @@ from os import sep
 from os.path import splitext, join
 from re import sub
 from datetime import datetime
-from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENT_DIR
+from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file
 
 
 class Page:
@@ -24,8 +24,6 @@ class Page:
 
 		self.headers={
 			'sitemap exclude': False, 
-			'sitemap frequency': None,
-			'sitemap priority': None,
 			'menu exclude': False,
 			'description': None,
 			'title': None,
@@ -39,10 +37,7 @@ class Page:
 		''' Create url'ed and target version of path '''
 
 		# Remove non site path
-		path_part=path.replace(site_path+sep+CONTENT_DIR, '')
-
-		# Split off extension
-		path_part, file_extension=splitext(path_part)
+		path_part=path.replace(site_path+sep+CONTENTDIR, '')
 
 		self.target_dir=join(site_path, TARGETDIR)
 
@@ -56,20 +51,21 @@ class Page:
 		path_part=path_part.lower()
 
 		# Replace anything that isn't a charachter, number, slash, underscore or hyphen with a hyphen
-		path_part=sub('[^/a-z0-9-_]', '-', path_part)
+		path_part=sub('[^/a-z0-9-_.]', '-', path_part)
 
 		# Remove default file for directories, makes things look nice
-		if path_part == '/%s' % DIRDEFAULTFILE:
-			url_path='/'
+		if is_default_file(path_part):
+			if path_part == '/%s%s' % (DIRDEFAULTFILE, self.extension):
+				self.url_path='/'
+			else:
+				self.url_path=sub('/%s%s$' % (DIRDEFAULTFILE, self.extension), '', path_part)+'/'
 		else:
-			url_path=sub('/%s$' % DIRDEFAULTFILE, '', path_part)
-
-		self.url_path=path_part+file_extension
+			self.url_path=path_part
 
 		# Replace / with os dir seperator for target path
 		path_part=path_part.replace('/', sep)
 
-		self.target_path='%s%s%s%s%s' % (site_path, sep,TARGETDIR, path_part,file_extension)
+		self.target_path='%s%s%s%s' % (site_path, sep,TARGETDIR, path_part)
 
 
 	def set_title_from_path(self, path):
