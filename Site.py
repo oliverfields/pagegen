@@ -2,7 +2,7 @@ from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, D
 from ConfigParser import ConfigParser
 from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists
-from os import listdir, getcwd, sep, makedirs
+from os import listdir, getcwd, sep, makedirs, symlink
 from shutil import rmtree
 from Page import Page
 from docutils.core import publish_parts
@@ -24,6 +24,7 @@ class Site:
 		self.sitemap=''
 		self.exclude_sitemap=False
 		self.absolute_urls=False
+		self.symlink_include=False
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -50,6 +51,11 @@ class Site:
 
 		try:
 			self.absolute_urls=config.get(CONFROOT,'absolute_urls')
+		except:
+			pass
+
+		try:
+			self.symlink_include=config.get(CONFROOT,'symlink_include')
 		except:
 			pass
 
@@ -199,10 +205,14 @@ class Site:
 
 		# Copy include dir to target dir
 		include_dir=join(self.target_dir, INCLUDEDIR)
+
 		if exists(include_dir):
 			report_warning('Include exists, skipping copy to site directory')
 		else:
-			copy_tree(self.include_dir, include_dir)
+			if self.symlink_include == False:
+				copy_tree(self.include_dir, include_dir)
+			else:
+				symlink(self.include_dir, join(TARGETDIR, INCLUDEDIR))
 
 		# Create sitemap.txt
 		write_file(join(self.target_dir, SITEMAPFILE), self.sitemap)
