@@ -1,0 +1,8 @@
+Title: Robots file
+Generate html: False
+Menu exclude: True
+Sitemap exclude: True
+
+Example robots.txt file
+* Will not be shown in menu, sitemap
+* Content will remain unchanged (Generate html: False header)

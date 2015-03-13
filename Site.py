@@ -23,6 +23,7 @@ class Site:
 		self.page_template=''
 		self.sitemap=''
 		self.exclude_sitemap=False
+		self.absolute_urls=False
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -48,6 +49,11 @@ class Site:
 			pass
 
 		try:
+			self.absolute_urls=config.get(CONFROOT,'absolute_urls')
+		except:
+			pass
+
+		try:
 			page_template=join(self.site_dir, 'page.template')
 			self.page_template=load_file(page_template)
 		except:
@@ -58,7 +64,10 @@ class Site:
 		try:
 			# Get home page, append it as first item
 			home_page_path=self.get_dir_default_file(content_path)
-			home_page=Page(home_page_path, self.site_dir)
+			if self.absolute_urls:
+				home_page=Page(home_page_path, self.site_dir, self.base_url)
+			else:
+				home_page=Page(home_page_path, self.site_dir)
 			self.pages.append(home_page)
 		except:
 			pass
@@ -154,7 +163,11 @@ class Site:
 				dir_page=self.get_dir_default_file(f_path)
 
 				if dir_page:
-					p=Page(dir_page, self.site_dir)
+					if self.absolute_urls:
+						p=Page(dir_page, self.site_dir, self.base_url)
+					else:
+						p=Page(dir_page, self.site_dir)
+
 					parent.append(p)
 					self.load_pages(f_path, p.children)
 				else:
@@ -162,7 +175,10 @@ class Site:
 			elif is_default_file(f):
 				pass
 			elif isfile(f_path):
-				parent.append(Page(f_path, self.site_dir))
+				if self.absolute_urls:
+					parent.append(Page(f_path, self.site_dir, self.base_url))
+				else:
+					parent.append(Page(f_path, self.site_dir))
 			else:
 				raise Exception("Unknown object '%s'" % f_path)
 

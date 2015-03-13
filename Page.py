@@ -8,7 +8,7 @@ from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file
 class Page:
 	""" Bread and butter of pagegen """
 
-	def __init__(self, path, site_dir):
+	def __init__(self, path, site_dir, base_url=''):
 		self.url_path=''
 		self.children=[]
 		self.rst=''
@@ -18,6 +18,8 @@ class Page:
 		self.html=''
 		self.menu=''
 		self.extension=''
+		self.base_url=base_url
+
 
 		self.headers={
 			'sitemap exclude': False, 
@@ -50,14 +52,17 @@ class Page:
 		# Replace anything that isn't a charachter, number, slash, underscore or hyphen with a hyphen
 		path_part=sub('[^/a-z0-9-_.]', '-', path_part)
 
-		# Remove default file for directories, makes things look nice
-		if is_default_file(path_part):
+		# If not using absolute paths, remove default file for directories, makes things look nice
+		if self.base_url == '' and is_default_file(path_part):
 			if path_part == '/%s%s' % (DIRDEFAULTFILE, self.extension):
 				self.url_path='/'
 			else:
 				self.url_path=sub('/%s%s$' % (DIRDEFAULTFILE, self.extension), '', path_part)+'/'
 		else:
 			self.url_path=path_part
+
+		if self.base_url != '':
+			self.url_path=self.base_url+self.url_path
 
 		# Replace / with os dir seperator for target path
 		path_part=path_part.replace('/', sep)
