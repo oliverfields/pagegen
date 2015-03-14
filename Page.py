@@ -8,7 +8,7 @@ from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file
 class Page:
 	""" Bread and butter of pagegen """
 
-	def __init__(self, path, site_dir, base_url=''):
+	def __init__(self, path, site_dir, parent=False, base_url=''):
 		self.url_path=''
 		self.children=[]
 		self.rst=''
@@ -17,8 +17,10 @@ class Page:
 		self.target_path=''
 		self.html=''
 		self.menu=''
+		self.crumb_trail=[]
 		self.extension=''
 		self.base_url=base_url
+		self.parent=parent
 
 
 		self.headers={
@@ -30,6 +32,13 @@ class Page:
 		}
 
 		self.load_page_from_path(self.source_path, site_dir)
+
+
+	def generate_crumb_trail(self):
+		html=''
+		for p in self.crumb_trail:
+			html+=' > %s' % p.title
+		return html
 
 
 	def set_paths(self, path, site_path):

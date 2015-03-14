@@ -78,16 +78,16 @@ class Site:
 			# Get home page, append it as first item
 			home_page_path=self.get_dir_default_file(content_path)
 			if self.absolute_urls:
-				home_page=Page(home_page_path, self.site_dir, self.base_url)
+				home_page=Page(home_page_path, self.site_dir, False, self.base_url)
 			else:
-				home_page=Page(home_page_path, self.site_dir)
+				home_page=Page(home_page_path, self.site_dir, False)
 			self.pages.append(home_page)
 		except:
 			pass
 
 		# Load pages
 		try:
-			self.load_pages(content_path, self.pages)
+			self.load_pages(content_path, self.pages, home_page)
 		except Exception as e:
 			raise Exception('Unable to load content: %s' % e)
 
@@ -96,7 +96,6 @@ class Site:
 
 	def update_place_holder(self, template, name, value):
 		return template.replace('{{%s}}' % name, value)
-
 
 	def generate_pages(self, pages):
 		''' Recursively iterate over pages and generate html for pages '''
@@ -126,9 +125,18 @@ class Site:
 				content=parts['html_body']
 				page_html=self.update_place_holder(page_html, 'content', content)
 
-				# Menu
 				self.generate_menu(self.pages, p)
+				self.generate_crumb_trail(p, p)
 				page_html=self.update_place_holder(page_html, 'menu', p.menu)
+
+				if p.crumb_trail:
+					crumb_trail_html='<ul>'
+					# Skip last item (current), don't want link on that
+					for crumb in p.crumb_trail[:-1]:
+						crumb_trail_html+='<li><a href="%s">%s</a></li>' % (crumb.url_path, crumb.title)
+					crumb_trail_html+='<li>%s</li>' % (p.crumb_trail[-1].title)
+					crumb_trail_html+=('</ul>')
+					page_html=self.update_place_holder(page_html, 'crumb_trail', crumb_trail_html)
 
 				p.html=page_html
 			else:
@@ -168,7 +176,7 @@ class Site:
 		return False
 
 
-	def load_pages(self, dir_path, parent):
+	def load_pages(self, dir_path, siblings, parent):
 		''' Recursively load pages from content directory '''
 
 		file_list = listdir(dir_path)
@@ -183,21 +191,21 @@ class Site:
 
 				if dir_page:
 					if self.absolute_urls:
-						p=Page(dir_page, self.site_dir, self.base_url)
+						p=Page(dir_page, self.site_dir, parent, self.base_url)
 					else:
-						p=Page(dir_page, self.site_dir)
+						p=Page(dir_page, self.site_dir, parent)
 
-					parent.append(p)
-					self.load_pages(f_path, p.children)
+					siblings.append(p)
+					self.load_pages(f_path, p.children, p)
 				else:
 					report_error(1, "Directory '%s' is missing '%s' file" % (f_path, DIRDEFAULTFILE))
 			elif is_default_file(f):
 				pass
 			elif isfile(f_path):
 				if self.absolute_urls:
-					parent.append(Page(f_path, self.site_dir, self.base_url))
+					siblings.append(Page(f_path, self.site_dir, parent, self.base_url))
 				else:
-					parent.append(Page(f_path, self.site_dir))
+					siblings.append(Page(f_path, self.site_dir, parent))
 			else:
 				raise Exception("Unknown object '%s'" % f_path)
 
@@ -232,16 +240,27 @@ class Site:
 
 
 	def save_pages(self, pages):
-		''' Create files and 	directories in target dir '''
+		''' Create files and directories in target dir '''
 
 		for p in pages:
-			if p.children:
+			if p.parent and is_default_file(p.target_path):
 				dir_path=p.target_path.rpartition(sep)[0]
 				makedirs(dir_path)
 				write_file(p.target_path, p.html)
-				self.save_pages(p.children)
+				if p.children:
+					self.save_pages(p.children)
 			else:
 				write_file(p.target_path, p.html)
+
+
+	def generate_crumb_trail(self, crumb_trail_page, page):
+		# page.parent.parent checks for home page, don't want that in trail
+		if page.parent:
+			crumb_trail_page.crumb_trail.insert(0, page.parent)
+			self.generate_crumb_trail(crumb_trail_page, page.parent)
+		# Add current page
+		if page==crumb_trail_page:
+			crumb_trail_page.crumb_trail.append(page)
 
 
 	def generate_menu(self, pages, page, level=1):
@@ -254,26 +273,8 @@ class Site:
 			if p.headers['menu exclude'] == 'True':
 				continue
 
-			# Check if this page is parent of examined page
-			try:
-				if page.url_path.split('/')[level] == p.url_path.split('/')[level]:
-					section_match=True
-				else:
-					section_match=False
-			except:
-				section_match=False
-
-			# Check if examined page is same as current page
 			if p == page:
-				page_match=True
-			else:
-				page_match=False
-
-			# Check if page is a parent of current page
-			if page_match:
 				css_class=' class="selected_page"'
-			elif section_match:
-				css_class=' class="active_section"'
 			else:
 				css_class=''
 
