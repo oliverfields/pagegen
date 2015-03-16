@@ -8,6 +8,7 @@ from Page import Page
 from docutils.core import publish_parts
 from distutils.dir_util import copy_tree
 from re import sub
+from datetime import date
 
 
 class Site:
@@ -82,8 +83,8 @@ class Site:
 			else:
 				home_page=Page(home_page_path, self.site_dir, False)
 			self.pages.append(home_page)
-		except:
-			pass
+		except Exception as e:
+			raise Exception("Unable to find home page '%s': %s" % (DIRDEFAULTFILE, e))
 
 		# Load pages
 		try:
@@ -125,9 +126,19 @@ class Site:
 				content=parts['html_body']
 				page_html=self.update_place_holder(page_html, 'content', content)
 
+
+
 				self.generate_menu(self.pages, p)
 				self.generate_crumb_trail(p, p)
 				page_html=self.update_place_holder(page_html, 'menu', p.menu)
+
+				# Replace time variables year, month and day
+				Y=date.today().strftime('%Y')
+				M=date.today().strftime('%m')
+				D=date.today().strftime('%d')
+				page_html=self.update_place_holder(page_html, 'year', Y)
+				page_html=self.update_place_holder(page_html, 'month', M)
+				page_html=self.update_place_holder(page_html, 'day', D)
 
 				if p.crumb_trail:
 					crumb_trail_html='<ul>'
