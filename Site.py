@@ -1,8 +1,8 @@
 from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE
 from ConfigParser import ConfigParser
 from distutils.version import LooseVersion
-from os.path import isdir, join, isfile, exists
-from os import listdir, getcwd, sep, makedirs, symlink
+from os.path import isdir, join, isfile, exists, islink
+from os import listdir, getcwd, sep, makedirs, symlink, remove, unlink
 from shutil import rmtree
 from Page import Page
 from docutils.core import publish_parts
@@ -165,7 +165,7 @@ class Site:
 		for p in pages:
 			if p.target_path in page_target_paths:
 				report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (p.target_path.replace(getcwd()+sep,''), p.source_path.replace(getcwd()+sep,''), page_target_paths[p.target_path].replace(getcwd()+sep,'')))
-			elif p.target_path.endswith(SITEMAPFILE) and self.exclude_sitemap == 'False':
+			elif (p.target_path.endswith(SITEMAPFILE) and self.exclude_sitemap == 'False') or p.target_path==join(self.site_dir, INCLUDEDIR):
 				report_error(1,"Page '%s' illegal name '%s'" % (p.source_path.replace(getcwd()+sep,''), SITEMAPFILE))
 			else:
 				page_target_paths[p.target_path]=p.source_path
@@ -227,7 +227,19 @@ class Site:
 		# Delete target dir if exists
 		if exists(self.target_dir):
 			try:
-				rmtree(self.target_dir)
+				for f in listdir(self.target_dir):
+					item=join(self.target_dir, f)
+					if islink(item):
+						unlink(item)
+					elif isdir(item):
+						rmtree(item)
+					else:
+						remove(item)
+				
+			except Exception as e:
+				raise Exception(e)
+		else:
+			try:
 				makedirs(self.target_dir)
 			except Exception as e:
 				raise Exception(e)

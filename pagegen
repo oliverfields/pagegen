@@ -2,7 +2,7 @@
 
 from Utility import report_error, report_notice, load_config, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR
 from os.path import expanduser, basename, join, isfile
-from os import getcwd, listdir, sep, access, X_OK, putenv
+from os import getcwd, listdir, sep, access, X_OK, putenv, chdir
 from sys import exit, argv
 from distutils.dir_util import copy_tree
 from Site import Site
@@ -36,6 +36,7 @@ def gen_mode(config):
 
 	try:
 		s=Site(site_dir, site_conf_path)
+		chdir(site_dir)
 	except Exception as e:
 		report_error(1, "Unable to load site: %s" % e)
 
