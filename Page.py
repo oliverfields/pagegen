@@ -21,6 +21,7 @@ class Page:
 		self.extension=''
 		self.base_url=base_url
 		self.parent=parent
+		self.menu_title=''
 
 
 		self.headers={
@@ -29,6 +30,7 @@ class Page:
 			'description': None,
 			'title': None,
 			'generate html': True,
+			'menu title': None,
 		}
 
 		self.load_page_from_path(self.source_path, site_dir)
@@ -153,6 +155,11 @@ class Page:
 			self.title=self.headers['title']
 		else:
 			self.set_title_from_path(path)
+
+		if self.headers['menu title'] != None:
+			self.menu_title=self.headers['menu title']
+		else:
+			self.menu_title=self.title
 
 		if file_extension:
 			self.extension=file_extension

@@ -144,8 +144,8 @@ class Site:
 					crumb_trail_html='<ul>'
 					# Skip last item (current), don't want link on that
 					for crumb in p.crumb_trail[:-1]:
-						crumb_trail_html+='<li><a href="%s">%s</a></li>' % (crumb.url_path, crumb.title)
-					crumb_trail_html+='<li>%s</li>' % (p.crumb_trail[-1].title)
+						crumb_trail_html+='<li><a href="%s">%s</a></li>' % (crumb.url_path, crumb.menu_title)
+					crumb_trail_html+='<li>%s</li>' % (p.crumb_trail[-1].menu_title)
 					crumb_trail_html+=('</ul>')
 					page_html=self.update_place_holder(page_html, 'crumb_trail', crumb_trail_html)
 
@@ -302,13 +302,13 @@ class Site:
 				css_class=''
 
 			if p.children:
-				page.menu+='<li><a href="%s"%s>%s</a>' % (p.url_path, css_class, p.title)
+				page.menu+='<li><a href="%s"%s>%s</a>' % (p.url_path, css_class, p.menu_title)
 				page.menu+='<ul>'
 				self.generate_menu(p.children, page, level=level+1)
 				page.menu+='</ul>'
 				page.menu+='</li>'
 			else:
-				page.menu+='<li><a href="%s"%s>%s</a></li>' % (p.url_path, css_class, p.title)
+				page.menu+='<li><a href="%s"%s>%s</a></li>' % (p.url_path, css_class, p.menu_title)
 
 		if level==1:
 			if page.menu=='<ul>':
