@@ -108,6 +108,7 @@ class Page:
 
 	def set_header(self, line):
 		''' Try to set header value, return false if fail '''
+
 		if ':' in line:
 			potential_header=line.split(':')
 			potential_name=potential_header[0].lower().strip()
@@ -140,6 +141,10 @@ class Page:
 			if in_header is None and self.set_header(line):
 				in_header=True
 				continue
+
+			# If blank line definitely not in header
+			if line == '':
+				in_header=False
 
 			# First line was a header
 			if in_header:
