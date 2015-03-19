@@ -25,9 +25,10 @@ class Site:
 		self.page_template=''
 		self.sitemap=''
 		self.exclude_sitemap=False
-		self.absolute_urls=False
+		self.absolute_urls=True
 		self.symlink_include=False
 		self.page_titles=False
+		self.url_include_index=True
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -58,6 +59,11 @@ class Site:
 			pass
 
 		try:
+			self.url_include_index=config.get(CONFROOT,'url_include_index')
+		except:
+			pass
+
+		try:
 			self.symlink_include=config.get(CONFROOT,'symlink_include')
 		except:
 			pass
@@ -78,10 +84,8 @@ class Site:
 		try:
 			# Get home page, append it as first item
 			home_page_path=self.get_dir_default_file(content_path)
-			if self.absolute_urls:
-				home_page=Page(home_page_path, self.site_dir, False, self.base_url)
-			else:
-				home_page=Page(home_page_path, self.site_dir, False)
+
+			home_page=self.get_directory_page(home_page_path, False)
 			self.pages.append(home_page)
 		except Exception as e:
 			raise Exception("Unable to find home page '%s': %s" % (DIRDEFAULTFILE, e))
@@ -94,6 +98,24 @@ class Site:
 
 		self.check_pages(self.pages)
 
+
+	def get_directory_page(self, path, parent):
+		''' Return page object set according to configuration settings '''
+		if self.absolute_urls != True:
+			base_url=''
+		else:
+			base_url=self.base_url
+
+		if self.url_include_index != True:
+			url_include_index=False
+		else:
+			url_include_index=True
+
+		p=Page(path, self.site_dir, parent, base_url, url_include_index)
+		print "Abs url: %s Inc index: %s Path: %s" % (self.absolute_urls, self.url_include_index, path)
+		print '%s %s' % (p.source_path, p.url_path)
+		print ''
+		return p
 
 	def update_place_holder(self, template, name, value):
 		return template.replace('{{%s}}' % name, value)
@@ -201,11 +223,7 @@ class Site:
 				dir_page=self.get_dir_default_file(f_path)
 
 				if dir_page:
-					if self.absolute_urls:
-						p=Page(dir_page, self.site_dir, parent, self.base_url)
-					else:
-						p=Page(dir_page, self.site_dir, parent)
-
+					p=self.get_directory_page(dir_page, parent)
 					siblings.append(p)
 					self.load_pages(f_path, p.children, p)
 				else:
@@ -213,7 +231,7 @@ class Site:
 			elif is_default_file(f):
 				pass
 			elif isfile(f_path):
-				if self.absolute_urls:
+				if self.absolute_urls != True:
 					siblings.append(Page(f_path, self.site_dir, parent, self.base_url))
 				else:
 					siblings.append(Page(f_path, self.site_dir, parent))

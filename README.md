@@ -1,1 +1,4 @@
-Pagegen v2 - rewrite from bash to python
+[Pagegen](http://pagegen.phnd.net) - Every page is a file
+
+Python static site generator with reStructuredText markup.
+
