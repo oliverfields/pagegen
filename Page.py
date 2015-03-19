@@ -1,8 +1,9 @@
-from os import sep
+from os import sep, access, X_OK
 from os.path import splitext, join
 from re import sub
 from datetime import datetime
-from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, DEFAULTPAGETEMPLATE
+from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, DEFAULTPAGETEMPLATE, load_file, NEWLINE
+from subprocess import check_output
 
 
 class Page:
@@ -34,7 +35,16 @@ class Page:
 			'template': DEFAULTPAGETEMPLATE,
 		}
 
-		self.load_page_from_path(self.source_path, site_dir)
+		# If file is executable then the contents from it's stdout, else just read the file
+		if access(self.source_path, X_OK):
+			try:
+				content=check_output(self.source_path)
+			except Exception as e:
+				report_error(1,"File '%s' execution failed: %s" % (self.source_path, e))
+		else:
+			content=load_file(self.source_path)
+
+		self.load_page_content(self.source_path, content, site_dir)
 
 
 	def generate_crumb_trail(self):
@@ -113,7 +123,7 @@ class Page:
 			return False
 
 
-	def load_page_from_path(self, path, site_dir):
+	def load_page_content(self, path, content, site_dir):
 		'''
 		Parse source setting header and content attributes
 		Format:
@@ -125,24 +135,23 @@ class Page:
 		'''
 
 		in_header=None
-		with open(path) as f:
-			for line in f:
-				# If file starts with lines that match possible headers, then grab values, after first blank line rest is content.
-				if in_header is None and self.set_header(line):
-					in_header=True
-					continue
+		for line in content.split(NEWLINE):
+			# If file starts with lines that match possible headers, then grab values, after first blank line rest is content.
+			if in_header is None and self.set_header(line):
+				in_header=True
+				continue
 
-				# First line was a header
-				if in_header:
-					# Set header
-					if self.set_header(line):
-						continue
-					# If blank line next lines are content
-					else:
-						in_header=False
-						continue
+			# First line was a header
+			if in_header:
+				# Set header
+				if self.set_header(line):
+					continue
+				# If blank line next lines are content
 				else:
-					self.rst+=line
+					in_header=False
+					continue
+			else:
+				self.rst+=line+NEWLINE
 
 		# Split off extension
 		path_part, file_extension=splitext(path)

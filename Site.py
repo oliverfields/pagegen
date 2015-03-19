@@ -112,7 +112,7 @@ class Site:
 		return template.replace('{{%s}}' % name, value)
 
 	def generate_pages(self, pages):
-		''' Recursively iterate over pages and generate html for pages '''
+		''' Recursively iterate over and generate html for pages '''
 		
 		for p in pages:
 			if p.headers['generate html'] == True:

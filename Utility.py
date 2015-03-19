@@ -21,6 +21,7 @@ SITEMAPFILE='sitemap.txt'
 HOOKDIR='hooks'
 DEFAULTPAGETEMPLATE='page.tpl'
 TEMPLATEDIR='templates'
+NEWLINE='\n'
 
 
 def report_error(code, message):
