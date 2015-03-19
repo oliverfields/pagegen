@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+bin_link="/usr/bin/pagegen"
+
+if [ -e "$bin_link" ]; then
+  rm "$bin_link"
+fi
+
+ln -s /usr/lib/pagegen/pagegen "$bin_link"

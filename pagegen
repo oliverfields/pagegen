@@ -13,7 +13,7 @@ verbose=False
 
 
 def usage(exit_after=True):
-	print 'Usage: %s <gen|init>' % (basename(argv[0]))
+	print 'Usage: %s [init]' % (basename(argv[0]))
 
 	if exit_after:
 		exit(0)
@@ -22,11 +22,13 @@ def usage(exit_after=True):
 def exec_hook(hook):
 	''' Run specified hook if executable '''
 	if isfile(hook) and access(hook, X_OK):
-		if call(hook) != 0:
-			report_error(1,"Hook '%s' execution failed" % hook)
+		try:
+			call(hook)
+		except Exception as e:
+			report_error(1,"Hook '%s' execution failed: %s" % (hook, e))
 
 
-def gen_mode(config):
+def gen_mode():
 	site_conf_path=get_site_conf_path()
 
 	if not site_conf_path:
@@ -85,10 +87,6 @@ def init_mode(config):
 
 # Parse CLI arguments
 if __name__ == '__main__':
-	try:
-		mode=argv[1]
-	except Exception as e:
-		usage()
 
 	possible_configs=[
 		getcwd()+sep+PAGEGENCONF,
@@ -98,9 +96,20 @@ if __name__ == '__main__':
 
 	config=load_config(possible_configs)
 
-	if mode == "gen":
-		gen_mode(config)
-	elif mode == "init":
+	try:
+		sys.path.append(config.get(CONFROOT, 'lib_dir'))
+	except:
+		pass
+
+	if len(argv) == 1:
+		gen_mode()
+	elif len(argv) == 2:
+		try:
+			
+			if argv[1] != "init":
+				usage
+		except:
+			usage
 		init_mode(config)
 	else:
 		usage(False)

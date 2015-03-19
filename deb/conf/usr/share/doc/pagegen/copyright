@@ -1,0 +1,19 @@
+Pagegen is written and packaged by Oliver Fields <oliver@phnd.net>.
+
+Program Copyright (C) 1998-2015 Oliver Fields 
+
+Pagegen is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3 of the License, or (at your
+option) any later version.
+
+GnuPG is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License with
+your Debian GNU system, in /usr/share/common-licenses/GPL, or with the
+Debian GNU gnupg source package as the file COPYING.  If not, see
+<http://www.gnu.org/licenses/> or write to the Free Software Foundation,
+Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
