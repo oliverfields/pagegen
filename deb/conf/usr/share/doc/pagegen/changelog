@@ -1,4 +1,9 @@
 2015-03-19  Oliver Fields  <oliver@phnd.net>
 
+ * url_include_index setting added
+ * deb build script
+
+2015-03-19  Oliver Fields  <oliver@phnd.net>
+
  * Initial release
 

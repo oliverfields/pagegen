@@ -19,6 +19,8 @@ TARGETDIR='site'
 INCLUDEDIR='include'
 SITEMAPFILE='sitemap.txt'
 HOOKDIR='hooks'
+DEFAULTPAGETEMPLATE='page.tpl'
+TEMPLATEDIR='templates'
 
 
 def report_error(code, message):

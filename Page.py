@@ -2,7 +2,7 @@ from os import sep
 from os.path import splitext, join
 from re import sub
 from datetime import datetime
-from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file
+from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, DEFAULTPAGETEMPLATE
 
 
 class Page:
@@ -31,6 +31,7 @@ class Page:
 			'title': None,
 			'generate html': True,
 			'menu title': None,
+			'template': DEFAULTPAGETEMPLATE,
 		}
 
 		self.load_page_from_path(self.source_path, site_dir)
@@ -106,6 +107,7 @@ class Page:
 				self.headers[potential_name]=potential_value.strip()
 				return self.headers[potential_name]
 			else:
+				report_warning("Unknown header in '%s': %s" % (self.source_path, line))
 				return False
 		else:
 			return False
@@ -122,11 +124,11 @@ class Page:
 		First line must either be header or content
 		'''
 
-		in_header=False
+		in_header=None
 		with open(path) as f:
 			for line in f:
 				# If file starts with lines that match possible headers, then grab values, after first blank line rest is content.
-				if self.set_header(line):
+				if in_header is None and self.set_header(line):
 					in_header=True
 					continue
 

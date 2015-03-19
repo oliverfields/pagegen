@@ -1,4 +1,4 @@
-from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE
+from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR
 from ConfigParser import ConfigParser
 from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists, islink
@@ -22,7 +22,6 @@ class Site:
 		self.omit_menu=False
 		self.ignore=[]
 		self.home_menu_name=''
-		self.page_template=''
 		self.sitemap=''
 		self.exclude_sitemap=False
 		self.absolute_urls=True
@@ -73,12 +72,6 @@ class Site:
 		except:
 			pass
 
-		try:
-			page_template=join(self.site_dir, 'page.template')
-			self.page_template=load_file(page_template)
-		except:
-			raise Exception("Unable to load page template: '%s'" % page_template)
-
 		content_path=join(self.site_dir, CONTENTDIR)
 		# Try to load home page, ok if not there
 		try:
@@ -112,9 +105,7 @@ class Site:
 			url_include_index=True
 
 		p=Page(path, self.site_dir, parent, base_url, url_include_index)
-		print "Abs url: %s Inc index: %s Path: %s" % (self.absolute_urls, self.url_include_index, path)
-		print '%s %s' % (p.source_path, p.url_path)
-		print ''
+
 		return p
 
 	def update_place_holder(self, template, name, value):
@@ -125,8 +116,10 @@ class Site:
 		
 		for p in pages:
 			if p.headers['generate html'] == True:
-
-				page_html=self.page_template
+				try:
+					page_html=load_file(join(self.site_dir, TEMPLATEDIR, p.headers['template']))
+				except:
+					raise Exception("Unable to load page template: '%s'" % join(self.site_dir, TEMPLATEDIR, p.headers['template']))
 
 				page_html=self.update_place_holder(page_html, 'base_url', self.base_url)
 				page_html=self.update_place_holder(page_html, 'title', p.title)
@@ -147,8 +140,6 @@ class Site:
 				parts=publish_parts(rst, writer_name='html', settings_overrides={'doctitle_xform':False})
 				content=parts['html_body']
 				page_html=self.update_place_holder(page_html, 'content', content)
-
-
 
 				self.generate_menu(self.pages, p)
 				self.generate_crumb_trail(p, p)
@@ -232,9 +223,9 @@ class Site:
 				pass
 			elif isfile(f_path):
 				if self.absolute_urls != True:
-					siblings.append(Page(f_path, self.site_dir, parent, self.base_url))
-				else:
 					siblings.append(Page(f_path, self.site_dir, parent))
+				else:
+					siblings.append(Page(f_path, self.site_dir, parent, self.base_url))
 			else:
 				raise Exception("Unknown object '%s'" % f_path)
 
