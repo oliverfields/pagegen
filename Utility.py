@@ -48,7 +48,7 @@ def load_config(files):
 			break
 
 	if not conf_path:
-		repot_error(1, "Pagegen.conf, not found in '%s', '%s' or '%s'" % (current_conf, home_conf, etc_conf))
+		report_error(1, "Pagegen.conf, not found in current, home or etc directories")
 
 	try:
 		# Don't need section headers so just add a dummy root section before passing to confpars

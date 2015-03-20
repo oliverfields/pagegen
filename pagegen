@@ -89,9 +89,9 @@ def init_mode(config):
 if __name__ == '__main__':
 
 	possible_configs=[
-		getcwd()+sep+PAGEGENCONF,
-		HOME+sep+'.config'+sep+PAGEGENCONF,
-		sep+'etc'+sep+PAGEGENCONF
+		join(getcwd(), PAGEGENCONF),
+		join(HOME, '.config', PAGEGENCONF),
+		join(sep+'etc', PAGEGENCONF)
 	]
 
 	config=load_config(possible_configs)
