@@ -155,10 +155,8 @@ class Site:
 
 				if p.crumb_trail:
 					crumb_trail_html='<ul>'
-					# Skip last item (current), don't want link on that
-					for crumb in p.crumb_trail[:-1]:
+					for crumb in p.crumb_trail:
 						crumb_trail_html+='<li><a href="%s">%s</a></li>' % (crumb.url_path, crumb.menu_title)
-					crumb_trail_html+='<li>%s</li>' % (p.crumb_trail[-1].menu_title)
 					crumb_trail_html+=('</ul>')
 					page_html=self.update_place_holder(page_html, 'crumb_trail', crumb_trail_html)
 
