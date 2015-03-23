@@ -142,6 +142,10 @@ class Page:
 				in_header=True
 				continue
 
+			if line == '' and in_header:
+				in_header=False
+				continue
+
 			# If blank line definitely not in header
 			if line == '':
 				in_header=False
@@ -157,6 +161,9 @@ class Page:
 					continue
 			else:
 				self.rst+=line+NEWLINE
+
+		# Strip last new line
+		self.rst=self.rst.rstrip(NEWLINE)
 
 		# Split off extension
 		path_part, file_extension=splitext(path)
