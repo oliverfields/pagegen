@@ -28,6 +28,7 @@ class Site:
 		self.symlink_include=False
 		self.page_titles=False
 		self.url_include_index=True
+		self.default_extension=''
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -54,6 +55,11 @@ class Site:
 
 		try:
 			self.absolute_urls=config.get(CONFROOT,'absolute_urls')
+		except:
+			pass
+
+		try:
+			self.default_extension=config.get(CONFROOT,'default_extension')
 		except:
 			pass
 
@@ -85,7 +91,7 @@ class Site:
 
 		# Load pages
 		try:
-			self.load_pages(content_path, self.pages, home_page)
+			self.load_pages(content_path, self.pages, home_page, self.default_extension)
 		except Exception as e:
 			raise Exception('Unable to load content: %s' % e)
 
@@ -104,7 +110,7 @@ class Site:
 		else:
 			url_include_index=True
 
-		p=Page(path, self.site_dir, parent, base_url, url_include_index)
+		p=Page(path, self.site_dir, parent=parent, base_url=base_url, url_include_index=url_include_index, default_extension=self.default_extension)
 
 		return p
 
@@ -198,7 +204,7 @@ class Site:
 		return False
 
 
-	def load_pages(self, dir_path, siblings, parent):
+	def load_pages(self, dir_path, siblings, parent, default_extension):
 		''' Recursively load pages from content directory '''
 
 		file_list = listdir(dir_path)
@@ -214,16 +220,16 @@ class Site:
 				if dir_page:
 					p=self.get_directory_page(dir_page, parent)
 					siblings.append(p)
-					self.load_pages(f_path, p.children, p)
+					self.load_pages(f_path, p.children, p, self.default_extension)
 				else:
 					report_error(1, "Directory '%s' is missing '%s' file" % (f_path, DIRDEFAULTFILE))
 			elif is_default_file(f):
 				pass
 			elif isfile(f_path):
 				if self.absolute_urls != True:
-					siblings.append(Page(f_path, self.site_dir, parent))
+					siblings.append(Page(f_path, self.site_dir, parent=parent, default_extension=self.default_extension))
 				else:
-					siblings.append(Page(f_path, self.site_dir, parent, self.base_url))
+					siblings.append(Page(f_path, self.site_dir, parent=parent, base_url=self.base_url, default_extension=self.default_extension))
 			else:
 				raise Exception("Unknown object '%s'" % f_path)
 

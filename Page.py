@@ -9,8 +9,8 @@ from subprocess import check_output
 class Page:
 	""" Bread and butter of pagegen """
 
-	def __init__(self, path, site_dir, parent=False, base_url='', url_include_index=True):
-		self.url_path=''
+	def __init__(self, path, site_dir, parent=False, base_url='', url_include_index=True, default_extension=''):
+		self.url_path='',
 		self.children=[]
 		self.rst=''
 		self.title=''
@@ -44,7 +44,7 @@ class Page:
 		else:
 			content=load_file(self.source_path)
 
-		self.load_page_content(self.source_path, content, site_dir)
+		self.load_page_content(self.source_path, content, site_dir,  default_extension)
 
 
 	def generate_crumb_trail(self):
@@ -124,7 +124,7 @@ class Page:
 			return False
 
 
-	def load_page_content(self, path, content, site_dir):
+	def load_page_content(self, path, content, site_dir, default_extension):
 		'''
 		Parse source setting header and content attributes
 		Format:
@@ -180,5 +180,9 @@ class Page:
 
 		if file_extension:
 			self.extension=file_extension
+			self.set_paths(path, site_dir)
+		else:
+			self.extension=default_extension
+			self.set_paths(path+self.extension, site_dir)
 
-		self.set_paths(path, site_dir)
+		

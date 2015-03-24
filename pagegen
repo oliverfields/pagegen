@@ -7,13 +7,15 @@ from sys import exit, argv
 from distutils.dir_util import copy_tree
 from Site import Site
 from subprocess import call
+from getopt import getopt, GetoptError
 
 # Variables
 verbose=False
+version='2.0.0'
 
 
 def usage(exit_after=True):
-	print 'Usage: %s [init]' % (basename(argv[0]))
+	print 'Usage: %s [-i|--init] [-g|--generate] [-c|--config <site config file>] [-p|--pagegen-config <pagegen config file>] [-v|--version]' % (basename(argv[0]))
 
 	if exit_after:
 		exit(0)
@@ -28,13 +30,15 @@ def exec_hook(hook):
 			report_error(1,"Hook '%s' execution failed: %s" % (hook, e))
 
 
-def gen_mode():
-	site_conf_path=get_site_conf_path()
+def gen_mode(site_conf_path=False):
 
 	if not site_conf_path:
-		report_error(1, "Not in pagegen directory tree, unable to find site.conf in current folder or parent folders")
+		site_conf_path=get_site_conf_path()
 
-	site_dir=site_conf_path[:-len(sep+SITECONF)]
+	if not isfile(site_conf_path):
+		report_error(1, "Not in pagegen directory tree, unable to find '%s'" % site_conf_path)
+
+	site_dir=site_conf_path[:-len(sep+basename(site_conf_path))]
 
 	try:
 		s=Site(site_dir, site_conf_path)
@@ -73,7 +77,11 @@ def gen_mode():
 def init_mode(config):
 	''' Copy skeleton directory to current directory for basic setup '''
 
-	skel_dir=config.get(CONFROOT, 'skel_dir')
+	try:
+		skel_dir=config.get(CONFROOT, 'skel_dir')
+	except Exception as e:
+		report_error(1, "Unable to get skel_dir value from pagegen.conf: %s" % e)
+
 	root_dir=getcwd()
 
 	if listdir(root_dir):
@@ -88,11 +96,38 @@ def init_mode(config):
 # Parse CLI arguments
 if __name__ == '__main__':
 
+	# May be overwritten by -c arg
 	possible_configs=[
 		join(getcwd(), PAGEGENCONF),
 		join(HOME, '.config', PAGEGENCONF),
 		join(sep+'etc', PAGEGENCONF)
 	]
+
+	try:
+		opts, args=getopt(argv[1:],"igvc:p:", ["init", "generate", "version", "config=", "pagegen-config="])
+	except GetoptError as e:
+		usage(exit_after=False)
+		report_error(1, "Invalid arguments: %s" % e)
+
+	mode=False
+	site_config=False
+
+	for opt, arg in opts:
+		if opt in ('-i', '--init'): 
+			mode="init"
+		elif opt in ('-g', '--generate'):
+			mode='gen'
+		elif opt in ('-v', '--version'):
+			print("Pagegen %s" % version)
+			exit(0)
+		elif opt in ('-c', '--config'):
+			site_config=arg.lstrip('=')
+			# Add current dir absolute path if supplied releative path argument
+			if not site_config.startswith(sep):
+				site_config=join(getcwd(), site_config)
+
+		elif opt in ('-p', '--pagegen-config'):
+			possible_configs=[arg.lstrip('=')]
 
 	config=load_config(possible_configs)
 
@@ -101,16 +136,9 @@ if __name__ == '__main__':
 	except:
 		pass
 
-	if len(argv) == 1:
-		gen_mode()
-	elif len(argv) == 2:
-		try:
-			
-			if argv[1] != "init":
-				usage
-		except:
-			usage
+	if mode == 'gen':
+		gen_mode(site_config)
+	elif mode == 'init':
 		init_mode(config)
 	else:
-		usage(False)
-		report_error(1, 'Unknown mode "%s"' % mode)
+		usage(exit_after=True)

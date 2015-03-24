@@ -48,7 +48,7 @@ def load_config(files):
 			break
 
 	if not conf_path:
-		report_error(1, "Pagegen.conf, not found in current, home or etc directories")
+		report_error(1, "pagegen.conf, not found in current, home or etc directories")
 
 	try:
 		# Don't need section headers so just add a dummy root section before passing to confpars
@@ -62,8 +62,11 @@ def load_config(files):
 	return c
 
 
-def get_site_conf_path():
+def get_site_conf_path(conf_file=False):
 	''' Return path of site.conf, either current working one or one of its parents '''
+
+	if not conf_file:
+		conf_file=SITECONF
 
 	cwd=getcwd()
 	dirs=cwd.split(sep)
@@ -74,7 +77,7 @@ def get_site_conf_path():
 		site_dir=''
 		for x in range(0, i):
 			site_dir+=sep+dirs[x]
-		site_conf=site_dir+sep+SITECONF
+		site_conf=site_dir+sep+conf_file
 		if isfile(site_conf):
 			return site_conf
 
