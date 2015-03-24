@@ -335,7 +335,10 @@ class Site:
 		for p in pages:
 			if p.headers['sitemap exclude'] == False:
 				if p.children or p.url_path == '/':
-					self.sitemap+='%s%s%s%s\n' % (self.base_url, p.url_path, DIRDEFAULTFILE, p.extension)
+					if self.url_include_index != True:
+						self.sitemap+='%s%s\n' % (self.base_url, p.url_path.rstrip('/'))
+					else:
+						self.sitemap+='%s%s%s%s\n' % (self.base_url, p.url_path, DIRDEFAULTFILE, p.extension)
 					self.generate_sitemap(p.children)
 				else:
 					self.sitemap+='%s%s\n' % (self.base_url, p.url_path)

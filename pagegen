@@ -35,8 +35,8 @@ def gen_mode(site_conf_path=False):
 	if not site_conf_path:
 		site_conf_path=get_site_conf_path()
 
-	if not isfile(site_conf_path):
-		report_error(1, "Not in pagegen directory tree, unable to find '%s'" % site_conf_path)
+	if not site_conf_path:
+		report_error(1, "Not in pagegen directory tree, unable to find a valid site.conf")
 
 	site_dir=site_conf_path[:-len(sep+basename(site_conf_path))]
 
