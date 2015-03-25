@@ -1,11 +1,12 @@
 ''' General utility library '''
 
 from sys import exit, stderr
-from os import listdir, getcwd, sep
+from os import listdir, getcwd, sep, access, X_OK, putenv
 from os.path import join, isdir, isfile, expanduser
 from ConfigParser import RawConfigParser
 from io import StringIO
 from re import match
+from subprocess import call
 
 
 # Constants
@@ -96,3 +97,15 @@ def write_file(file, content):
 
 def is_default_file(file):
 	return match('.*'+DIRDEFAULTFILE+'[.a-z]*$', file)
+
+def exec_hook(hook, env=None):
+	''' Run specified hook if executable '''
+
+	for name, value in env.iteritems():
+		putenv(name, value)
+
+	if isfile(hook) and access(hook, X_OK):
+		try:
+			call(hook)
+		except Exception as e:
+			report_error(1,"Hook '%s' execution failed: %s" % (hook, e))

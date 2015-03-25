@@ -1,12 +1,11 @@
 #!/usr/bin/python
 
-from Utility import report_error, report_notice, load_config, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR
+from Utility import report_error, report_notice, load_config, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_hook
 from os.path import expanduser, basename, join, isfile
-from os import getcwd, listdir, sep, access, X_OK, putenv, chdir
+from os import getcwd, listdir, sep, chdir
 from sys import exit, argv
 from distutils.dir_util import copy_tree
 from Site import Site
-from subprocess import call
 from getopt import getopt, GetoptError
 
 # Variables
@@ -19,15 +18,6 @@ def usage(exit_after=True):
 
 	if exit_after:
 		exit(0)
-
-
-def exec_hook(hook):
-	''' Run specified hook if executable '''
-	if isfile(hook) and access(hook, X_OK):
-		try:
-			call(hook)
-		except Exception as e:
-			report_error(1,"Hook '%s' execution failed: %s" % (hook, e))
 
 
 def gen_mode(site_conf_path=False):
@@ -47,12 +37,14 @@ def gen_mode(site_conf_path=False):
 		report_error(1, "Unable to load site: %s" % e)
 
 	# Set environment variable for hooks
-	putenv('PAGEGEN_SITE_DIR', site_dir)
-	putenv('PAGEGEN_SOURCE_DIR', join(site_dir, CONTENTDIR))
-	putenv('PAGEGEN_TARGET_DIR', join(site_dir, TARGETDIR))
+	envs={
+		'PAGEGEN_SITE_DIR': site_dir,
+		'PAGEGEN_SOURCE_DIR': join(site_dir, CONTENTDIR),
+		'PAGEGEN_TARGET_DIR': join(site_dir, TARGETDIR)
+	}
 
 	# Run pre hook
-	exec_hook(join(site_dir,HOOKDIR,'pre_generate'))
+	exec_hook(join(site_dir,HOOKDIR,'pre_generate'), envs)
 
 	try:
 		s.generate_pages(s.pages)
@@ -71,7 +63,7 @@ def gen_mode(site_conf_path=False):
 		report_error(1, "Unable to copy to target directory '%s': %s" % (s.target_dir, e))
 
 	# Run post hook
-	exec_hook(join(site_dir,HOOKDIR,'post_generate'))
+	exec_hook(join(site_dir,HOOKDIR,'post_generate'), envs)
 
 
 def init_mode(config):

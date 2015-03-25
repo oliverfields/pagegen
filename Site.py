@@ -1,4 +1,4 @@
-from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR
+from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR
 from ConfigParser import ConfigParser
 from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists, islink
@@ -121,6 +121,20 @@ class Site:
 		''' Recursively iterate over and generate html for pages '''
 		
 		for p in pages:
+			# Set environment variable for hooks
+			envs={
+				'PAGEGEN_SITE_DIR': self.site_dir,
+				'PAGEGEN_SOURCE_DIR': join(self.site_dir, CONTENTDIR),
+				'PAGEGEN_TARGET_DIR': join(self.site_dir, TARGETDIR),
+				'PAGEGEN_PAGE_TITLE': p.title,
+				'PAGEGEN_PAGE_URL': p.url_path,
+				'PAGEGEN_PAGE_SOURCE_PATH': p.source_path,
+				'PAGEGEN_PAGE_TARGET_PATH': p.target_path,
+			}
+
+			# Run pre hook
+			exec_hook(join(self.site_dir,HOOKDIR,'pre_generate_page'), envs)
+
 			if p.headers['generate html'] == True:
 				try:
 					page_html=load_file(join(self.site_dir, TEMPLATEDIR, p.headers['template']))
@@ -171,6 +185,8 @@ class Site:
 				p.html=page_html
 			else:
 				p.html=p.rst
+
+			exec_hook(join(self.site_dir,HOOKDIR,'post_generate_page'), envs)
 
 			if p.children:
 				self.generate_pages(p.children)
