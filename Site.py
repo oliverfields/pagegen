@@ -159,6 +159,8 @@ class Site:
 				page_html=self.update_place_holder(page_html, 'month', M)
 				page_html=self.update_place_holder(page_html, 'day', D)
 
+				page_html=self.update_place_holder(page_html, 'absolute_url', self.base_url+p.url_path)
+
 				if p.crumb_trail:
 					crumb_trail_html='<ul>'
 					for crumb in p.crumb_trail:
