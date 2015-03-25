@@ -6,7 +6,7 @@ from os.path import join, isdir, isfile, expanduser
 from ConfigParser import RawConfigParser
 from io import StringIO
 from re import match
-from subprocess import call
+from subprocess import check_call
 
 
 # Constants
@@ -106,6 +106,6 @@ def exec_hook(hook, env=None):
 
 	if isfile(hook) and access(hook, X_OK):
 		try:
-			call(hook)
+			check_call(hook)
 		except Exception as e:
 			report_error(1,"Hook '%s' execution failed: %s" % (hook, e))
