@@ -1,6 +1,6 @@
 from os import sep, access, X_OK
 from os.path import splitext, join
-from re import sub
+from re import sub, search
 from datetime import datetime
 from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, DEFAULTPAGETEMPLATE, load_file, NEWLINE
 from subprocess import check_output
@@ -138,6 +138,10 @@ class Page:
 		in_header=None
 		for line in content.split(NEWLINE):
 			# If file starts with lines that match possible headers, then grab values, after first blank line rest is content.
+
+			if in_header is None and search(r'^[a-zA-Z]+', line) is None:
+				in_header=False
+
 			if in_header is None and self.set_header(line):
 				in_header=True
 				continue
