@@ -1,3 +1,9 @@
+pagegen (2.0.2) stable; urgency=low
+
+  * New release of pagegen packaged
+
+ -- Oliver Fields <oliver@phnd.net>  Thu, 26 Mar 2015 21:14:44 +0100
+
 pagegen (2.0.1) stable; urgency=low
 
   * url_include_index site.conf setting added
