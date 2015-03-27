@@ -24,6 +24,7 @@ class Page:
 		self.parent=parent
 		self.menu_title=''
 		self.url_include_index=url_include_index
+		self.hook_environment={}
 
 		self.headers={
 			'sitemap exclude': False, 

@@ -49,7 +49,7 @@ def load_config(files):
 			break
 
 	if not conf_path:
-		report_error(1, "pagegen.conf, not found in current, home or etc directories")
+		report_error(1, "pagegen.conf, not found in current, ~/.config/ or /etc/ directories")
 
 	try:
 		# Don't need section headers so just add a dummy root section before passing to confpars

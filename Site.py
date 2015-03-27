@@ -122,7 +122,7 @@ class Site:
 		
 		for p in pages:
 			# Set environment variable for hooks
-			envs={
+			p.hook_environment={
 				'PAGEGEN_SITE_DIR': self.site_dir,
 				'PAGEGEN_SOURCE_DIR': join(self.site_dir, CONTENTDIR),
 				'PAGEGEN_TARGET_DIR': join(self.site_dir, TARGETDIR),
@@ -133,7 +133,7 @@ class Site:
 			}
 
 			# Run pre hook
-			exec_hook(join(self.site_dir,HOOKDIR,'pre_generate_page'), envs)
+			exec_hook(join(self.site_dir,HOOKDIR,'pre_generate_page'), p.hook_environment)
 
 			if p.headers['generate html'] == True:
 				try:
@@ -185,8 +185,6 @@ class Site:
 				p.html=page_html
 			else:
 				p.html=p.rst
-
-			exec_hook(join(self.site_dir,HOOKDIR,'post_generate_page'), envs)
 
 			if p.children:
 				self.generate_pages(p.children)
@@ -305,6 +303,8 @@ class Site:
 					self.save_pages(p.children)
 			else:
 				write_file(p.target_path, p.html)
+
+			exec_hook(join(self.site_dir,HOOKDIR,'post_generate_page'), p.hook_environment)
 
 
 	def generate_crumb_trail(self, crumb_trail_page, page):
