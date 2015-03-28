@@ -225,15 +225,19 @@ class Site:
 
 			# Check title length if range set
 			if self.title_warn_min > 0 and self.title_warn_max > 0:
-				if self.title_warn_min > len(p.title) or self.title_warn_max < len(p.title):
-					report_warning("Title '%s' length (%s) is outside charecter range of %s-%s '%s'" % (p.title, len(p.title), self.title_warn_min, self.title_warn_max, p.source_path.replace(getcwd(), '')))
+				if self.title_warn_min > len(p.title):
+					report_warning("Title too short '%s' (%s), minimum length %s characters: '%s'" % (p.title, len(p.title), self.title_warn_min, p.source_path.replace(getcwd()+sep, '')))
+				elif self.title_warn_max < len(p.title):
+					report_warning("Title too long '%s' (%s), maximum length %s characters: '%s'" % (p.title, len(p.title), self.title_warn_max, p.source_path.replace(getcwd()+sep, '')))
 
 			# Check description length if range set
 			if self.description_warn_min > 0 and self.description_warn_max > 0:
 				if  p.headers['description'] is None:
 					report_warning("Missing description '%s'" % p.source_path)
-				elif self.description_warn_min > len(p.title) or self.description_warn_max < len(p.headers['description']):
-					report_warning("Description '%s' length (%s) is outside charecter range of %s-%s. Page '%s'" % (p.headers['description'], len(p.headers['description']), self.description_warn_min, self.description_warn_max, p.source_path.replace(getcwd(), '')))
+				elif self.description_warn_min > len(p.headers['description']):
+					report_warning("Description too short '%s' (%s), minimum lenght %s characters: '%s'" % (p.headers['description'], len(p.headers['description']), self.description_warn_min, p.source_path.replace(getcwd()+sep, '')))
+				elif self.description_warn_max < len(p.headers['description']):
+					report_warning("Description too long '%s' (%s), maximum lenght %s characters: '%s'" % (p.headers['description'], len(p.headers['description']), self.description_warn_max, p.source_path.replace(getcwd()+sep, '')))
 
 			if p.target_path in page_target_paths:
 				report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (p.target_path.replace(getcwd()+sep,''), p.source_path.replace(getcwd()+sep,''), page_target_paths[p.target_path].replace(getcwd()+sep,'')))
