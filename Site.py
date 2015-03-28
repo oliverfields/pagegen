@@ -29,6 +29,10 @@ class Site:
 		self.page_titles=False
 		self.url_include_index=True
 		self.default_extension=''
+		self.title_warn_min=0
+		self.title_warn_max=0
+		self.description_warn_min=0
+		self.description_warn_max=0
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -55,6 +59,28 @@ class Site:
 
 		try:
 			self.absolute_urls=config.get(CONFROOT,'absolute_urls')
+		except:
+			pass
+
+		try:
+			title_length_range=config.get(CONFROOT,'title_length_range').split('-')
+			min=int(title_length_range[0])
+			max=int(title_length_range[1])
+
+			if min < max:
+				self.title_warn_min=min
+				self.title_warn_max=max
+		except:
+			pass
+
+		try:
+			description_length_range=config.get(CONFROOT,'description_length_range').split('-')
+			min=int(description_length_range[0])
+			max=int(description_length_range[1])
+
+			if min < max:
+				self.description_warn_min=min
+				self.description_warn_max=max
 		except:
 			pass
 
@@ -196,6 +222,19 @@ class Site:
 		page_target_paths={}
 
 		for p in pages:
+
+			# Check title length if range set
+			if self.title_warn_min > 0 and self.title_warn_max > 0:
+				if self.title_warn_min > len(p.title) or self.title_warn_max < len(p.title):
+					report_warning("Title '%s' length (%s) is outside charecter range of %s-%s '%s'" % (p.title, len(p.title), self.title_warn_min, self.title_warn_max, p.source_path.replace(getcwd(), '')))
+
+			# Check description length if range set
+			if self.description_warn_min > 0 and self.description_warn_max > 0:
+				if  p.headers['description'] is None:
+					report_warning("Missing description '%s'" % p.source_path)
+				elif self.description_warn_min > len(p.title) or self.description_warn_max < len(p.headers['description']):
+					report_warning("Description '%s' length (%s) is outside charecter range of %s-%s. Page '%s'" % (p.headers['description'], len(p.headers['description']), self.description_warn_min, self.description_warn_max, p.source_path.replace(getcwd(), '')))
+
 			if p.target_path in page_target_paths:
 				report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (p.target_path.replace(getcwd()+sep,''), p.source_path.replace(getcwd()+sep,''), page_target_paths[p.target_path].replace(getcwd()+sep,'')))
 			elif (p.target_path.endswith(SITEMAPFILE) and self.exclude_sitemap == 'False') or p.target_path==join(self.site_dir, INCLUDEDIR):
