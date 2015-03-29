@@ -52,6 +52,7 @@ class Site:
 		self.title_warn_max=0
 		self.description_warn_min=0
 		self.description_warn_max=0
+		self.link_sequence=[]
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -133,7 +134,7 @@ class Site:
 			if self.publish_page(home_page):
 				self.pages.append(home_page)
 			else:
-				report_warning("Home page not publishable because publish date not reached yet '%s': %s" % (home_page.headers['publish'], home_page.source_path.replace(getcwd()+sep, '')))
+				report_error(1, "Home page not publishable because publish date not reached yet '%s': %s" % (home_page.headers['publish'], home_page.source_path.replace(getcwd()+sep, '')))
 		except Exception as e:
 			raise Exception("Unable to find home page '%s': %s" % (DIRDEFAULTFILE, e))
 
@@ -144,6 +145,35 @@ class Site:
 			raise Exception('Unable to load content: %s' % e)
 
 		self.check_pages(self.pages)
+		self.set_link_sequence(self.pages)
+		self.set_next_previous_links()
+
+
+	def set_next_previous_links(self):
+		''' Add previous and next links to pages according to thier link sequence '''
+
+		previous=False
+
+		for i, p in enumerate(self.link_sequence):
+
+			try:
+				next=self.link_sequence[i+1]
+			except:
+				next=False
+
+			p.previous_page=previous
+			p.next_page=next
+
+			previous=p
+
+
+	def set_link_sequence(self, pages):
+		''' Add all pages to link sequence (for use with previous/next links) '''
+		for p in pages:
+			if p.headers['link chain exclude'] == False:
+				self.link_sequence.append(p)
+				if p.children:
+					self.set_link_sequence(p.children)
 
 
 	def get_directory_page(self, path, parent):
@@ -206,6 +236,17 @@ class Site:
 					rst=p.title+'\n'+underline+'\n\n'+p.rst
 				else:
 					rst=p.rst
+
+				# Previous and next links
+				if p.previous_page is False:
+					page_html=self.update_place_holder(page_html, 'previous_link', '')
+				else:
+					page_html=self.update_place_holder(page_html, 'previous_link', '<a href="%s">%s</a>' % (p.previous_page.url_path, p.previous_page.menu_title))
+
+				if p.next_page is False:
+					page_html=self.update_place_holder(page_html, 'next_link', '')
+				else:
+					page_html=self.update_place_holder(page_html, 'next_link', '<a href="%s">%s</a>' % (p.next_page.url_path, p.next_page.menu_title))
 
 				parts=publish_parts(rst, writer_name='html', settings_overrides={'doctitle_xform':False})
 				content=parts['html_body']

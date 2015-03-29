@@ -43,6 +43,8 @@ class Page:
 		self.menu_title=''
 		self.url_include_index=url_include_index
 		self.hook_environment={}
+		self.next_page=False
+		self.previous_page=False
 
 		self.headers={
 			'sitemap exclude': False, 
@@ -50,6 +52,7 @@ class Page:
 			'description': None,
 			'title': None,
 			'generate html': True,
+			'link chain exclude': False,
 			'menu title': None,
 			'template': DEFAULTPAGETEMPLATE,
 			# Use string so consistent with what is read from files, all date functions must take this into account
@@ -209,5 +212,3 @@ class Page:
 		else:
 			self.extension=default_extension
 			self.set_paths(path+self.extension, site_dir)
-
-		
