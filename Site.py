@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR
+from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice
 from ConfigParser import ConfigParser
 from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists, islink
@@ -27,6 +27,7 @@ from docutils.core import publish_parts
 from distutils.dir_util import copy_tree
 from re import sub
 from datetime import date
+from datetime import datetime
 
 
 class Site:
@@ -129,7 +130,10 @@ class Site:
 			home_page_path=self.get_dir_default_file(content_path)
 
 			home_page=self.get_directory_page(home_page_path, False)
-			self.pages.append(home_page)
+			if self.publish_page(home_page):
+				self.pages.append(home_page)
+			else:
+				report_warning("Home page not publishable because publish date not reached yet '%s': %s" % (home_page.headers['publish'], home_page.source_path.replace(getcwd()+sep, '')))
 		except Exception as e:
 			raise Exception("Unable to find home page '%s': %s" % (DIRDEFAULTFILE, e))
 
@@ -296,20 +300,39 @@ class Site:
 
 				if dir_page:
 					p=self.get_directory_page(dir_page, parent)
-					siblings.append(p)
-					self.load_pages(f_path, p.children, p, self.default_extension)
+					if self.publish_page(p):
+						siblings.append(p)
+						self.load_pages(f_path, p.children, p, self.default_extension)
 				else:
 					report_error(1, "Directory '%s' is missing '%s' file" % (f_path, DIRDEFAULTFILE))
 			elif is_default_file(f):
 				pass
 			elif isfile(f_path):
 				if self.absolute_urls != True:
-					siblings.append(Page(f_path, self.site_dir, parent=parent, default_extension=self.default_extension))
+					p=Page(f_path, self.site_dir, parent=parent, default_extension=self.default_extension)
 				else:
-					siblings.append(Page(f_path, self.site_dir, parent=parent, base_url=self.base_url, default_extension=self.default_extension))
+					p=Page(f_path, self.site_dir, parent=parent, base_url=self.base_url, default_extension=self.default_extension)
+
+				if self.publish_page(p):
+					siblings.append(p)
 			else:
 				raise Exception("Unknown object '%s'" % f_path)
 
+
+	def publish_page(self, page):
+		''' If page publish header date is today or in past return true. Pagegen dates are always strings, so need to convert '''
+
+		try:
+			page_publish_date=datetime.strptime(page.headers['publish'], DATEFORMAT)
+		except Exception as e:
+			report_error(1, "Unable to parse date '%s': %s: %s" % (page.headers['publish'], page.source_path.replace(getcwd()+sep, ''), e))
+
+		publish=page_publish_date < datetime.now()
+
+		if publish is False:
+			report_notice("Not publishing '%s' (or any child pages) until '%s': %s" % (page.title, page.headers['publish'], page.source_path.replace(getcwd()+sep, '')))
+
+		return publish
 
 	def move_to_target(self):
 		''' Create generated site in target dir '''

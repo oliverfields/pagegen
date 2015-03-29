@@ -19,9 +19,9 @@
 from os import sep, access, X_OK
 from os.path import splitext, join
 from re import sub, search
-from datetime import datetime
-from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, DEFAULTPAGETEMPLATE, load_file, NEWLINE
+from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, DEFAULTPAGETEMPLATE, load_file, NEWLINE, DATEFORMAT
 from subprocess import check_output
+from datetime import date
 
 
 class Page:
@@ -52,6 +52,8 @@ class Page:
 			'generate html': True,
 			'menu title': None,
 			'template': DEFAULTPAGETEMPLATE,
+			# Use string so consistent with what is read from files, all date functions must take this into account
+			'publish': date.today().strftime(DATEFORMAT)
 		}
 
 		# If file is executable then the contents from it's stdout, else just read the file

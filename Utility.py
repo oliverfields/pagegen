@@ -41,6 +41,7 @@ HOOKDIR='hooks'
 DEFAULTPAGETEMPLATE='page.tpl'
 TEMPLATEDIR='templates'
 NEWLINE='\n'
+DATEFORMAT='%Y-%m-%d'
 
 
 def report_error(code, message):
