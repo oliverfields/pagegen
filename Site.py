@@ -192,7 +192,7 @@ class Site:
 
 				page_html=self.update_place_holder(page_html, 'base_url', self.base_url)
 				page_html=self.update_place_holder(page_html, 'title', p.title)
-				page_html=self.update_place_holder(page_html, 'publish', self.headers['publish'])
+				page_html=self.update_place_holder(page_html, 'publish', p.headers['publish'])
 
 				if p.headers['description']:
 					description=p.headers['description']
