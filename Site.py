@@ -165,6 +165,7 @@ class Site:
 	def update_place_holder(self, template, name, value):
 		return template.replace('{{%s}}' % name, value)
 
+
 	def generate_pages(self, pages):
 		''' Recursively iterate over and generate html for pages '''
 		
@@ -191,6 +192,7 @@ class Site:
 
 				page_html=self.update_place_holder(page_html, 'base_url', self.base_url)
 				page_html=self.update_place_holder(page_html, 'title', p.title)
+				page_html=self.update_place_holder(page_html, 'publish', self.headers['publish'])
 
 				if p.headers['description']:
 					description=p.headers['description']
