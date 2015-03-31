@@ -197,10 +197,24 @@ class Site:
 		self.set_next_previous_links()
 
 
+	def html_tag_list(self):
+		''' Generate html list of tags'''
+
+		html='<div id="tags"><h1>%s</h1><ul>' % self.tag_title
+
+		for tag, pages in self.tags.iteritems():
+			url='/'+self.tag_dir+'/'+urlify(tag)+self.default_extension
+			if self.absolute_urls == True:
+				url=self.base_url+url
+			html+='<li><a href="%s">%s</a>' % (url, tag)
+
+		html+='</ul>'
+
+		return html
+
+
 	def load_tag_pages(self, parent_page):
 		''' For each tag, create page objects and replace their content with list of tagged pages. and index page, which is list of tags '''
-
-		# TODO: Make nice lists, and count tag items and use in them?
 
 		# Create top level tag overview page (to)
 		to=VirtualPage()
@@ -232,7 +246,7 @@ class Site:
 				tl.url_path=self.base_url+tl.url_path
 
 			for p in pages:
-				tl.rst+='* `%s <%s>`_%s' % (p.menu_title, p.url_path, NEWLINE)
+				tl.rst+='* %s `%s <%s>`_ %s%s' % (p.headers['publish'], p.menu_title, p.url_path, p.headers['description'], NEWLINE)
 
 			to.children.append(tl)
 
@@ -341,6 +355,8 @@ class Site:
 					description=''
 				page_html=self.update_place_holder(page_html, 'description', description)
 
+				page_html=self.update_place_holder(page_html, 'tags', self.html_tag_list())
+
 				# Page content
 				if self.page_titles != False:
 					underline=sub('.', '#', p.title)
@@ -417,6 +433,7 @@ class Site:
 
 			if p.target_path in page_target_paths:
 				report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (p.target_path.replace(getcwd()+sep,''), p.source_path.replace(getcwd()+sep,''), page_target_paths[p.target_path].replace(getcwd()+sep,'')))
+			# TODO Better checking than ends with
 			elif (p.target_path.endswith(SITEMAPFILE) and self.exclude_sitemap == 'False') or p.target_path==join(self.site_dir, INCLUDEDIR):
 				report_error(1,"Page '%s' illegal name '%s'" % (p.source_path.replace(getcwd()+sep,''), SITEMAPFILE))
 			elif p.target_path.endswith(RSSFEEDFILE) and self.include_rss != False:

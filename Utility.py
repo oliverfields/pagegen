@@ -45,9 +45,11 @@ DATEFORMAT='%Y-%m-%d'
 RSSFEEDFILE='feed.rss'
 
 
-def urlify( path):
+def urlify(string):
 	''' Anything wich isn't alphanumeric, - or _ gets replaced with a - '''
-	return sub('[^/a-z0-9-_.]', '-', path)
+	url=string.lower()
+	return sub('[^/a-z0-9-_.]', '-', url)
+
 
 def report_error(code, message):
 	stderr.write('Error: %s\n' % message)
