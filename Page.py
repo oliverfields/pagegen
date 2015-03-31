@@ -16,48 +16,28 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
+from VirtualPage import VirtualPage
 from os import sep, access, X_OK
 from os.path import splitext, join
 from re import sub, search
-from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, DEFAULTPAGETEMPLATE, load_file, NEWLINE, DATEFORMAT
+from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify
 from subprocess import check_output
-from datetime import date
 
 
-class Page:
+class Page(VirtualPage):
 	""" Bread and butter of pagegen """
 
-	def __init__(self, path, site_dir, parent=False, base_url='', url_include_index=True, default_extension=''):
-		self.url_path='',
-		self.children=[]
-		self.rst=''
-		self.title=''
-		self.source_path=path
-		self.target_path=''
-		self.html=''
-		self.menu=''
-		self.crumb_trail=[]
-		self.extension=''
-		self.base_url=base_url
-		self.parent=parent
-		self.menu_title=''
-		self.url_include_index=url_include_index
-		self.hook_environment={}
-		self.next_page=False
-		self.previous_page=False
+	def __init__(self):
+		VirtualPage.__init__(self)
 
-		self.headers={
-			'sitemap exclude': False, 
-			'menu exclude': False,
-			'description': None,
-			'title': None,
-			'generate html': True,
-			'link chain exclude': False,
-			'menu title': None,
-			'template': DEFAULTPAGETEMPLATE,
-			# Use string so consistent with what is read from files, all date functions must take this into account
-			'publish': date.today().strftime(DATEFORMAT)
-		}
+	def load(self, path, site_dir, parent=False, base_url='', url_include_index=True, default_extension=''):
+
+		self.source_path=path
+		self.site_dir=site_dir
+		self.parent=parent
+		self.base_url=base_url
+		self.url_include_index=url_include_index
+		self.default_extension=default_extension
 
 		# If file is executable then the contents from it's stdout, else just read the file
 		if access(self.source_path, X_OK):
@@ -68,14 +48,7 @@ class Page:
 		else:
 			content=load_file(self.source_path)
 
-		self.load_page_content(self.source_path, content, site_dir,  default_extension)
-
-
-	def generate_crumb_trail(self):
-		html=''
-		for p in self.crumb_trail:
-			html+=' > %s' % p.title
-		return html
+		self.load_page_content(self.source_path, content, self.site_dir,  self.default_extension)
 
 
 	def set_paths(self, path, site_path):
@@ -96,7 +69,7 @@ class Page:
 		path_part=path_part.lower()
 
 		# Replace anything that isn't a charachter, number, slash, underscore or hyphen with a hyphen
-		path_part=sub('[^/a-z0-9-_.]', '-', path_part)
+		path_part=urlify(path_part)
 
 		self.url_path=self.base_url+path_part
 
@@ -138,7 +111,12 @@ class Page:
 			potential_name=potential_header[0].lower().strip()
 			potential_value=potential_header[1]
 
-			if potential_name in self.headers:
+			if potential_name == 'tags':
+				tags=potential_value.split(',')
+				for t in tags:
+					self.headers['tags'].append(t.strip())
+				return self.headers['tags']
+			elif potential_name in self.headers:
 				self.headers[potential_name]=potential_value.strip()
 				return self.headers[potential_name]
 			else:

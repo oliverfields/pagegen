@@ -16,18 +16,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice
+from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify
 from ConfigParser import ConfigParser
 from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, getcwd, sep, makedirs, symlink, remove, unlink
 from shutil import rmtree
 from Page import Page
+from VirtualPage import VirtualPage
 from docutils.core import publish_parts
 from distutils.dir_util import copy_tree
 from re import sub
 from datetime import date
 from datetime import datetime
+from operator import itemgetter
 
 
 class Site:
@@ -53,6 +55,16 @@ class Site:
 		self.description_warn_min=0
 		self.description_warn_max=0
 		self.link_sequence=[]
+		self.include_rss=False
+		self.rss_sequence=[]
+		self.max_rss_items=15
+		self.rss_title=''
+		self.rss_description=''
+		self.rss=''
+		self.tags={}
+		self.tag_dir='tag'
+		self.tag_title='Tags'
+
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -74,6 +86,37 @@ class Site:
 
 		try:
 			self.exclude_sitemap=config.get(CONFROOT,'exclude_sitemap')
+		except:
+			pass
+
+		try:
+			self.tag_dir=config.get(CONFROOT,'tag_url')
+		except:
+			pass
+
+		try:
+			self.tag_title=config.get(CONFROOT,'tag_title')
+		except:
+			pass
+
+		try:
+			self.include_rss=config.get(CONFROOT,'include_rss')
+		except:
+			pass
+
+		if self.include_rss != False:
+			try:
+				self.rss_title=config.get(CONFROOT,'rss_title')
+			except:
+				pass
+
+			try:
+				self.rss_description=config.get(CONFROOT,'rss_description')
+			except:
+				pass
+
+		try:
+			self.max_rss_items=int(config.get(CONFROOT,'max_rss_items'))
 		except:
 			pass
 
@@ -144,9 +187,76 @@ class Site:
 		except Exception as e:
 			raise Exception('Unable to load content: %s' % e)
 
+
+		self.set_tags(self.pages)
+		if self.tags:
+			self.load_tag_pages(home_page)
+
 		self.check_pages(self.pages)
 		self.set_link_sequence(self.pages)
 		self.set_next_previous_links()
+
+
+	def load_tag_pages(self, parent_page):
+		''' For each tag, create page objects and replace their content with list of tagged pages. and index page, which is list of tags '''
+
+		# TODO: Make nice lists, and count tag items and use in them?
+
+		# Create top level tag overview page (to)
+		to=VirtualPage()
+		to.headers['sitemap exclude']=True
+		to.headers['menu exclude']=True
+		to.headers['link chain exclude']=True
+		to.title=self.tag_title
+		to.menu_title=self.tag_title
+		to.parent=parent_page
+		to.target_path=self.target_dir+'/'+self.tag_dir+'/'+DIRDEFAULTFILE+self.default_extension
+		to.url_path='/'+self.tag_dir+'/'+DIRDEFAULTFILE+self.default_extension
+
+		if self.absolute_urls == True:
+			to.url_path=self.base_url+to.url_path
+
+		# Create each tag list page (tl)
+		for tag, pages in self.tags.iteritems():
+			tl=VirtualPage()
+			tl.headers['sitemap exclude']=True
+			tl.headers['menu exclude']=True
+			tl.headers['link chain exclude']=True
+			tl.title=tag.capitalize()
+			tl.menu_title=tag.capitalize()
+			tl.target_path=self.target_dir+'/'+self.tag_dir+'/'+urlify(tag)+self.default_extension
+			tl.url_path='/'+self.tag_dir+'/'+urlify(tag)+self.default_extension
+			tl.parent=to
+			
+			if self.absolute_urls == True:
+				tl.url_path=self.base_url+tl.url_path
+
+			for p in pages:
+				tl.rst+='* `%s <%s>`_%s' % (p.menu_title, p.url_path, NEWLINE)
+
+			to.children.append(tl)
+
+		# Create tag overview content now so get right urls etc
+		for p in to.children:
+			to.rst+='* `%s <%s>`_%s' % (p.menu_title, p.url_path, NEWLINE)
+
+		self.pages.append(to)
+
+
+	def set_tags(self, pages):
+		''' Get all tags that are defined in page headers '''
+
+		for p in pages:
+			if len(p.headers['tags']):
+
+				for t in p.headers['tags']:
+					# If tag not existing, create tag list
+					if not t in self.tags.keys():
+						self.tags[t]=[]
+					self.tags[t].append(p)
+
+				if p.children or p.url_path == '/':
+					self.set_tags(p.children)
 
 
 	def set_next_previous_links(self):
@@ -188,7 +298,8 @@ class Site:
 		else:
 			url_include_index=True
 
-		p=Page(path, self.site_dir, parent=parent, base_url=base_url, url_include_index=url_include_index, default_extension=self.default_extension)
+		p=Page()
+		p.load(path, self.site_dir, parent=parent, base_url=base_url, url_include_index=url_include_index, default_extension=self.default_extension)
 
 		return p
 
@@ -308,6 +419,8 @@ class Site:
 				report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (p.target_path.replace(getcwd()+sep,''), p.source_path.replace(getcwd()+sep,''), page_target_paths[p.target_path].replace(getcwd()+sep,'')))
 			elif (p.target_path.endswith(SITEMAPFILE) and self.exclude_sitemap == 'False') or p.target_path==join(self.site_dir, INCLUDEDIR):
 				report_error(1,"Page '%s' illegal name '%s'" % (p.source_path.replace(getcwd()+sep,''), SITEMAPFILE))
+			elif p.target_path.endswith(RSSFEEDFILE) and self.include_rss != False:
+				report_error(1,"Page '%s' illegal name '%s'" % (p.source_path.replace(getcwd()+sep,''), RSSFEEDFILE))
 			else:
 				page_target_paths[p.target_path]=p.source_path
 
@@ -352,9 +465,11 @@ class Site:
 				pass
 			elif isfile(f_path):
 				if self.absolute_urls != True:
-					p=Page(f_path, self.site_dir, parent=parent, default_extension=self.default_extension)
+					p=Page()
+					p.load(f_path, self.site_dir, parent=parent, default_extension=self.default_extension)
 				else:
-					p=Page(f_path, self.site_dir, parent=parent, base_url=self.base_url, default_extension=self.default_extension)
+					p=Page()
+					p.load(f_path, self.site_dir, parent=parent, base_url=self.base_url, default_extension=self.default_extension)
 
 				if self.publish_page(p):
 					siblings.append(p)
@@ -415,7 +530,12 @@ class Site:
 				symlink(self.include_dir, join(TARGETDIR, INCLUDEDIR))
 
 		# Create sitemap.txt
-		write_file(join(self.target_dir, SITEMAPFILE), self.sitemap)
+		if self.exclude_sitemap == False:
+			write_file(join(self.target_dir, SITEMAPFILE), self.sitemap)
+
+		# Create rss feed
+		if self.include_rss != False:
+			write_file(join(self.target_dir, RSSFEEDFILE), self.rss)
 
 
 	def save_pages(self, pages):
@@ -451,7 +571,7 @@ class Site:
 
 		for p in pages:
 
-			if p.headers['menu exclude'] == 'True':
+			if p.headers['menu exclude'] != False:
 				continue
 
 			if p == page:
@@ -484,3 +604,53 @@ class Site:
 					self.generate_sitemap(p.children)
 				else:
 					self.sitemap+='%s%s\n' % (self.base_url, p.url_path)
+
+
+	def generate_rss(self):
+		''' Create rss feed '''
+
+		self.create_rss_sequence(self.pages)
+
+		# Sort rss pages by header publish value
+		self.rss_sequence=sorted(self.rss_sequence, key=lambda k: k.headers['publish'], reverse=True) 
+
+		self.rss='<?xml version="1.0" encoding="UTF-8" ?>'+NEWLINE
+		self.rss+='<rss version="2.0">'+NEWLINE
+		self.rss+='<channel>'+NEWLINE
+		self.rss+='<title>'+self.rss_title+'</title>'+NEWLINE
+		self.rss+='<link>'+self.base_url+'/'+RSSFEEDFILE+'</link>'+NEWLINE
+		self.rss+='<description>'+self.rss_description+'</description>'+NEWLINE
+		self.rss+='<generator>Pagegen - pagegen.phnd.net</generator>'+NEWLINE
+
+		count=1
+		for p in self.rss_sequence:
+
+			try:
+				page_publish_date=datetime.strptime(p.headers['publish'], DATEFORMAT)
+			except Exception as e:
+				report_error(1, "Unable to parse date '%s': %s: %s" % (p.headers['publish'], p.source_path.replace(getcwd()+sep, ''), e))
+
+			self.rss+='<item>'+NEWLINE
+			self.rss+='<title>'+p.title+'</title>'+NEWLINE
+			self.rss+='<link>'+self.base_url+p.url_path+'</link>'+NEWLINE
+			self.rss+='<pubDate>'+page_publish_date.strftime('%a, %d %b %Y')+' 00:00:00 +0000</pubDate>'+NEWLINE
+			if p.headers['description'] != None:
+				self.rss+='<description>'+p.headers['description']+'</description>'+NEWLINE
+			self.rss+='</item>'+NEWLINE
+
+			count+=1
+
+			if count > self.max_rss_items:
+				break
+
+		self.rss+='</channel>'+NEWLINE
+		self.rss+='</rss>'+NEWLINE
+
+
+	def create_rss_sequence(self, pages):
+		''' Get all pages with header rss include True '''
+		for p in pages:
+			if p.headers['rss include'] != False:
+				self.rss_sequence.append(p)
+				if p.children or p.url_path == '/':
+					self.create_rss_sequence(p.children)

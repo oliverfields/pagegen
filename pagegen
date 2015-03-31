@@ -73,7 +73,13 @@ def gen_mode(site_conf_path=False):
 		try:
 			s.generate_sitemap(s.pages)
 		except Exception as e:
-			report_error(1, "Unable to generate sitemap.xml: %s" % e)
+			report_error(1, "Unable to generate /sitemap.xml: %s" % e)
+
+	if s.include_rss != False:
+		try:
+			s.generate_rss()
+		except Exception as e:
+			report_error(1, "Unable to generate /feed.rss: %s" % e)
 
 	try:
 		s.move_to_target()

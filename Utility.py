@@ -23,7 +23,7 @@ from os import listdir, getcwd, sep, access, X_OK, putenv
 from os.path import join, isdir, isfile, expanduser
 from ConfigParser import RawConfigParser
 from io import StringIO
-from re import match
+from re import match, sub
 from subprocess import check_call
 
 
@@ -42,7 +42,12 @@ DEFAULTPAGETEMPLATE='page.tpl'
 TEMPLATEDIR='templates'
 NEWLINE='\n'
 DATEFORMAT='%Y-%m-%d'
+RSSFEEDFILE='feed.rss'
 
+
+def urlify( path):
+	''' Anything wich isn't alphanumeric, - or _ gets replaced with a - '''
+	return sub('[^/a-z0-9-_.]', '-', path)
 
 def report_error(code, message):
 	stderr.write('Error: %s\n' % message)
