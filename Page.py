@@ -17,10 +17,10 @@
 #------------------------------------------------------------
 
 from VirtualPage import VirtualPage
-from os import sep, access, X_OK
+from os import sep, access, X_OK, getcwd
 from os.path import splitext, join
 from re import sub, search
-from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify
+from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR
 from subprocess import check_output
 
 
@@ -126,9 +126,41 @@ class Page(VirtualPage):
 			return False
 
 
+	def is_header(self, line):
+		if ':' in line:
+			potential_header=line.split(':')
+			potential_name=potential_header[0].lower().strip()
+			potential_value=potential_header[1]
+
+			if potential_name in self.headers:
+				return True
+			else:
+				report_warning("Unknown header in '%s': %s" % (self.source_path, line))
+				return False
+		else:
+			return False
+
+	def load_header_profile(self, site_dir):
+		''' If header profile specified, load header values from profile file '''
+		for h in self.raw_headers:
+			header=h.split(':')
+			if header[0].lower().strip() == 'header profile':
+				profile_file=join(site_dir, HEADERPROFILEDIR, header[1].strip())
+				try:
+					profile=load_file(profile_file)
+				except:
+					report_warning("Unable to open header profile '%s'" % profile_file.replace(getcwd()+sep, ''))
+				
+				for header in profile.split(NEWLINE):
+					self.set_header(header)
+				# Remember to set header profile
+				self.headers['header profile']=profile_file
+				break
+
+
 	def load_page_content(self, path, content, site_dir, default_extension):
 		'''
-		Parse source setting header and content attributes
+		Parse source and save headers and content attributes
 		Format:
 			<header>: <value>	<- Optional
 								<-Blanke line, if headers
@@ -144,7 +176,8 @@ class Page(VirtualPage):
 			if in_header is None and search(r'^[a-zA-Z]+', line) is None:
 				in_header=False
 
-			if in_header is None and self.set_header(line):
+			if in_header is None and self.is_header(line):
+				self.raw_headers.append(line)
 				in_header=True
 				continue
 
@@ -159,7 +192,8 @@ class Page(VirtualPage):
 			# First line was a header
 			if in_header:
 				# Set header
-				if self.set_header(line):
+				if self.is_header(line):
+					self.raw_headers.append(line)
 					continue
 				# If blank line next lines are content
 				else:
@@ -167,6 +201,14 @@ class Page(VirtualPage):
 					continue
 			else:
 				self.rst+=line+NEWLINE
+
+
+		# Check if using a header profile
+		self.load_header_profile(site_dir)
+
+		# Load headers from page, can overwrite header profiles
+		for header in self.raw_headers:
+			self.set_header(header)
 
 		# Strip last new line
 		self.rst=self.rst.rstrip(NEWLINE)

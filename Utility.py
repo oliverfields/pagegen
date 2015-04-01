@@ -43,6 +43,7 @@ TEMPLATEDIR='templates'
 NEWLINE='\n'
 DATEFORMAT='%Y-%m-%d'
 RSSFEEDFILE='feed.rss'
+HEADERPROFILEDIR='header_profiles'
 
 
 def urlify(string):

@@ -42,6 +42,7 @@ class VirtualPage:
 		self.previous_page=False
 		self.site_dir=''
 		self.default_extension=''
+		self.raw_headers=[]
 
 		self.headers={
 			'sitemap exclude': False, 
@@ -56,7 +57,8 @@ class VirtualPage:
 			'publish': date.today().strftime(DATEFORMAT),
 			'rss include': False,
 			'tags': [],
-			'category': None
+			'category': None,
+			'header profile': None
 		}
 
 
