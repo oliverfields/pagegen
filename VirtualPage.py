@@ -55,7 +55,8 @@ class VirtualPage:
 			# Use string so consistent with what is read from files, all date functions must take this into account
 			'publish': date.today().strftime(DATEFORMAT),
 			'rss include': False,
-			'tags': []
+			'tags': [],
+			'category': None
 		}
 
 

@@ -64,6 +64,9 @@ class Site:
 		self.tags={}
 		self.tag_dir='tag'
 		self.tag_title='Tags'
+		self.categories={}
+		self.category_dir='category'
+		self.category_title='Categories'
 
 
 		if isdir(site_dir):
@@ -98,6 +101,17 @@ class Site:
 			self.tag_title=config.get(CONFROOT,'tag_title')
 		except:
 			pass
+
+		try:
+			self.category_dir=config.get(CONFROOT,'category_url')
+		except:
+			pass
+
+		try:
+			self.category_title=config.get(CONFROOT,'category_title')
+		except:
+			pass
+
 
 		try:
 			self.include_rss=config.get(CONFROOT,'include_rss')
@@ -189,8 +203,11 @@ class Site:
 
 
 		self.set_tags(self.pages)
+		self.set_categories(self.pages)
 		if self.tags:
-			self.load_tag_pages(home_page)
+			self.load_list_pages('tag', home_page)
+		if self.categories:
+			self.load_list_pages('category', home_page)
 
 		self.check_pages(self.pages)
 		self.set_link_sequence(self.pages)
@@ -213,48 +230,73 @@ class Site:
 		return html
 
 
-	def load_tag_pages(self, parent_page):
-		''' For each tag, create page objects and replace their content with list of tagged pages. and index page, which is list of tags '''
+	def html_category_list(self):
+		''' Generate html list of categories'''
 
-		# Create top level tag overview page (to)
-		to=VirtualPage()
-		to.headers['sitemap exclude']=True
-		to.headers['menu exclude']=True
-		to.headers['link chain exclude']=True
-		to.title=self.tag_title
-		to.menu_title=self.tag_title
-		to.parent=parent_page
-		to.target_path=self.target_dir+'/'+self.tag_dir+'/'+DIRDEFAULTFILE+self.default_extension
-		to.url_path='/'+self.tag_dir+'/'+DIRDEFAULTFILE+self.default_extension
+		html='<div id="categories"><h1>%s</h1><ul>' % self.category_title
+
+		for c, page in self.categories.iteritems():
+			url='/'+self.category_dir+'/'+urlify(c)+self.default_extension
+			if self.absolute_urls == True:
+				url=self.base_url+url
+			html+='<li><a href="%s">%s</a>' % (url, c)
+
+		html+='</ul>'
+
+		return html
+
+
+	def load_list_pages(self, type, parent_page):
+		''' For each tag, create page objects and replace their content with list of tagged pages. and index page, which is list of tags. Type can be tag or category '''
+
+		if type == 'tag':
+			title=self.tag_title
+			dir=self.tag_dir
+			items=self.tags.iteritems()
+		else:
+			title=self.category_title
+			dir=self.category_dir
+			items=self.categories.iteritems()
+
+		# Create top level overview page (o)
+		o=VirtualPage()
+		o.headers['sitemap exclude']=True
+		o.headers['menu exclude']=True
+		o.headers['link chain exclude']=True
+		o.parent=parent_page
+		o.title=title
+		o.menu_title=title
+		o.target_path=self.target_dir+'/'+dir+'/'+DIRDEFAULTFILE+self.default_extension
+		o.url_path='/'+dir+'/'+DIRDEFAULTFILE+self.default_extension
 
 		if self.absolute_urls == True:
-			to.url_path=self.base_url+to.url_path
+			o.url_path=self.base_url+o.url_path
 
-		# Create each tag list page (tl)
-		for tag, pages in self.tags.iteritems():
-			tl=VirtualPage()
-			tl.headers['sitemap exclude']=True
-			tl.headers['menu exclude']=True
-			tl.headers['link chain exclude']=True
-			tl.title=tag.capitalize()
-			tl.menu_title=tag.capitalize()
-			tl.target_path=self.target_dir+'/'+self.tag_dir+'/'+urlify(tag)+self.default_extension
-			tl.url_path='/'+self.tag_dir+'/'+urlify(tag)+self.default_extension
-			tl.parent=to
+		# Create each list page (l)
+		for item, pages in items:
+			l=VirtualPage()
+			l.headers['sitemap exclude']=True
+			l.headers['menu exclude']=True
+			l.headers['link chain exclude']=True
+			l.title=item.capitalize()
+			l.menu_title=item.capitalize()
+			l.target_path=self.target_dir+'/'+dir+'/'+urlify(item)+self.default_extension
+			l.url_path='/'+dir+'/'+urlify(item)+self.default_extension
+			l.parent=o
 			
 			if self.absolute_urls == True:
-				tl.url_path=self.base_url+tl.url_path
+				l.url_path=self.base_url+l.url_path
 
 			for p in pages:
-				tl.rst+='* %s `%s <%s>`_ %s%s' % (p.headers['publish'], p.menu_title, p.url_path, p.headers['description'], NEWLINE)
+				l.rst+='* %s `%s <%s>`_ %s%s' % (p.headers['publish'], p.menu_title, p.url_path, p.headers['description'], NEWLINE)
 
-			to.children.append(tl)
+			o.children.append(l)
 
 		# Create tag overview content now so get right urls etc
-		for p in to.children:
-			to.rst+='* `%s <%s>`_%s' % (p.menu_title, p.url_path, NEWLINE)
+		for p in o.children:
+			o.rst+='* `%s <%s>`_%s' % (p.menu_title, p.url_path, NEWLINE)
 
-		self.pages.append(to)
+		self.pages.append(o)
 
 
 	def set_tags(self, pages):
@@ -271,6 +313,21 @@ class Site:
 
 				if p.children or p.url_path == '/':
 					self.set_tags(p.children)
+
+
+	def set_categories(self, pages):
+		''' Get all categories that are defined in page headers '''
+
+		for p in pages:
+			if p.headers['category']:
+
+				# If Category not existing, create category list
+				if not p.headers['category'] in self.categories.keys():
+					self.categories[p.headers['category']]=[]
+				self.categories[p.headers['category']].append(p)
+
+				if p.children or p.url_path == '/':
+					self.set_categories(p.children)
 
 
 	def set_next_previous_links(self):
@@ -356,6 +413,7 @@ class Site:
 				page_html=self.update_place_holder(page_html, 'description', description)
 
 				page_html=self.update_place_holder(page_html, 'tags', self.html_tag_list())
+				page_html=self.update_place_holder(page_html, 'categories', self.html_category_list())
 
 				# Page content
 				if self.page_titles != False:

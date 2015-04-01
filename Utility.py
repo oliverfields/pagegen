@@ -52,7 +52,7 @@ def urlify(string):
 
 
 def report_error(code, message):
-	stderr.write('Error: %s\n' % message)
+	stderr.write('Error:  %s\n' % message)
 	exit(code)
 
 
@@ -61,7 +61,7 @@ def report_warning(message):
 
 
 def report_notice(message):
-	print 'Notice: %s' % message
+	print 'Notice:  %s' % message
 
 
 def load_config(files):
