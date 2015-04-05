@@ -533,7 +533,7 @@ class Site:
 			# Check description length if range set
 			if self.description_warn_min > 0 and self.description_warn_max > 0:
 				if  p.headers['description'] is None:
-					report_warning("Missing description '%s'" % p.source_path)
+					report_warning("Missing description '%s'" % relative_path(p.source_path))
 				elif self.description_warn_min > len(p.headers['description']):
 					report_warning("Description too short '%s' (%s), minimum lenght %s characters: '%s'" % (p.headers['description'], len(p.headers['description']), self.description_warn_min, relative_path(p.source_path)))
 				elif self.description_warn_max < len(p.headers['description']):

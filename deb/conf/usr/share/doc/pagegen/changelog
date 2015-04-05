@@ -1,3 +1,18 @@
+2015-04-05  Oliver Fields  <oliver@phnd.net>
+
+* Page tag and category template variables
+* Helper function get_url
+* Helper function relative_path
+* Support for header profiles
+* Category page header support
+* Global tag template variable
+* Tag support and RSS feed
+* Previous and next links and publish header
+* Publish page header and template variable
+* SEO title and description field lenght_range site config setting to check
+that both are within set character ranges
+* Page post generate hook now runs after page written to disk
+
 2015-03-26  Oliver Fields  <oliver@phnd.net>
 
  * Fixed index page bug in sitemap
