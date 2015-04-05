@@ -46,6 +46,11 @@ RSSFEEDFILE='feed.rss'
 HEADERPROFILEDIR='header_profiles'
 
 
+def relative_path(path):
+	''' Return path realative to cwd '''
+
+	return path.replace(getcwd()+sep, '')
+
 def urlify(string):
 	''' Anything wich isn't alphanumeric, - or _ gets replaced with a - '''
 	url=string.lower()

@@ -16,11 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify
+from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, relative_path
 from ConfigParser import ConfigParser
 from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists, islink
-from os import listdir, getcwd, sep, makedirs, symlink, remove, unlink
+from os import listdir, sep, makedirs, symlink, remove, unlink
 from shutil import rmtree
 from Page import Page
 from VirtualPage import VirtualPage
@@ -191,7 +191,7 @@ class Site:
 			if self.publish_page(home_page):
 				self.pages.append(home_page)
 			else:
-				report_error(1, "Home page not publishable because publish date not reached yet '%s': %s" % (home_page.headers['publish'], home_page.source_path.replace(getcwd()+sep, '')))
+				report_error(1, "Home page not publishable because publish date not reached yet '%s': %s" % (home_page.headers['publish'], relative_path(home_page.source_path)))
 		except Exception as e:
 			raise Exception("Unable to find home page '%s': %s" % (DIRDEFAULTFILE, e))
 
@@ -476,26 +476,26 @@ class Site:
 			# Check title length if range set
 			if self.title_warn_min > 0 and self.title_warn_max > 0:
 				if self.title_warn_min > len(p.title):
-					report_warning("Title too short '%s' (%s), minimum length %s characters: '%s'" % (p.title, len(p.title), self.title_warn_min, p.source_path.replace(getcwd()+sep, '')))
+					report_warning("Title too short '%s' (%s), minimum length %s characters: '%s'" % (p.title, len(p.title), self.title_warn_min, relative_path(p.source_path)))
 				elif self.title_warn_max < len(p.title):
-					report_warning("Title too long '%s' (%s), maximum length %s characters: '%s'" % (p.title, len(p.title), self.title_warn_max, p.source_path.replace(getcwd()+sep, '')))
+					report_warning("Title too long '%s' (%s), maximum length %s characters: '%s'" % (p.title, len(p.title), self.title_warn_max, relative_path(p.source_path)))
 
 			# Check description length if range set
 			if self.description_warn_min > 0 and self.description_warn_max > 0:
 				if  p.headers['description'] is None:
 					report_warning("Missing description '%s'" % p.source_path)
 				elif self.description_warn_min > len(p.headers['description']):
-					report_warning("Description too short '%s' (%s), minimum lenght %s characters: '%s'" % (p.headers['description'], len(p.headers['description']), self.description_warn_min, p.source_path.replace(getcwd()+sep, '')))
+					report_warning("Description too short '%s' (%s), minimum lenght %s characters: '%s'" % (p.headers['description'], len(p.headers['description']), self.description_warn_min, relative_path(p.source_path)))
 				elif self.description_warn_max < len(p.headers['description']):
-					report_warning("Description too long '%s' (%s), maximum lenght %s characters: '%s'" % (p.headers['description'], len(p.headers['description']), self.description_warn_max, p.source_path.replace(getcwd()+sep, '')))
+					report_warning("Description too long '%s' (%s), maximum lenght %s characters: '%s'" % (p.headers['description'], len(p.headers['description']), self.description_warn_max, relative_path(p.source_path)))
 
 			if p.target_path in page_target_paths:
-				report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (p.target_path.replace(getcwd()+sep,''), p.source_path.replace(getcwd()+sep,''), page_target_paths[p.target_path].replace(getcwd()+sep,'')))
+				report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (relative_path(p.target_path), relative_path(p.source_path), relative_path(page_target_paths[p.target_path])))
 			# TODO Better checking than ends with
 			elif (p.target_path.endswith(SITEMAPFILE) and self.exclude_sitemap == 'False') or p.target_path==join(self.site_dir, INCLUDEDIR):
-				report_error(1,"Page '%s' illegal name '%s'" % (p.source_path.replace(getcwd()+sep,''), SITEMAPFILE))
+				report_error(1,"Page '%s' illegal name '%s'" % (relative_path(p.source_path), SITEMAPFILE))
 			elif p.target_path.endswith(RSSFEEDFILE) and self.include_rss != False:
-				report_error(1,"Page '%s' illegal name '%s'" % (p.source_path.replace(getcwd()+sep,''), RSSFEEDFILE))
+				report_error(1,"Page '%s' illegal name '%s'" % (relative_path(p.source_path), RSSFEEDFILE))
 			else:
 				page_target_paths[p.target_path]=p.source_path
 
@@ -558,12 +558,12 @@ class Site:
 		try:
 			page_publish_date=datetime.strptime(page.headers['publish'], DATEFORMAT)
 		except Exception as e:
-			report_error(1, "Unable to parse date '%s': %s: %s" % (page.headers['publish'], page.source_path.replace(getcwd()+sep, ''), e))
+			report_error(1, "Unable to parse date '%s': %s: %s" % (page.headers['publish'], relative_path(page.source_path), e))
 
 		publish=page_publish_date < datetime.now()
 
 		if publish is False:
-			report_notice("Not publishing '%s' (or any child pages) until '%s': %s" % (page.title, page.headers['publish'], page.source_path.replace(getcwd()+sep, '')))
+			report_notice("Not publishing '%s' (or any child pages) until '%s': %s" % (page.title, page.headers['publish'], relative_path(page.source_path)))
 
 		return publish
 
@@ -703,7 +703,7 @@ class Site:
 			try:
 				page_publish_date=datetime.strptime(p.headers['publish'], DATEFORMAT)
 			except Exception as e:
-				report_error(1, "Unable to parse date '%s': %s: %s" % (p.headers['publish'], p.source_path.replace(getcwd()+sep, ''), e))
+				report_error(1, "Unable to parse date '%s': %s: %s" % (p.headers['publish'], relative_path(p.source_path), e))
 
 			self.rss+='<item>'+NEWLINE
 			self.rss+='<title>'+p.title+'</title>'+NEWLINE

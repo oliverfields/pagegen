@@ -17,10 +17,10 @@
 #------------------------------------------------------------
 
 from VirtualPage import VirtualPage
-from os import sep, access, X_OK, getcwd
+from os import sep, access, X_OK
 from os.path import splitext, join
 from re import sub, search
-from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR
+from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR, relative_path
 from subprocess import check_output
 
 
@@ -149,7 +149,7 @@ class Page(VirtualPage):
 				try:
 					profile=load_file(profile_file)
 				except:
-					report_warning("Unable to open header profile '%s'" % profile_file.replace(getcwd()+sep, ''))
+					report_warning("Unable to open header profile '%s'" % relative_path(profile_file))
 				
 				for header in profile.split(NEWLINE):
 					self.set_header(header)
