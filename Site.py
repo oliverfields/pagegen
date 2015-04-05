@@ -214,6 +214,15 @@ class Site:
 		self.set_next_previous_links()
 
 
+	def get_url(self, url):
+		''' Return relative of absolute url depending on config setting '''
+
+		if self.absolute_urls == True:
+			url=self.base_url+url
+
+		return url
+
+
 	def html_tag_list(self):
 		''' Generate html list of tags'''
 
@@ -221,8 +230,7 @@ class Site:
 
 		for tag, pages in self.tags.iteritems():
 			url='/'+self.tag_dir+'/'+urlify(tag)+self.default_extension
-			if self.absolute_urls == True:
-				url=self.base_url+url
+			url=self.get_url(url)
 			html+='<li><a href="%s">%s</a>' % (url, tag)
 
 		html+='</ul>'
@@ -237,8 +245,7 @@ class Site:
 
 		for c, page in self.categories.iteritems():
 			url='/'+self.category_dir+'/'+urlify(c)+self.default_extension
-			if self.absolute_urls == True:
-				url=self.base_url+url
+			url=self.get_url(url)
 			html+='<li><a href="%s">%s</a>' % (url, c)
 
 		html+='</ul>'
@@ -269,8 +276,7 @@ class Site:
 		o.target_path=self.target_dir+'/'+dir+'/'+DIRDEFAULTFILE+self.default_extension
 		o.url_path='/'+dir+'/'+DIRDEFAULTFILE+self.default_extension
 
-		if self.absolute_urls == True:
-			o.url_path=self.base_url+o.url_path
+		o.url_path=self.get_url(o.url_path)
 
 		# Create each list page (l)
 		for item, pages in items:
@@ -284,8 +290,7 @@ class Site:
 			l.url_path='/'+dir+'/'+urlify(item)+self.default_extension
 			l.parent=o
 			
-			if self.absolute_urls == True:
-				l.url_path=self.base_url+l.url_path
+			l.url_path=self.get_url(l.url_path)
 
 			for p in pages:
 				l.rst+='* %s `%s <%s>`_ %s%s' % (p.headers['publish'], p.menu_title, p.url_path, p.headers['description'], NEWLINE)
