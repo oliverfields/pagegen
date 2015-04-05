@@ -253,6 +253,49 @@ class Site:
 		return html
 
 
+	def html_page_tag_list(self, tags):
+		''' Generate list of tags for a page '''
+
+		if len(tags) == 0:
+			return ''
+
+		html='<ul id="page_tags">'
+
+		for tag in tags:
+			url='/'+self.tag_dir+'/'+urlify(tag)+self.default_extension
+			url=self.get_url(url)
+			html+='<li><a href="%s">%s</a>' % (url, tag)
+
+		html+='</ul>'
+
+		return html
+
+
+	def html_page_category(self, category):
+		''' Generate link to category for a page '''
+
+		if category is None:
+			return ''
+
+		url='/'+self.category_dir+'/'+urlify(category)+self.default_extension
+		url=self.get_url(url)
+
+		return '<a href="%s">%s</a>' % (url, category)
+
+	def html_sub_menu(self, page):
+		''' Return list of page child elements '''
+
+		if not page.children:
+			return ''
+		else:
+			html='<ul class="sub_menu">'
+
+			for p in page.children:
+				html+='<li><a href="%s">%s</a></li>' % (p.url_path, p.menu_title)
+
+			return html+'</ul>'
+
+
 	def load_list_pages(self, type, parent_page):
 		''' For each tag, create page objects and replace their content with list of tagged pages. and index page, which is list of tags. Type can be tag or category '''
 
@@ -316,8 +359,8 @@ class Site:
 						self.tags[t]=[]
 					self.tags[t].append(p)
 
-				if p.children or p.url_path == '/':
-					self.set_tags(p.children)
+			if p.children or p.url_path == '/':
+				self.set_tags(p.children)
 
 
 	def set_categories(self, pages):
@@ -416,9 +459,11 @@ class Site:
 				else:
 					description=''
 				page_html=self.update_place_holder(page_html, 'description', description)
-
+				page_html=self.update_place_holder(page_html, 'page_tags', self.html_page_tag_list(p.headers['tags']))
+				page_html=self.update_place_holder(page_html, 'page_category', self.html_page_category(p.headers['category']))
 				page_html=self.update_place_holder(page_html, 'tags', self.html_tag_list())
 				page_html=self.update_place_holder(page_html, 'categories', self.html_category_list())
+				page_html=self.update_place_holder(page_html, 'sub_menu', self.html_sub_menu(p))
 
 				# Page content
 				if self.page_titles != False:
