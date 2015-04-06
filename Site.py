@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, relative_path
+from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, relative_path, SEARCHINDEXFILE
 from ConfigParser import ConfigParser
 from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists, islink
@@ -30,6 +30,7 @@ from re import sub
 from datetime import date
 from datetime import datetime
 from operator import itemgetter
+from SearchIndex import SearchIndex
 
 
 class Site:
@@ -67,7 +68,8 @@ class Site:
 		self.categories={}
 		self.category_dir='category'
 		self.category_title='Categories'
-
+		self.include_search=False
+		self.search_index=SearchIndex()
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -178,6 +180,11 @@ class Site:
 
 		try:
 			self.page_titles=config.get(CONFROOT,'page_titles')
+		except:
+			pass
+
+		try:
+			self.include_search=config.get(CONFROOT,'include_search')
 		except:
 			pass
 
@@ -294,6 +301,22 @@ class Site:
 				html+='<li><a href="%s">%s</a></li>' % (p.url_path, p.menu_title)
 
 			return html+'</ul>'
+
+
+	def generate_page_indexes(self, pages):
+		''' Index all pages with header no index=True '''
+		for p in pages:
+			if p.headers['search index exclude'] == False:
+				self.search_index.index_file(p.target_path, p.url_path)
+			if p.children:
+				self.generate_page_indexes(p.children)
+
+
+	def generate_search_index(self):
+		''' For all indexable files get their terms and create json index file for site search use (requires javascript '''
+		si=SearchIndex()
+		self.generate_page_indexes(self.pages)
+		write_file(join(self.target_dir, SEARCHINDEXFILE), self.search_index.build_json_index())
 
 
 	def load_list_pages(self, type, parent_page):
@@ -546,6 +569,9 @@ class Site:
 				report_error(1,"Page '%s' illegal name '%s'" % (relative_path(p.source_path), SITEMAPFILE))
 			elif p.target_path.endswith(RSSFEEDFILE) and self.include_rss != False:
 				report_error(1,"Page '%s' illegal name '%s'" % (relative_path(p.source_path), RSSFEEDFILE))
+			elif p.target_path.endswith(SEARCHINDEXFILE) and self.include_search != False:
+				report_error(1,"Page '%s' illegal name '%s'" % (relative_path(p.source_path), SEARCHINDEXFILE))
+
 			else:
 				page_target_paths[p.target_path]=p.source_path
 
@@ -661,6 +687,9 @@ class Site:
 		# Create rss feed
 		if self.include_rss != False:
 			write_file(join(self.target_dir, RSSFEEDFILE), self.rss)
+
+		if self.include_search != False:
+			self.generate_search_index()
 
 
 	def save_pages(self, pages):

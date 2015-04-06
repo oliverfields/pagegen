@@ -58,7 +58,8 @@ class VirtualPage:
 			'rss include': False,
 			'tags': [],
 			'category': None,
-			'header profile': None
+			'header profile': None,
+			'search index exclude': False
 		}
 
 

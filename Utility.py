@@ -44,6 +44,8 @@ NEWLINE='\n'
 DATEFORMAT='%Y-%m-%d'
 RSSFEEDFILE='feed.rss'
 HEADERPROFILEDIR='header_profiles'
+STOPWORDSFILE='stopwords.txt'
+SEARCHINDEXFILE='search-index.json'
 
 
 def relative_path(path):
