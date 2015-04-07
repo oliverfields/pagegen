@@ -48,6 +48,13 @@ STOPWORDSFILE='stopwords.txt'
 SEARCHINDEXFILE='search-index.json'
 
 
+def get_first_words(string, x):
+	if len(string) > x:
+		string=sub('\ [^ ]*$','..', string[:x])
+
+	return string
+
+
 def relative_path(path):
 	''' Return path realative to cwd '''
 

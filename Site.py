@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, relative_path, SEARCHINDEXFILE
+from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE
 from ConfigParser import ConfigParser
 from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists, islink
@@ -307,7 +307,11 @@ class Site:
 		''' Index all pages with header no index=True '''
 		for p in pages:
 			if p.headers['search index exclude'] == False:
-				self.search_index.index_file(p.target_path, p.url_path)
+				if p.headers['description'] != None:
+					description=p.headers['description']
+				else:
+					description=p.title
+				self.search_index.index_file(p.target_path, p.url_path, get_first_words(description, 150))
 			if p.children:
 				self.generate_page_indexes(p.children)
 

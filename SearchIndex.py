@@ -47,24 +47,27 @@ class SearchIndex:
 		i+='"terms":{'
 		for term, hits in self.terms.iteritems():
 
-			# For brevity hit urls are referenced by id
+			# Assign id to each unique url in hits
 			for hit in hits:
 				if not hit.url in urls.keys():
-					urls[hit.url]=id
+					urls[hit.url]=hit
+					hit.id=id
 					id+=1
+				else:
+					hit.id=urls[hit.url].id
 
 			i+='"%s":[' % term
-			count=0
-			for hit in  hits:
-				i+='[%s,%s],' % (urls[hit.url], hit.weight)
-				count+=1
+			for hit in sorted(hits, key=lambda hit: hit.weight, reverse=True):
+				#i+='"%s":"%s",' % (hit.url, hit.description)
+				i+='%s,' % hit.id
 			i=i.rstrip(',')
 			i+='],'
 		i=i.rstrip(',')
 		i+='},'
+
 		i+='"urls":{'
-		for url, id in urls.iteritems():
-			i+='"%s": "%s",' % (id, url)
+		for url, hit in urls.iteritems():
+			i+='"%s":["%s","%s"],' % (hit.id, hit.url, hit.description)
 		i=i.rstrip(',')
 		i+='}'
 		i+='}'
@@ -72,10 +75,11 @@ class SearchIndex:
 		return i
 
 
-	def index_string(self, string, url, weight=0):
+	def index_string(self, string, url, weight, description):
 		''' For each word in string add to index if not a stop word '''
 
 		# Index only lowercase
+		string_original=string
 		string=string.lower()
 
 		if not string:
@@ -99,7 +103,7 @@ class SearchIndex:
 				#print 'Word "%s" is stop word for %s' % (word, hit.url)
 				continue
 
-			hit=Hit(word, url, weight)
+			hit=Hit(word, url, weight, string_original, description)
 
 			if word in self.terms.keys():
 				#print 'Considering "%s"..' % word
@@ -131,7 +135,7 @@ class SearchIndex:
 		return False
 
 
-	def index_file(self, file, url):
+	def index_file(self, file, url, description):
 		''' Search in file for relevant xpaths for containing tags that may contain indexable content '''
 
 		try:
@@ -144,7 +148,7 @@ class SearchIndex:
 		for search_attribute in self.meta_tags:
 			result=tree.xpath("//meta[@name='"+search_attribute+"']")
 			for tag in result:
-				self.index_string(tag.attrib['content'], url, 5)
+				self.index_string(tag.attrib['content'], url, 5, description)
 
 		# Loop over tags in content_tags and get text
 		for content_tag in self.index_xpaths:
@@ -176,14 +180,16 @@ class SearchIndex:
 						else:
 							weight=0
 
-						self.index_string(text, url, weight)
+						self.index_string(text, url, weight, description)
 
 
 class Hit:
 	''' Weighted occurence of a term in file'''
 
-	def __init__(self, term, url, weight, line):
+	def __init__(self, term, url, weight, line, description):
 		self.term=term
 		self.url=url
 		self.weight=weight
-		self.line=line.replace('"', '\"') 
+		self.line=line
+		self.description=description.replace('"', '\"')
+		self.id=None
