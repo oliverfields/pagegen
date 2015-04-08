@@ -70,6 +70,7 @@ class Site:
 		self.category_title='Categories'
 		self.include_search=False
 		self.search_index=SearchIndex()
+		self.search_xpaths=[]
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -187,6 +188,13 @@ class Site:
 			self.include_search=config.get(CONFROOT,'include_search')
 		except:
 			pass
+
+		try:
+			xpaths=config.get(CONFROOT,'search_xpaths').split(',')
+			for xpath in xpaths:
+				self.search_index.index_xpaths.append(xpath)
+		except:
+			self.search_index.index_xpaths.append('/html/body')
 
 		content_path=join(self.site_dir, CONTENTDIR)
 		# Try to load home page, ok if not there
@@ -310,8 +318,8 @@ class Site:
 				if p.headers['description'] != None:
 					description=p.headers['description']
 				else:
-					description=p.title
-				self.search_index.index_file(p.target_path, p.url_path, get_first_words(description, 150))
+					description=''
+				self.search_index.index_file(p.target_path, p.url_path, p.title, get_first_words(description, 150))
 			if p.children:
 				self.generate_page_indexes(p.children)
 

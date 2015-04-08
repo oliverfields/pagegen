@@ -50,7 +50,7 @@ SEARCHINDEXFILE='search-index.json'
 
 def get_first_words(string, x):
 	if len(string) > x:
-		string=sub('\ [^ ]*$','..', string[:x])
+		string=sub('\ [^ ]*$','...', string[:x])
 
 	return string
 
