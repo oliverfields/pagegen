@@ -6,7 +6,7 @@ Architecture: all
 Installed-Size: PAGEGEN_DISK_USAGE_PAGEGEN
 Maintainer: Oliver Fields <oliver@phnd.net>
 Homepage: http://pagegen.phnd.net/
-Depends: python, python-docutils
+Depends: python, python-docutils, python-lxml
 Description: Static web site generator
  .
  Create web sites from flat text files and directories, the idea being that

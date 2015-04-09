@@ -29,9 +29,10 @@ set -e
 
 version=$1
 output_dir=$2
-conf_dir="/home/oliver/Personal/projects/pagegen/v2/deb/conf"
+pg_dir="/home/oliver/Personal/projects/pagegen/v2"
+conf_dir="$pg_dir/deb/conf"
 deb_changelog="$conf_dir/usr/share/doc/pagegen/changelog.Debian"
-changelog="$conf_dir/usr/share/doc/pagegen/changelog"
+changelog="$pg_dir/changelog"
 archive_file="$version.tar.gz"
 extracted_dir="pagegen_v2-$version"
 archive_url="https://github.com/oliverfields/pagegen_v2/archive/$archive_file"

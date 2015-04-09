@@ -6,9 +6,15 @@
 3. Push tag
    $ git push origin <tag>
 
-4. Build deb
+4. Build deb (do first, bacause updates changelog)
    $ mkdir <build dir>
    $ ./build <tag> <build dir>
+
+5. Ensure version correct in setup.py
+
+6. Build python package
+   $ python setup.py sdist 
+
 
 If need to delete remote tag:
 $ git tag -d <tag>

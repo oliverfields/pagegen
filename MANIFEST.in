@@ -1,0 +1,2 @@
+include pagegen pagegen.conf README changelog
+recursive-include skel *

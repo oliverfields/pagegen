@@ -1,3 +1,5 @@
 *.pyc
 stopwords.txt
 pagegen.scite_session
+pagegen.egg-info
+dist
