@@ -22,7 +22,7 @@ from Utility import relative_path, report_error, load_file, report_warning, STOP
 
 class SearchIndex:
 
-	def __init__(self):
+	def __init__(self, stop_words_file=STOPWORDSFILE):
 		self.terms={} # Contains terms as key and Hit objects as values
 		self.index_xpaths=[] # Xpath to nodes to look for indexable content in
 		self.content_tags=['p','li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'th', 'strong', 'em', 'i', 'b', 'a', 'blockquote', 'div', 'span', 'pre', 'abbr', 'address', 'cite', 'code', 'del', 'dfn', 'ins', 'kbd', 'q', 'samp', 'small', 'sub', 'sup', 'var', 'dt', 'dd', 'legend', 'caption', 'article', 'aside', 'details', 'figcaption', 'section', 'summary', 'title'] # HTML tags that may contain searchable content
@@ -30,7 +30,7 @@ class SearchIndex:
 		self.stop_words=[]
 
 		try:
-			stop_words=load_file(STOPWORDSFILE)
+			stop_words=load_file(stop_words_file)
 			for stop_word in stop_words.split(NEWLINE):
 				self.stop_words.append(stop_word)
 		except:

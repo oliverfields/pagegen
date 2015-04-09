@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE
+from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE
 from ConfigParser import ConfigParser
 from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists, islink
@@ -69,7 +69,7 @@ class Site:
 		self.category_dir='category'
 		self.category_title='Categories'
 		self.include_search=False
-		self.search_index=SearchIndex()
+		self.search_index=SearchIndex(join(self.site_dir, STOPWORDSFILE))
 		self.search_xpaths=[]
 
 		if isdir(site_dir):
