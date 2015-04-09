@@ -1,18 +1,18 @@
-1. Ensure version correct in pagegen file
+Builds .deb and python package (for pip install)
 
-2. Create git tag
+1. Create git tag
    $ git tag -a <tag> -m '<describe tag>'
-
-3. Push tag
    $ git push origin <tag>
 
-4. Build deb (do first, bacause updates changelog)
+2. Ensure version correct in files
+    - pagegen
+    - setup.py
+
+3. Build deb (do first, bacause updates changelog)
    $ mkdir <build dir>
    $ ./build <tag> <build dir>
 
-5. Ensure version correct in setup.py
-
-6. Build python package
+4. Build python package
    $ python setup.py sdist 
 
 

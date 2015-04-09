@@ -65,8 +65,8 @@ tar -zxf "$archive_file" || report_error "Unable to extract '$archive_file'"
 cp -R "$conf_dir/"* "$build_dir/."
 
 # Pagegen library files
-mkdir -p "$build_dir/usr/lib/pagegen"
-mv "$temp_dir/$extracted_dir/"*.py "$build_dir/usr/lib/pagegen/."
+mkdir -p "$build_dir/usr/lib/pagegen/pg"
+mv "$temp_dir/$extracted_dir/pg/"*.py "$build_dir/usr/lib/pagegen/pg/."
 mv "$temp_dir/$extracted_dir/pagegen" "$build_dir/usr/lib/pagegen/."
 
 # Copy skel dir
@@ -75,9 +75,6 @@ mv "$temp_dir/$extracted_dir/skel" "$build_dir/usr/share/pagegen/."
 
 
 # Copy pagegen to bin, want to keep as much as poss out of /usr/bin
-#!!! MAKE SYM LINK !!!
-#ln -s "/usr/lib/pagegen/pagegen" "/usr/bin/pagegen"
-#mv "$temp_dir/$extracted_dir/pagegen" "$build_dir/usr/bin/."
 
 # Setup changelog files
 # For pagegen

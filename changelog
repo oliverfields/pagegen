@@ -1,3 +1,10 @@
+2015-04-09  Oliver Fields  <oliver@phnd.net>
+
+* Site search functionality
+* Page tag and category template variables
+* Docutils and lxml dependencies added to .deb
+* Major reshuffle of files for python packaging
+
 2015-04-05  Oliver Fields  <oliver@phnd.net>
 
 * Page tag and category template variables
