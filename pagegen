@@ -32,7 +32,7 @@ environment=None
 
 
 def usage(exit_after=True):
-	print 'Usage: %s -i|--init|-g|--generate [-c|--config <site config file>] [-p|--pagegen-config <pagegen config file>] [-v|--version] [-e|--environment]' % (basename(argv[0]))
+	print 'Usage: %s -i|--init|-g|--generate [-e|--environment <environment>] [-c|--config <site config file>] [-p|--pagegen-config <pagegen config file>] [-v|--version]' % (basename(argv[0]))
 
 	if exit_after:
 		exit(0)
@@ -60,6 +60,7 @@ def gen_mode(site_conf_path, environment):
 		'PAGEGEN_SOURCE_DIR': join(site_dir, CONTENTDIR),
 		'PAGEGEN_TARGET_DIR': join(site_dir, TARGETDIR, s.environment),
 		'PAGEGEN_ENVIRONMENT': s.environment,
+		'PAGEGEN_BASE_URL': s.base_url,
 	}
 
 	# Run pre hook
@@ -92,7 +93,6 @@ def gen_mode(site_conf_path, environment):
 
 	# Run post hook
 	envs['PAGEGEN_HOOK']='post_generate'
-	envs['PAGEGEN_BASE_URL']=s.base_url
 	exec_hook(join(site_dir,HOOKDIR,'post_generate'), envs)
 
 
