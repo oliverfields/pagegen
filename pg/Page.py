@@ -20,7 +20,7 @@ from VirtualPage import VirtualPage
 from os import sep, access, X_OK
 from os.path import splitext, join
 from re import sub, search
-from Utility import DIRDEFAULTFILE, TARGETDIR, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR, relative_path
+from Utility import DIRDEFAULTFILE, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR, relative_path, TARGETDIR
 from subprocess import check_output
 
 
@@ -30,10 +30,11 @@ class Page(VirtualPage):
 	def __init__(self):
 		VirtualPage.__init__(self)
 
-	def load(self, path, site_dir, parent=False, base_url='', url_include_index=True, default_extension=''):
+	def load(self, path, site_dir, target_dir_name, parent=False, base_url='', url_include_index=True, default_extension=''):
 
 		self.source_path=path
 		self.site_dir=site_dir
+		self.target_dir_name=target_dir_name
 		self.parent=parent
 		self.base_url=base_url
 		self.url_include_index=url_include_index
@@ -57,19 +58,21 @@ class Page(VirtualPage):
 		# Remove non site path
 		path_part=path.replace(site_path+sep+CONTENTDIR, '')
 
-		self.target_dir=join(site_path, TARGETDIR)
+		self.target_dir=join(site_path, self.target_dir_name)
 
 		# Replace os dir seperator with forward slash
 		path_part.replace(sep, '/')
 
-		# Remove ordering prefix
-		path_part=sub('/[0-9]*_', '/', path_part)
+		# If not preserve file name, then make it nicely urlified
+		if self.headers['preserve file name'] == False:
+			# Remove ordering prefix
+			path_part=sub('/[0-9]*_', '/', path_part)
 
-		# Lowercase
-		path_part=path_part.lower()
+			# Lowercase
+			path_part=path_part.lower()
 
-		# Replace anything that isn't a charachter, number, slash, underscore or hyphen with a hyphen
-		path_part=urlify(path_part)
+			# Replace anything that isn't a charachter, number, slash, underscore or hyphen with a hyphen
+			path_part=urlify(path_part)
 
 		self.url_path=self.base_url+path_part
 
@@ -80,7 +83,7 @@ class Page(VirtualPage):
 		# Replace / with os dir seperator for target path
 		path_part=path_part.replace('/', sep)
 
-		self.target_path='%s%s%s%s' % (site_path, sep,TARGETDIR, path_part)
+		self.target_path="%s%s%s%s%s%s" % (self.site_dir, sep, TARGETDIR, sep, self.target_dir_name, path_part)
 
 
 	def set_title_from_path(self, path):

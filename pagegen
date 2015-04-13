@@ -27,18 +27,18 @@ from distutils.dir_util import copy_tree
 from getopt import getopt, GetoptError
 
 # Variables
-verbose=False
 version='2.0.4'
+environment=None
 
 
 def usage(exit_after=True):
-	print 'Usage: %s [-i|--init] [-g|--generate] [-c|--config <site config file>] [-p|--pagegen-config <pagegen config file>] [-v|--version]' % (basename(argv[0]))
+	print 'Usage: %s -i|--init|-g|--generate [-c|--config <site config file>] [-p|--pagegen-config <pagegen config file>] [-v|--version] [-e|--environment]' % (basename(argv[0]))
 
 	if exit_after:
 		exit(0)
 
 
-def gen_mode(site_conf_path=False):
+def gen_mode(site_conf_path, environment):
 
 	if not site_conf_path:
 		site_conf_path=get_site_conf_path()
@@ -49,22 +49,26 @@ def gen_mode(site_conf_path=False):
 	site_dir=site_conf_path[:-len(sep+basename(site_conf_path))]
 
 	try:
-		s=Site(site_dir, site_conf_path)
-		chdir(site_dir)
+		s=Site(site_dir, site_conf_path, environment)
 	except Exception as e:
 		report_error(1, "Unable to load site: %s" % e)
 
 	# Set environment variable for hooks
 	envs={
 		'PAGEGEN_SITE_DIR': site_dir,
+		'PAGEGEN_HOOK_DIR': join(site_dir, HOOKDIR),
 		'PAGEGEN_SOURCE_DIR': join(site_dir, CONTENTDIR),
-		'PAGEGEN_TARGET_DIR': join(site_dir, TARGETDIR)
+		'PAGEGEN_TARGET_DIR': join(site_dir, TARGETDIR, s.environment),
+		'PAGEGEN_ENVIRONMENT': s.environment,
 	}
 
 	# Run pre hook
+	envs['PAGEGEN_HOOK']='pre_generate'
 	exec_hook(join(site_dir,HOOKDIR,'pre_generate'), envs)
 
 	try:
+		s.prepare()
+		chdir(s.site_dir)
 		s.generate_pages(s.pages)
 	except Exception as e:
 		report_error(1, "Unable to generate site: %s" % e)
@@ -87,6 +91,8 @@ def gen_mode(site_conf_path=False):
 		report_error(1, "Unable to copy to target directory '%s': %s" % (s.target_dir, e))
 
 	# Run post hook
+	envs['PAGEGEN_HOOK']='post_generate'
+	envs['PAGEGEN_BASE_URL']=s.base_url
 	exec_hook(join(site_dir,HOOKDIR,'post_generate'), envs)
 
 
@@ -120,7 +126,7 @@ if __name__ == '__main__':
 	]
 
 	try:
-		opts, args=getopt(argv[1:],"igvc:p:", ["init", "generate", "version", "config=", "pagegen-config="])
+		opts, args=getopt(argv[1:],"igvc:p:e:", ["init", "generate", "version", "config=", "pagegen-config=", "environment="])
 	except GetoptError as e:
 		usage(exit_after=False)
 		report_error(1, "Invalid arguments: %s" % e)
@@ -141,7 +147,8 @@ if __name__ == '__main__':
 			# Add current dir absolute path if supplied releative path argument
 			if not site_config.startswith(sep):
 				site_config=join(getcwd(), site_config)
-
+		elif opt in ('-e', '--environment'):
+			environment=arg.lstrip('=')
 		elif opt in ('-p', '--pagegen-config'):
 			possible_configs=[arg.lstrip('=')]
 
@@ -153,7 +160,7 @@ if __name__ == '__main__':
 		pass
 
 	if mode == 'gen':
-		gen_mode(site_config)
+		gen_mode(site_config, environment)
 	elif mode == 'init':
 		init_mode(config)
 	else:

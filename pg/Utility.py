@@ -79,7 +79,7 @@ def report_notice(message):
 	print 'Notice:  %s' % message
 
 
-def load_config(files):
+def load_config(files, add_dummy_section=True):
 	''' Load pagegen config according to list of possible config file locations '''
 
 	conf_path=False
@@ -93,11 +93,16 @@ def load_config(files):
 		report_error(1, "pagegen.conf, not found in current, ~/.config/ or /etc/ directories")
 
 	try:
-		# Don't need section headers so just add a dummy root section before passing to confpars
-		ini_str=u'[root]\n' + open(conf_path, 'r').read()
-		ini_fp=StringIO(ini_str)
 		c=RawConfigParser()
-		c.readfp(ini_fp)
+		if add_dummy_section:
+			# Don't need section headers so just add a dummy root section before passing to confpars
+			ini_str=u'['+CONFROOT+']\n' + open(conf_path, 'r').read()
+			ini_fp=StringIO(ini_str)
+			c.readfp(ini_fp)
+		else:
+			# Config has sections, so open as normal
+			c.readfp(open(conf_path))
+
 	except Exception as e:
 		report_error(1,"Unable to read config from '%s': %s" % (conf_path, e))
 
@@ -133,6 +138,7 @@ def load_file(file):
 
 
 def write_file(file, content):
+	# 'a' -> Open file for appending, will create if not exist
 	with open(file, 'a') as f:
 		f.write(content)
 

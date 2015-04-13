@@ -36,7 +36,7 @@ from SearchIndex import SearchIndex
 class Site:
 	""" Master object """
 
-	def __init__(self, site_dir, config_file):
+	def __init__(self, site_dir, config_file, environment):
 		self.pages=[]
 		self.site_dir=''
 		self.base_url=''
@@ -71,79 +71,106 @@ class Site:
 		self.include_search=False
 		self.search_index=SearchIndex(join(self.site_dir, STOPWORDSFILE))
 		self.search_xpaths=[]
+		self.environment=environment
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
-			self.target_dir=join(site_dir, TARGETDIR)
 			self.include_dir=join(site_dir, INCLUDEDIR)
 			self.CONTENTDIR=join(site_dir, CONTENTDIR)
 		else:
 			raise Exception("Site dir '%s' is not a directory" % site_dir)
 
 		try:
-			config=load_config([config_file])
+			config=load_config([config_file], add_dummy_section=False)
 		except Exception as e:
 			raise Exception("Unable to load site config '%s': %s" % e)
 
+		# If no section supplied, look for first section containing default_section=True
+		if self.environment == None:
+			if len(config.sections()) == 1:
+				default_environment=config.sections()[0]
+			else:
+				default_environment=None
+				for section in config.sections():
+					try:
+						# If true then we have our environment
+						config.get(section,'default_environment')
+						default_environment=section
+						break
+
+					except Exception as e:
+						pass
+
+			# No default env set, exit
+			if default_environment==None:
+				report_error(1,"No environment specified from command arguments (-e or --environment) and no default_environment setting found in '%s'" % config_file)
+			else:
+				self.environment=default_environment
+
+		# Set target dir based on environment
+		self.target_dir=join(site_dir, TARGETDIR, self.environment)
+
+
 		try:
-			self.base_url=config.get(CONFROOT,'base_url')
+			self.base_url=config.get(self.environment,'base_url')
 		except:
 			raise Exception('%s must contain base_url setting' % SITECONF)
 
+
 		try:
-			self.exclude_sitemap=config.get(CONFROOT,'exclude_sitemap')
+			self.exclude_sitemap=config.get(self.environment,'exclude_sitemap')
 		except:
 			pass
 
 		try:
-			self.tag_dir=config.get(CONFROOT,'tag_url')
+			self.tag_dir=config.get(self.environment,'tag_url')
 		except:
 			pass
 
 		try:
-			self.tag_title=config.get(CONFROOT,'tag_title')
+			self.tag_title=config.get(self.environment,'tag_title')
 		except:
 			pass
 
 		try:
-			self.category_dir=config.get(CONFROOT,'category_url')
+			self.category_dir=config.get(self.environment,'category_url')
 		except:
 			pass
 
 		try:
-			self.category_title=config.get(CONFROOT,'category_title')
+			self.category_title=config.get(self.environment,'category_title')
 		except:
 			pass
 
 
 		try:
-			self.include_rss=config.get(CONFROOT,'include_rss')
+			self.include_rss=config.get(self.environment,'include_rss')
 		except:
 			pass
 
 		if self.include_rss != False:
 			try:
-				self.rss_title=config.get(CONFROOT,'rss_title')
+				self.rss_title=config.get(self.environment,'rss_title')
 			except:
 				pass
 
 			try:
-				self.rss_description=config.get(CONFROOT,'rss_description')
+				self.rss_description=config.get(self.environment,'rss_description')
 			except:
 				pass
 
 		try:
-			self.max_rss_items=int(config.get(CONFROOT,'max_rss_items'))
+			self.max_rss_items=int(config.get(self.environment,'max_rss_items'))
 		except:
 			pass
 
 		try:
-			self.absolute_urls=config.get(CONFROOT,'absolute_urls')
+			self.absolute_urls=config.get(self.environment,'absolute_urls')
 		except:
 			pass
 
 		try:
-			title_length_range=config.get(CONFROOT,'title_length_range').split('-')
+			title_length_range=config.get(self.environment,'title_length_range').split('-')
 			min=int(title_length_range[0])
 			max=int(title_length_range[1])
 
@@ -154,7 +181,7 @@ class Site:
 			pass
 
 		try:
-			description_length_range=config.get(CONFROOT,'description_length_range').split('-')
+			description_length_range=config.get(self.environment,'description_length_range').split('-')
 			min=int(description_length_range[0])
 			max=int(description_length_range[1])
 
@@ -165,44 +192,49 @@ class Site:
 			pass
 
 		try:
-			self.default_extension=config.get(CONFROOT,'default_extension')
+			self.default_extension=config.get(self.environment,'default_extension')
 		except:
 			pass
 
 		try:
-			self.url_include_index=config.get(CONFROOT,'url_include_index')
+			self.url_include_index=config.get(self.environment,'url_include_index')
 		except:
 			pass
 
 		try:
-			self.symlink_include=config.get(CONFROOT,'symlink_include')
+			self.symlink_include=config.get(self.environment,'symlink_include')
 		except:
 			pass
 
 		try:
-			self.page_titles=config.get(CONFROOT,'page_titles')
+			self.page_titles=config.get(self.environment,'page_titles')
 		except:
 			pass
 
 		try:
-			self.include_search=config.get(CONFROOT,'include_search')
+			self.include_search=config.get(self.environment,'include_search')
 		except:
 			pass
 
 		try:
-			xpaths=config.get(CONFROOT,'search_xpaths').split(',')
+			xpaths=config.get(self.environment,'search_xpaths').split(',')
 			for xpath in xpaths:
 				self.search_index.index_xpaths.append(xpath)
 		except:
 			self.search_index.index_xpaths.append('/html/body')
 
+
+	def prepare(self):
+		''' Prepare site for generation '''
+
 		content_path=join(self.site_dir, CONTENTDIR)
+
 		# Try to load home page, ok if not there
 		try:
 			# Get home page, append it as first item
 			home_page_path=self.get_dir_default_file(content_path)
-
 			home_page=self.get_directory_page(home_page_path, False)
+
 			if self.publish_page(home_page):
 				self.pages.append(home_page)
 			else:
@@ -351,7 +383,7 @@ class Site:
 		o.parent=parent_page
 		o.title=title
 		o.menu_title=title
-		o.target_path=self.target_dir+'/'+dir+'/'+DIRDEFAULTFILE+self.default_extension
+		o.target_path=self.environment+'/'+dir+'/'+DIRDEFAULTFILE+self.default_extension
 		o.url_path='/'+dir+'/'+DIRDEFAULTFILE+self.default_extension
 
 		o.url_path=self.get_url(o.url_path)
@@ -364,7 +396,7 @@ class Site:
 			l.headers['link chain exclude']=True
 			l.title=item.capitalize()
 			l.menu_title=item.capitalize()
-			l.target_path=self.target_dir+'/'+dir+'/'+urlify(item)+self.default_extension
+			l.target_path=self.environment+'/'+dir+'/'+urlify(item)+self.default_extension
 			l.url_path='/'+dir+'/'+urlify(item)+self.default_extension
 			l.parent=o
 			
@@ -453,7 +485,8 @@ class Site:
 			url_include_index=True
 
 		p=Page()
-		p.load(path, self.site_dir, parent=parent, base_url=base_url, url_include_index=url_include_index, default_extension=self.default_extension)
+
+		p.load(path, self.site_dir, self.environment, parent=parent, base_url=base_url, url_include_index=url_include_index, default_extension=self.default_extension)
 
 		return p
 
@@ -469,14 +502,18 @@ class Site:
 			p.hook_environment={
 				'PAGEGEN_SITE_DIR': self.site_dir,
 				'PAGEGEN_SOURCE_DIR': join(self.site_dir, CONTENTDIR),
-				'PAGEGEN_TARGET_DIR': join(self.site_dir, TARGETDIR),
+				'PAGEGEN_TARGET_DIR': self.target_dir,
+				'PAGEGEN_HOOK_DIR': join(self.site_dir, HOOKDIR),
+				'PAGEGEN_BASE_URL': self.base_url,
 				'PAGEGEN_PAGE_TITLE': p.title,
 				'PAGEGEN_PAGE_URL': p.url_path,
 				'PAGEGEN_PAGE_SOURCE_PATH': p.source_path,
 				'PAGEGEN_PAGE_TARGET_PATH': p.target_path,
+				'PAGEGEN_ENVIRONMENT': self.environment,
 			}
 
 			# Run pre hook
+			p.hook_environment['PAGEGEN_HOOK']='pre_generate_page'
 			exec_hook(join(self.site_dir,HOOKDIR,'pre_generate_page'), p.hook_environment)
 
 			if p.headers['generate html'] == True:
@@ -629,10 +666,10 @@ class Site:
 			elif isfile(f_path):
 				if self.absolute_urls != True:
 					p=Page()
-					p.load(f_path, self.site_dir, parent=parent, default_extension=self.default_extension)
+					p.load(f_path, self.site_dir, self.environment, parent=parent, default_extension=self.default_extension)
 				else:
 					p=Page()
-					p.load(f_path, self.site_dir, parent=parent, base_url=self.base_url, default_extension=self.default_extension)
+					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension)
 
 				if self.publish_page(p):
 					siblings.append(p)
@@ -690,7 +727,7 @@ class Site:
 			if self.symlink_include == False:
 				copy_tree(self.include_dir, include_dir)
 			else:
-				symlink(self.include_dir, join(TARGETDIR, INCLUDEDIR))
+				symlink(self.include_dir, join(self.target_dir, INCLUDEDIR))
 
 		# Create sitemap.txt
 		if self.exclude_sitemap == False:
@@ -717,6 +754,7 @@ class Site:
 			else:
 				write_file(p.target_path, p.html)
 
+			p.hook_environment['PAGEGEN_HOOK']='post_generate_page'
 			exec_hook(join(self.site_dir,HOOKDIR,'post_generate_page'), p.hook_environment)
 
 

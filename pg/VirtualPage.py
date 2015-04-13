@@ -43,6 +43,7 @@ class VirtualPage:
 		self.site_dir=''
 		self.default_extension=''
 		self.raw_headers=[]
+		self.target_dir=None
 
 		self.headers={
 			'sitemap exclude': False, 
@@ -59,7 +60,8 @@ class VirtualPage:
 			'tags': [],
 			'category': None,
 			'header profile': None,
-			'search index exclude': False
+			'search index exclude': False,
+			'preserve file name': False,
 		}
 
 
