@@ -69,7 +69,7 @@ class Site:
 		self.category_dir='category'
 		self.category_title='Categories'
 		self.include_search=False
-		self.search_index=SearchIndex(join(self.site_dir, STOPWORDSFILE))
+		self.search_index=SearchIndex(join(site_dir, STOPWORDSFILE))
 		self.search_xpaths=[]
 		self.environment=environment
 
