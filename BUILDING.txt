@@ -1,12 +1,12 @@
 Builds .deb and python package (for pip install)
 
-1. Create git tag
-   $ git tag -a <tag> -m '<describe tag>'
-   $ git push origin <tag>
-
-2. Ensure version correct in files
+1. Ensure version correct in files
     - pagegen
     - setup.py
+
+2. Create git tag
+   $ git tag -a <tag> -m '<describe tag>'
+   $ git push origin <tag>
 
 3. Build deb (do first, bacause updates changelog)
    $ mkdir <build dir>

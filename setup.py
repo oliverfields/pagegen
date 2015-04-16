@@ -3,7 +3,7 @@ from setuptools import setup
 files=['skel/*', 'pagegen.conf', 'changelog']
 
 setup(name = 'pagegen',
-	version='2.0.4',
+	version='2.1.0',
 	description='Static site generator',
 	author='Oliver Fields',
 	author_email='pagegen@phnd.netr',
