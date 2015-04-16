@@ -1,3 +1,9 @@
+2015-04-16  Oliver Fields  <oliver@phnd.net>
+
+* Implemented environment support (test/stage/prod etc) for generation,
+requires site.conf changes (add sections)
+* Fixed bug where unable to find stopwords file if not in root dir
+
 2015-04-09  Oliver Fields  <oliver@phnd.net>
 
 * Site search functionality

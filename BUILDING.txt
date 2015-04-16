@@ -15,6 +15,11 @@ Builds .deb and python package (for pip install)
 4. Build python package
    $ python setup.py sdist 
 
+5. Update site
+    - Copy .tar.gz and .deb to include/download
+    - Update content/030_Download/index
+    - Update hooks/script/set_site_variables
+    - Deploy
 
 If need to delete remote tag:
 $ git tag -d <tag>
