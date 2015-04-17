@@ -62,6 +62,9 @@ class VirtualPage:
 			'header profile': None,
 			'search index exclude': False,
 			'preserve file name': False,
+			'sitemap lastmod': None,
+			'sitemap changefreq': None,
+			'sitemap priority': None,
 		}
 
 

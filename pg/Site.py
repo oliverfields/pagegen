@@ -26,7 +26,7 @@ from Page import Page
 from VirtualPage import VirtualPage
 from docutils.core import publish_parts
 from distutils.dir_util import copy_tree
-from re import sub
+from re import sub, search
 from datetime import date
 from datetime import datetime
 from operator import itemgetter
@@ -799,15 +799,55 @@ class Site:
 				page.menu+='</ul>'
 
 
-	def generate_sitemap(self, pages):
+	def sitemap_url(self, page):
+		url='<url><loc>%s%s</loc>' % (self.base_url, page.url_path.rstrip('/'))
+
+		# Add lastmod if set
+		if page.headers['sitemap lastmod']:
+			try:
+				date=datetime.strptime(page.headers['sitemap lastmod'], '%Y-%m-%d')
+				url+='<lastmod>%s</lastmod>' % date.strftime('%Y-%m-%d')
+			except:
+				report_warning("Page header sitemap lastmod '%s' does not seem to be valid date: %s" % (page.headers['sitemap lastmod'], relative_path(page.source_path)))
+
+
+		# Add change freq if set
+		if page.headers['sitemap changefreq'] != None:
+			valid_changefreq='always hourly daily weekly monthly yearly never'
+			if page.headers['sitemap changefreq'] in valid_changefreq:
+				url+='<changefreq>%s</changefreq>' % page.headers['sitemap changefreq']
+			else:
+				report_warning("Page header sitemap changefreq '%s' does not seem to be valid (%s): %s" % (page.headers['sitemap changefreq'], valid_changefreq, relative_path(page.source_path)))
+
+		# Add priority
+		if page.headers['sitemap priority'] != None:
+			if search(r'^0.[0-9]*$', page.headers['sitemap priority']) or search(r'^1.0*$', page.headers['sitemap priority']):
+				url+='<priority>%s</priority>' % page.headers['sitemap priority']
+			else:
+				report_warning("Page header sitemap priority '%s' does not seem to be valid, must be valur between 0.0 and 1.0 : %s" % (page.headers['sitemap priority'], relative_path(page.source_path)))
+
+		url+='</url>'
+
+		return url
+
+	def generate_sitemap_urls(self, pages):
 		''' Create sitmap.txt '''
 		for p in pages:
 			if p.headers['sitemap exclude'] == False:
 				if p.children or p.url_path == '/':
-					self.sitemap+='%s%s\n' % (self.base_url, p.url_path.rstrip('/'))
-					self.generate_sitemap(p.children)
+					self.sitemap+=self.sitemap_url(p)
+					self.generate_sitemap_urls(p.children)
 				else:
-					self.sitemap+='%s%s\n' % (self.base_url, p.url_path)
+					self.sitemap+=self.sitemap_url(p)
+
+
+	def generate_sitemap(self, pages):
+
+		self.sitemap='<?xml version="1.0" encoding="utf-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">'
+
+		self.generate_sitemap_urls(pages)
+
+		self.sitemap+='</urlset>'
 
 
 	def generate_rss(self):
