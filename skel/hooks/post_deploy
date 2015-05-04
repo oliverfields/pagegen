@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Make executable to run at generation
+#
+# Available environment variables:
+# PAGEGEN_SITE_DIR - Root Pagegen directory
+# PAGEGEN_SOURCE_DIR - content directory
+# PAGEGEN_TARGET_DIR - site/<environment> directory
+# PAGEGEN_BASE_URL - Base url setting
+# PAGEGEN_HOOK - Hook name
+
+echo "$PAGEGEN_HOOK $PAGEGEN_ENVIRONMENT"

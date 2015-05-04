@@ -95,6 +95,15 @@ def gen_mode(site_conf_path, environment):
 	envs['PAGEGEN_HOOK']='post_generate'
 	exec_hook(join(site_dir,HOOKDIR,'post_generate'), envs)
 
+	# If deploy mode set, then run it
+	if s.deploy_mode == 'ftp':
+		s.ftp_upload()
+
+	if s.deploy_mode != None:
+		# Run post deploy
+		envs['PAGEGEN_HOOK']='post_deploy'
+		exec_hook(join(site_dir,HOOKDIR,'post_deploy'), envs)
+
 
 def init_mode(config):
 	''' Copy skeleton directory to current directory for basic setup '''

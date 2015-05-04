@@ -31,6 +31,7 @@ from datetime import date
 from datetime import datetime
 from operator import itemgetter
 from SearchIndex import SearchIndex
+from Upload import Upload
 
 
 class Site:
@@ -72,6 +73,13 @@ class Site:
 		self.search_index=SearchIndex(join(site_dir, STOPWORDSFILE))
 		self.search_xpaths=[]
 		self.environment=environment
+		self.deploy_mode=None
+		self.ftp_host=None
+		self.ftp_username=None
+		self.ftp_password=None
+		self.ftp_target_directory=None
+		#self.ftp_directory_permissions=None
+		#self.ftp_file_permissions=None
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -222,6 +230,22 @@ class Site:
 				self.search_index.index_xpaths.append(xpath)
 		except:
 			self.search_index.index_xpaths.append('/html/body')
+
+		try:
+			self.deploy_mode=config.get(self.environment, 'deploy_mode')
+		except:
+			pass
+
+		if self.deploy_mode == 'ftp':
+			try:
+				self.ftp_host=config.get(self.environment, 'ftp_host')
+				self.ftp_username=config.get(self.environment, 'ftp_username')
+				self.ftp_password=config.get(self.environment, 'ftp_password')
+				self.ftp_target_directory=config.get(self.environment, 'ftp_target_directory')
+				#self.ftp_directory_permissions=config.get(self.environment, 'ftp_directory_permissions')
+				#self.ftp_file_permissions=config.get(self.environment, 'ftp_file_permissions')
+			except:
+				report_error(1,'Unable to load ftp settings')
 
 
 	def prepare(self):
@@ -898,3 +922,19 @@ class Site:
 				self.rss_sequence.append(p)
 				if p.children or p.url_path == '/':
 					self.create_rss_sequence(p.children)
+
+
+	def ftp_upload(self):
+		''' Upload to ftp '''
+
+		u = Upload()
+
+		u.ftp_upload(
+			self.target_dir,
+			{
+				'ftp_host': self.ftp_host,
+				'ftp_username': self.ftp_username,
+				'ftp_password': self.ftp_password,
+				'ftp_target_directory': self.ftp_target_directory
+			}
+		)
