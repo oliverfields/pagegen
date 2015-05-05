@@ -1,3 +1,7 @@
+2015-05-05  Oliver Fields  <oliver@phnd.net>
+
+ * FTP deployment functionality
+
 2015-04-16  Oliver Fields  <oliver@phnd.net>
 
 * Implemented environment support (test/stage/prod etc) for generation,
