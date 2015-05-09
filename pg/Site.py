@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE
+from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE
 from ConfigParser import ConfigParser
 from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists, islink
@@ -46,6 +46,7 @@ class Site:
 		self.ignore=[]
 		self.home_menu_name=''
 		self.sitemap=''
+		self.sitemaptxt=''
 		self.exclude_sitemap=False
 		self.absolute_urls=True
 		self.symlink_include=False
@@ -638,8 +639,8 @@ class Site:
 			if p.target_path in page_target_paths:
 				report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (relative_path(p.target_path), relative_path(p.source_path), relative_path(page_target_paths[p.target_path])))
 			# TODO Better checking than ends with
-			elif (p.target_path.endswith(SITEMAPFILE) and self.exclude_sitemap == 'False') or p.target_path==join(self.site_dir, INCLUDEDIR):
-				report_error(1,"Page '%s' illegal name '%s'" % (relative_path(p.source_path), SITEMAPFILE))
+			elif ((p.target_path.endswith(SITEMAPFILE) or p.target_path.endswith(SITEMAPTXTFILE)) and self.exclude_sitemap == 'False') or p.target_path==join(self.site_dir, INCLUDEDIR):
+				report_error(1,"Page '%s' illegal name, cannot be either '%s' or '%s'" % (relative_path(p.source_path), SITEMAPFILE, SITEMAPTXTFILE))
 			elif p.target_path.endswith(RSSFEEDFILE) and self.include_rss != False:
 				report_error(1,"Page '%s' illegal name '%s'" % (relative_path(p.source_path), RSSFEEDFILE))
 			elif p.target_path.endswith(SEARCHINDEXFILE) and self.include_search != False:
@@ -753,9 +754,10 @@ class Site:
 			else:
 				symlink(self.include_dir, join(self.target_dir, INCLUDEDIR))
 
-		# Create sitemap.txt
+		# Create sitemap
 		if self.exclude_sitemap == False:
 			write_file(join(self.target_dir, SITEMAPFILE), self.sitemap)
+			write_file(join(self.target_dir, SITEMAPTXTFILE), self.sitemaptxt)
 
 		# Create rss feed
 		if self.include_rss != False:
@@ -860,9 +862,12 @@ class Site:
 			if p.headers['sitemap exclude'] == False:
 				if p.children or p.url_path == '/':
 					self.sitemap+=self.sitemap_url(p)
+					self.sitemaptxt += self.base_url + p.url_path.rstrip('/') + '\n'
+
 					self.generate_sitemap_urls(p.children)
 				else:
 					self.sitemap+=self.sitemap_url(p)
+					self.sitemaptxt += self.base_url + p.url_path + '\n'
 
 
 	def generate_sitemap(self, pages):
