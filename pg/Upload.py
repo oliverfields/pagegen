@@ -48,8 +48,8 @@ class Upload():
 		try:
 			ftp = FTP(config['ftp_host'])
 			ftp.login(config['ftp_username'], config['ftp_password'])
-		except:
-			raise Exception('Unable to login to FTP server')
+		except Exception as e:
+			raise Exception('Unable to login to FTP server: %s' % e)
 
 		# Delete target directory content
 		self.ftp_rm_tree(ftp, config['ftp_target_directory'])
