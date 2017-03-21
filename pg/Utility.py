@@ -19,13 +19,13 @@
 ''' General utility library '''
 
 from sys import exit, stderr
-from os import listdir, getcwd, sep, access, X_OK, putenv
+from os import listdir, getcwd, sep, access, X_OK, putenv, O_APPEND
 from os.path import join, isdir, isfile, expanduser
 from ConfigParser import RawConfigParser
 from io import StringIO
 from re import match, sub
 from subprocess import check_call
-
+import codecs
 
 # Constants
 PAGEGENCONF='pagegen.conf'
@@ -139,8 +139,11 @@ def load_file(file):
 
 def write_file(file, content):
 	# 'a' -> Open file for appending, will create if not exist
-	with open(file, 'a') as f:
-		f.write(content)
+	try:
+		with codecs.open(file, 'a', 'utf-8') as f:
+			f.write(content)
+	except Exception as e:
+		raise e
 
 def is_default_file(file):
 	return match('.*'+DIRDEFAULTFILE+'[.a-z]*$', file)
