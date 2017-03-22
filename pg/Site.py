@@ -365,7 +365,9 @@ class Site:
 			for p in page.children:
 				html+='<li><a href="%s">%s</a></li>' % (p.url_path, p.menu_title)
 
-			return html+'</ul>'
+			html += '</ul>'
+
+			return html
 
 
 	def generate_page_indexes(self, pages):
@@ -516,14 +518,23 @@ class Site:
 		return p
 
 	def update_place_holder(self, template, name, value):
-		return template.replace('{{%s}}' % name, value)
 
+		result = template.replace('{{%s}}' % name, value)
+		try:
+
+			result = template.replace('{{%s}}' % name, value)
+		except Exception as e:
+			raise Exception("Unable to update name '%s' with value '%s'" % (name, value))
+
+		return result
 
 	def generate_pages(self, pages):
 		''' Recursively iterate over and generate html for pages '''
-		
+
 		for p in pages:
+
 			# Set environment variable for hooks
+			# Seems to require 
 			p.hook_environment={
 				'PAGEGEN_SITE_DIR': self.site_dir,
 				'PAGEGEN_SOURCE_DIR': join(self.site_dir, CONTENTDIR),
@@ -535,17 +546,20 @@ class Site:
 				'PAGEGEN_PAGE_SOURCE_PATH': p.source_path,
 				'PAGEGEN_PAGE_TARGET_PATH': p.target_path,
 				'PAGEGEN_ENVIRONMENT': self.environment,
+				'PAGEGEN_HOOK': 'pre_generate_page'
 			}
 
-			# Run pre hook
-			p.hook_environment['PAGEGEN_HOOK']='pre_generate_page'
+			# Run hook
 			exec_hook(join(self.site_dir,HOOKDIR,'pre_generate_page'), p.hook_environment)
+
+
 
 			if p.headers['generate html'] == True:
 				try:
 					page_html=load_file(join(self.site_dir, TEMPLATEDIR, p.headers['template']))
 				except:
 					raise Exception("Unable to load page template: '%s'" % join(self.site_dir, TEMPLATEDIR, p.headers['template']))
+
 
 				page_html=self.update_place_holder(page_html, 'base_url', self.base_url)
 				page_html=self.update_place_holder(page_html, 'title', p.title)
@@ -580,8 +594,15 @@ class Site:
 				else:
 					page_html=self.update_place_holder(page_html, 'next_link', '<a href="%s">%s</a>' % (p.next_page.url_path, p.next_page.menu_title))
 
-				parts=publish_parts(rst, writer_name='html', settings_overrides={'doctitle_xform':False})
+				try:
+					#overrides = {'input_encoding': 'utf-8', 'output_encoding': 'unicode','doctitle_xform': False}
+					overrides = {'doctitle_xform': False}
+					parts = publish_parts(rst, writer_name='html', settings_overrides=overrides)
+				except:
+					raise(Exception('docutils.publish_parts failed'))
+
 				content=parts['html_body']
+
 				page_html=self.update_place_holder(page_html, 'content', content)
 
 				self.generate_menu(self.pages, p)
@@ -603,6 +624,7 @@ class Site:
 					for crumb in p.crumb_trail:
 						crumb_trail_html+='<li><a href="%s">%s</a></li>' % (crumb.url_path, crumb.menu_title)
 					crumb_trail_html+=('</ul>')
+
 					page_html=self.update_place_holder(page_html, 'crumb_trail', crumb_trail_html)
 
 				p.html=page_html

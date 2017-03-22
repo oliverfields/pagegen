@@ -44,6 +44,7 @@ class Page(VirtualPage):
 		if access(self.source_path, X_OK):
 			try:
 				content=check_output(self.source_path)
+
 			except Exception as e:
 				report_error(1,"File '%s' execution failed: %s" % (self.source_path, e))
 		else:

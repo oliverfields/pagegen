@@ -133,8 +133,12 @@ def get_site_conf_path(conf_file=False):
 
 
 def load_file(file):
-	with open (file, "r") as f:
-		data=f.read()#.replace('\n', '')
+	try:
+		with codecs.open (file, "r", 'utf-8') as f:
+			data=f.read()
+	except Exception as e:
+		raise e
+
 	return data
 
 
@@ -152,8 +156,9 @@ def is_default_file(file):
 def exec_hook(hook, env=None):
 	''' Run specified hook if executable '''
 
+	# Ensure all environment values are utf-8
 	for name, value in env.iteritems():
-		putenv(name, value)
+		putenv(name, value.encode('utf-8'))
 
 	if isfile(hook) and access(hook, X_OK):
 		try:
