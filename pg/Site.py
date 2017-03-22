@@ -269,7 +269,7 @@ class Site:
 
 		# Load pages
 		try:
-			self.load_pages(content_path, self.pages, home_page, self.default_extension)
+			self.load_pages(content_path.decode('utf-8'), self.pages, home_page, self.default_extension)
 		except Exception as e:
 			raise Exception('Unable to load content: %s' % e)
 
@@ -552,14 +552,11 @@ class Site:
 			# Run hook
 			exec_hook(join(self.site_dir,HOOKDIR,'pre_generate_page'), p.hook_environment)
 
-
-
 			if p.headers['generate html'] == True:
 				try:
 					page_html=load_file(join(self.site_dir, TEMPLATEDIR, p.headers['template']))
 				except:
 					raise Exception("Unable to load page template: '%s'" % join(self.site_dir, TEMPLATEDIR, p.headers['template']))
-
 
 				page_html=self.update_place_holder(page_html, 'base_url', self.base_url)
 				page_html=self.update_place_holder(page_html, 'title', p.title)
@@ -635,6 +632,7 @@ class Site:
 				self.generate_pages(p.children)
 
 
+
 	def check_pages(self, pages):
 		''' Check all files are uniquely named (because of xxx_ prefix potentially can have conflicts) '''
 		page_urls={}
@@ -695,17 +693,20 @@ class Site:
 		file_list.sort(key=LooseVersion)
 
 		for f in file_list:
+
 			f_path=join(dir_path, f)
 
 			# If dir then must have default file defined
 			if isdir(f_path):
 				dir_page=self.get_dir_default_file(f_path)
-
 				if dir_page:
 					p=self.get_directory_page(dir_page, parent)
 					if self.publish_page(p):
 						siblings.append(p)
-						self.load_pages(f_path, p.children, p, self.default_extension)
+						try:
+							self.load_pages(f_path, p.children, p, self.default_extension)
+						except Exception as e:
+							raise Exception('Unable to load pages for %s: %s' % (f, e))
 				else:
 					report_error(1, "Directory '%s' is missing '%s' file" % (f_path, DIRDEFAULTFILE))
 			elif is_default_file(f):

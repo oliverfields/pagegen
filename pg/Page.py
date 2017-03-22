@@ -85,6 +85,7 @@ class Page(VirtualPage):
 		path_part=path_part.replace('/', sep)
 
 		self.target_path="%s%s%s%s%s%s" % (self.site_dir, sep, TARGETDIR, sep, self.target_dir_name, path_part)
+		self.target_path = self.target_path
 
 
 	def set_title_from_path(self, path):

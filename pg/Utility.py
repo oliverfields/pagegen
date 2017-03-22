@@ -148,7 +148,7 @@ def write_file(file, content):
 		with codecs.open(file, 'a', 'utf-8') as f:
 			f.write(content)
 	except Exception as e:
-		raise e
+		raise (Exception('Unable to write file %s: %s' % (file, e)))
 
 def is_default_file(file):
 	return match('.*'+DIRDEFAULTFILE+'[.a-z]*$', file)
@@ -158,6 +158,7 @@ def exec_hook(hook, env=None):
 
 	# Ensure all environment values are utf-8
 	for name, value in env.iteritems():
+		#print('%s -> %s' % (name, value.encode('utf-8')))
 		putenv(name, value.encode('utf-8'))
 
 	if isfile(hook) and access(hook, X_OK):
