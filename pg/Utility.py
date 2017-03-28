@@ -23,7 +23,7 @@ from os import listdir, getcwd, sep, access, X_OK, putenv, O_APPEND
 from os.path import join, isdir, isfile, expanduser
 from ConfigParser import RawConfigParser
 from io import StringIO
-from re import match, sub
+from re import match, sub, finditer
 from subprocess import check_call
 import codecs
 
@@ -137,7 +137,43 @@ def load_file(file):
 		with codecs.open (file, "r", 'utf-8') as f:
 			data=f.read()
 	except Exception as e:
-		raise e
+		raise Exception('Unable to load file %s: %s' % (template_file, e))
+
+	return data
+
+
+
+def load_template(template_file):
+	''' Load template and for all {{.*:.*}} replace with contents '''
+
+	try:
+		with codecs.open (template_file, "r", 'utf-8') as f:
+			data=f.read()
+	except Exception as e:
+		raise Exception('Unable to load template %s: %s' % (template_file, e))
+
+	for includes in finditer('{{.*:.*}}', data):
+		# Chop off curly brackets
+		include_file = includes.group().replace('{{', '')
+		include_file = include_file.replace('}}', '')
+
+		include_file_parts = include_file.split(':')
+		protocol = include_file_parts[0]
+		path = include_file_parts[1]
+
+		if protocol == 'file':
+
+			# Chop off first two slashes to get file path
+			include_file_path = path[2:]
+
+			# Load content from include file
+			try:
+				include_content = load_file(include_file_path).rstrip()
+				data = data.replace(includes.group(), include_content)
+			except Exception as e:
+				raise Exception('Template %s: Unable to load include %s: %s' % (template_file, include_file_path, e))
+		else:
+			raise Exception('Unsupported protocol %s in %s' % (protocol, include_file)) 
 
 	return data
 
