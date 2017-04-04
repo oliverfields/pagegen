@@ -1,4 +1,4 @@
-from ftplib import FTP, all_errors
+import ftplib
 from os import walk
 from os.path import isdir, join, sep, split
 
@@ -46,7 +46,7 @@ class Upload():
 			directory_permissions = '755'
 
 		try:
-			ftp = FTP(config['ftp_host'])
+			ftp = ftplib.FTP(config['ftp_host'])
 			ftp.login(config['ftp_username'], config['ftp_password'])
 		except Exception as e:
 			raise Exception('Unable to login to FTP server: %s' % e)
@@ -94,17 +94,18 @@ class Upload():
 		for name in names:
 			if split(name)[1] in ('.', '..'): continue
 
-			file_or_dir = path + '/' + name
+			# On domeneshop paths seem to come full, whilst the other one returned just the name.. May need rewrite
+			#file_or_dir = path + '/' + name
+			file_or_dir = name
 
 			try:
 				ftp.cwd(file_or_dir)  # if we can cwd to it, it's a directory
 				self.ftp_rm_tree(ftp, file_or_dir) # Go delete more
 
 				try:
-					#print "Deleting dir %s" % file_or_dir
 					ftp.rmd(file_or_dir)
-				except all_errors as e:
+				except ftplib.all_errors as e:
 					raise Exception('Could not remove {0}: {1}'.format(path, e))
-			except all_errors:
-				#print "Deleting file %s" % file_or_dir
+			except ftplib.all_errors:
+				# A file, so just remove
 				ftp.delete(file_or_dir)
