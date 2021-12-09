@@ -16,19 +16,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from VirtualPage import VirtualPage
+from pagegen.virtualpage import virtualpage
 from os import sep, access, X_OK
 from os.path import splitext, join
 from re import sub, search
-from Utility import DIRDEFAULTFILE, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR, relative_path, TARGETDIR
+from pagegen.utility import DIRDEFAULTFILE, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR, relative_path, TARGETDIR
 from subprocess import check_output
 
 
-class Page(VirtualPage):
+class page(virtualpage):
 	""" Bread and butter of pagegen """
 
 	def __init__(self):
-		VirtualPage.__init__(self)
+		virtualpage.__init__(self)
 
 	def load(self, path, site_dir, target_dir_name, parent=False, base_url='', url_include_index=True, default_extension=''):
 

@@ -18,9 +18,9 @@
 
 from re import sub
 from lxml import etree
-from Utility import relative_path, report_error, load_file, report_warning, STOPWORDSFILE, NEWLINE
+from pagegen.utility import relative_path, report_error, load_file, report_warning, STOPWORDSFILE, NEWLINE
 
-class SearchIndex:
+class searchindex:
 
 	def __init__(self, stop_words_file=STOPWORDSFILE):
 		self.terms={} # Contains terms as key and Hit objects as values

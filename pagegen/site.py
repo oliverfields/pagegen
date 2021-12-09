@@ -16,25 +16,25 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from Utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, load_template
-from ConfigParser import ConfigParser
+from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, load_template
+from configparser import ConfigParser
 from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, sep, makedirs, symlink, remove, unlink
 from shutil import rmtree
-from Page import Page
-from VirtualPage import VirtualPage
+from pagegen.page import page
+from pagegen.virtualpage import virtualpage
 from docutils.core import publish_parts
 from distutils.dir_util import copy_tree
 from re import sub, search
 from datetime import date
 from datetime import datetime
 from operator import itemgetter
-from SearchIndex import SearchIndex
-from Upload import Upload
+from pagegen.searchindex import searchindex
+from pagegen.upload import upload
 
 
-class Site:
+class site:
 	""" Master object """
 
 	def __init__(self, site_dir, config_file, environment):
@@ -403,7 +403,7 @@ class Site:
 			items=self.categories.iteritems()
 
 		# Create top level overview page (o)
-		o=VirtualPage()
+		o=virtualpage()
 		o.headers['sitemap exclude']=True
 		o.headers['menu exclude']=True
 		o.headers['link chain exclude']=True
@@ -417,7 +417,7 @@ class Site:
 
 		# Create each list page (l)
 		for item, pages in items:
-			l=VirtualPage()
+			l=virtualpage()
 			l.headers['sitemap exclude']=True
 			l.headers['menu exclude']=True
 			l.headers['link chain exclude']=True

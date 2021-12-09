@@ -2,8 +2,7 @@ import ftplib
 from os import walk
 from os.path import isdir, join, sep, split
 
-class Upload():
-
+class upload():
 
 	def __init__(self):
 

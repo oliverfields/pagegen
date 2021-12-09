@@ -21,7 +21,7 @@
 from sys import exit, stderr
 from os import listdir, getcwd, sep, access, X_OK, putenv, O_APPEND
 from os.path import join, isdir, isfile, expanduser
-from ConfigParser import RawConfigParser
+from configparser import RawConfigParser
 from io import StringIO
 from re import match, sub, finditer
 from subprocess import check_call
@@ -73,11 +73,11 @@ def report_error(code, message):
 
 
 def report_warning(message):
-	print 'Warning: %s' % message
+	print('Warning: %s' % message)
 
 
 def report_notice(message):
-	print 'Notice:  %s' % message
+	print('Notice:  %s' % message)
 
 
 def load_config(files, add_dummy_section=True):

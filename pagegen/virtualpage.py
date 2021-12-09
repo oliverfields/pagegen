@@ -16,10 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from Utility import DEFAULTPAGETEMPLATE, DATEFORMAT
+from pagegen.utility import DEFAULTPAGETEMPLATE, DATEFORMAT
 from datetime import date
 
-class VirtualPage:
+class virtualpage:
 	''' Basic page class '''
 
 	def __init__(self):

@@ -16,8 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from pg.Utility import report_error, report_notice, load_config, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_hook
-from pg.Site import Site
+from pagegen.utility import report_error, report_notice, load_config, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_hook
+from pagegen.site import site
 from os.path import expanduser, basename, join, isfile
 from os import getcwd, listdir, sep, chdir
 from sys import exit, argv
@@ -25,12 +25,12 @@ from distutils.dir_util import copy_tree
 from getopt import getopt, GetoptError
 
 # Variables
-version='2.1.1'
+version='3.0.0'
 environment=None
 
 
 def usage(exit_after=True):
-	print 'Usage: %s -i|--init|-g|--generate [-e|--environment <environment>] [-c|--config <site config file>] [-p|--pagegen-config <pagegen config file>] [-v|--version]' % (basename(argv[0]))
+	print('Usage: %s -i|--init|-g|--generate [-e|--environment <environment>] [-c|--config <site config file>] [-p|--pagegen-config <pagegen config file>] [-v|--version]' % (basename(argv[0])))
 
 	if exit_after:
 		exit(0)
@@ -47,7 +47,7 @@ def gen_mode(site_conf_path, environment):
 	site_dir=site_conf_path[:-len(sep+basename(site_conf_path))]
 
 	try:
-		s=Site(site_dir, site_conf_path, environment)
+		s=site(site_dir, site_conf_path, environment)
 	except Exception as e:
 		report_error(1, "Unable to load site: %s" % e)
 
