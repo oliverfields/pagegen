@@ -3,3 +3,6 @@ stopwords.txt
 pagegen.egg-info
 dist
 pypi_details
+bin
+pyvenv.cfg
+lib
