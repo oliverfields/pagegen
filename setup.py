@@ -14,12 +14,11 @@ setup(name = 'pagegen',
 	},
 	classifiers=[
 		"Programming Language :: Python :: 3",
-		"License :: GPLv3",
+		"License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
 		"Operating System :: OS Independent",
 	],
 	python_requires=">=3.8",
 	packages=['pagegen'],
-	#package_data={'pagegen' : files },
 	long_description="""Python static site generator with reStructuredText markup.""",
 	install_requires=['lxml','docutils','configparser'],
         entry_points={
