@@ -8,15 +8,18 @@ Builds .deb and python package (for pip install)
    $ git tag -a <tag> -m '<describe tag>'
    $ git push origin <tag>
 
-3. Build deb (do first, bacause updates changelog)
-   $ mkdir <build dir>
-   $ ./build <tag> <build dir>
+3. Build python package and add to pypi.python.org
+   $ rm -Rf dist && python3 setup.py bdist_wheel # Build package
 
-4. Build python package and add to pypi.python.org
-   $ python setup.py sdist upload
+   Useful commands
+   $ pip uninstall dist/pagegen-X.X.X-py3-none-any.whl # uninstall package
+   $ pip install dist/pagegen-X.X.X-py3-none-any.whl # install package
+   $ virtualenv <directory> && cd <directory> && . bin/activate # Create virual env for testing install/uninstall
+
+4. Upload to pypi
+   $ twine upload dist/pagegen-X.X.X-py3-none-any.whl 
 
 5. Update site
-    - Copy .deb to include/download
     - Update content/030_Download/index
     - Update hooks/script/set_site_variables
     - Deploy

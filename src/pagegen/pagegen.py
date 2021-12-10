@@ -25,7 +25,7 @@ from distutils.dir_util import copy_tree
 from getopt import getopt, GetoptError
 
 # Variables
-version='3.0.0'
+version='3.0.1'
 environment=None
 
 

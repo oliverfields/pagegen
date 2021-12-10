@@ -1,9 +1,8 @@
 from setuptools import setup
-
-files=['skel/*', 'pagegen.conf', 'changelog']
+import os
 
 setup(name = 'pagegen',
-	version='3.0.0',
+        version='3.0.1',
 	description='Static site generator',
 	author='Oliver Fields',
 	author_email='pagegen@phnd.net',
@@ -18,7 +17,9 @@ setup(name = 'pagegen',
 		"Operating System :: OS Independent",
 	],
 	python_requires=">=3.8",
-	packages=['pagegen'],
+        packages=['pagegen'],
+        package_dir={'':'src'},
+        include_package_data=True,
 	long_description="""Python static site generator with reStructuredText markup.""",
 	install_requires=['lxml','docutils','configparser'],
         entry_points={

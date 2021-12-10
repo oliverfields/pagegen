@@ -1,2 +1,2 @@
-include pagegen pagegen.conf README changelog
-recursive-include skel *
+include README changelog
+recursive-include src/pagegen/skel *
