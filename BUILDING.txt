@@ -1,8 +1,6 @@
-Builds .deb and python package (for pip install)
+Builds Pagegen Python package for pip install
 
-1. Ensure version correct in files
-    - pagegen
-    - setup.py
+1. Increment version in files in setup.py
 
 2. Create git tag
    $ git tag -a <tag> -m '<describe tag>'
@@ -12,6 +10,7 @@ Builds .deb and python package (for pip install)
    $ rm -Rf dist && python3 setup.py bdist_wheel # Build package
 
    Useful commands
+   $ python3 setup.py clean --all
    $ pip uninstall dist/pagegen-X.X.X-py3-none-any.whl # uninstall package
    $ pip install dist/pagegen-X.X.X-py3-none-any.whl # install package
    $ virtualenv <directory> && cd <directory> && . bin/activate # Create virual env for testing install/uninstall

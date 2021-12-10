@@ -45,7 +45,7 @@ class searchindex:
 
 		i='{'
 		i+='"terms":{'
-		for term, hits in self.terms.iteritems():
+		for term, hits in self.terms.items():
 
 			# Assign id to each unique url in hits
 			for hit in hits:
@@ -66,7 +66,7 @@ class searchindex:
 		i+='},'
 
 		i+='"urls":{'
-		for url, hit in urls.iteritems():
+		for url, hit in urls.items():
 			i+='"%s":["%s","%s","%s"],' % (hit.id, hit.url, hit.title, hit.description)
 		i=i.rstrip(',')
 		i+='}'

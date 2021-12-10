@@ -71,7 +71,7 @@ class site:
 		self.category_dir='category'
 		self.category_title='Categories'
 		self.include_search=False
-		self.search_index=SearchIndex(join(site_dir, STOPWORDSFILE))
+		self.search_index=searchindex(join(site_dir, STOPWORDSFILE))
 		self.search_xpaths=[]
 		self.environment=environment
 		self.deploy_mode=None
@@ -269,7 +269,9 @@ class site:
 
 		# Load pages
 		try:
-			self.load_pages(content_path.decode('utf-8'), self.pages, home_page, self.default_extension)
+			# Python 2.7 line:
+			#self.load_pages(content_path.decode('utf-8'), self.pages, home_page, self.default_extension)
+			self.load_pages(content_path, self.pages, home_page, self.default_extension)
 		except Exception as e:
 			raise Exception('Unable to load content: %s' % e)
 
@@ -300,7 +302,7 @@ class site:
 
 		html='<div id="tags"><h1>%s</h1><ul>' % self.tag_title
 
-		for tag, pages in self.tags.iteritems():
+		for tag, pages in self.tags.items():
 			url='/'+self.tag_dir+'/'+urlify(tag)+self.default_extension
 			url=self.get_url(url)
 			html+='<li><a href="%s">%s</a>' % (url, tag)
@@ -315,7 +317,7 @@ class site:
 
 		html='<div id="categories"><h1>%s</h1><ul>' % self.category_title
 
-		for c, page in self.categories.iteritems():
+		for c, page in self.categories.items():
 			url='/'+self.category_dir+'/'+urlify(c)+self.default_extension
 			url=self.get_url(url)
 			html+='<li><a href="%s">%s</a>' % (url, c)
@@ -385,7 +387,7 @@ class site:
 
 	def generate_search_index(self):
 		''' For all indexable files get their terms and create json index file for site search use (requires javascript '''
-		si=SearchIndex()
+		si=searchindex()
 		self.generate_page_indexes(self.pages)
 		write_file(join(self.target_dir, SEARCHINDEXFILE), self.search_index.build_json_index())
 
@@ -396,11 +398,11 @@ class site:
 		if type == 'tag':
 			title=self.tag_title
 			dir=self.tag_dir
-			items=self.tags.iteritems()
+			items=self.tags.items()
 		else:
 			title=self.category_title
 			dir=self.category_dir
-			items=self.categories.iteritems()
+			items=self.categories.items()
 
 		# Create top level overview page (o)
 		o=virtualpage()
@@ -511,7 +513,7 @@ class site:
 		else:
 			url_include_index=True
 
-		p=Page()
+		p=page()
 
 		p.load(path, self.site_dir, self.environment, parent=parent, base_url=base_url, url_include_index=url_include_index, default_extension=self.default_extension)
 
@@ -689,8 +691,7 @@ class site:
 	def load_pages(self, dir_path, siblings, parent, default_extension):
 		''' Recursively load pages from content directory '''
 
-		file_list = listdir(dir_path)
-		file_list.sort(key=LooseVersion)
+		file_list = sorted(listdir(dir_path))
 
 		for f in file_list:
 
@@ -713,10 +714,10 @@ class site:
 				pass
 			elif isfile(f_path):
 				if self.absolute_urls != True:
-					p=Page()
+					p=page()
 					p.load(f_path, self.site_dir, self.environment, parent=parent, default_extension=self.default_extension)
 				else:
-					p=Page()
+					p=page()
 					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension)
 
 				if self.publish_page(p):
@@ -955,7 +956,7 @@ class site:
 	def ftp_upload(self):
 		''' Upload to ftp '''
 
-		u = Upload()
+		u = upload()
 
 		u.ftp_upload(
 			self.target_dir,

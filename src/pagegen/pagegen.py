@@ -16,21 +16,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from pagegen.utility import report_error, report_notice, load_config, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_hook
+from pagegen.utility import report_error, report_notice, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_hook
 from pagegen.site import site
 from os.path import expanduser, basename, join, isfile
 from os import getcwd, listdir, sep, chdir
 from sys import exit, argv
 from distutils.dir_util import copy_tree
 from getopt import getopt, GetoptError
-
-# Variables
-version='3.0.1'
-environment=None
+import pkg_resources
 
 
 def usage(exit_after=True):
-	print('Usage: %s -i|--init|-g|--generate [-e|--environment <environment>] [-c|--config <site config file>] [-p|--pagegen-config <pagegen config file>] [-v|--version]' % (basename(argv[0])))
+	print('Usage: %s [-i|--init] [-g|--generate] [-e|--environment <environment>] [-c|--config <site config file>] [-v|--version]' % (basename(argv[0])))
 
 	if exit_after:
 		exit(0)
@@ -103,14 +100,10 @@ def gen_mode(site_conf_path, environment):
 		exec_hook(join(site_dir,HOOKDIR,'post_deploy'), envs)
 
 
-def init_mode(config):
+def init_mode():
 	''' Copy skeleton directory to current directory for basic setup '''
 
-	try:
-		skel_dir=config.get(CONFROOT, 'skel_dir')
-	except Exception as e:
-		report_error(1, "Unable to get skel_dir value from pagegen.conf: %s" % e)
-
+	skel_dir = pkg_resources.resource_filename('pagegen', 'skel/')
 	root_dir=getcwd()
 
 	if listdir(root_dir):
@@ -123,15 +116,11 @@ def init_mode(config):
 
 
 def main():
-	# May be overwritten by -c arg
-	possible_configs=[
-		join(getcwd(), PAGEGENCONF),
-		join(HOME, '.config', PAGEGENCONF),
-		join(sep+'etc', PAGEGENCONF)
-	]
+
+	environment=None
 
 	try:
-		opts, args=getopt(argv[1:],"igvc:p:e:", ["init", "generate", "version", "config=", "pagegen-config=", "environment="])
+		opts, args=getopt(argv[1:],"igvc:e:", ["init", "generate", "version", "config=", "environment="])
 	except GetoptError as e:
 		usage(exit_after=False)
 		report_error(1, "Invalid arguments: %s" % e)
@@ -145,7 +134,7 @@ def main():
 		elif opt in ('-g', '--generate'):
 			mode='gen'
 		elif opt in ('-v', '--version'):
-			print("Pagegen %s" % version)
+			print("pagegen %s" % pkg_resources.get_distribution("pagegen").version)
 			exit(0)
 		elif opt in ('-c', '--config'):
 			site_config=arg.lstrip('=')
@@ -154,20 +143,11 @@ def main():
 				site_config=join(getcwd(), site_config)
 		elif opt in ('-e', '--environment'):
 			environment=arg.lstrip('=')
-		elif opt in ('-p', '--pagegen-config'):
-			possible_configs=[arg.lstrip('=')]
-
-	config=load_config(possible_configs)
-
-	try:
-		sys.path.append(config.get(CONFROOT, 'lib_dir'))
-	except:
-		pass
 
 	if mode == 'gen':
 		gen_mode(site_config, environment)
 	elif mode == 'init':
-		init_mode(config)
+		init_mode()
 	else:
 		usage(exit_after=True)
 

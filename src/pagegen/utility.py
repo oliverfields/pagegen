@@ -193,7 +193,7 @@ def exec_hook(hook, env=None):
 	''' Run specified hook if executable '''
 
 	# Ensure all environment values are utf-8
-	for name, value in env.iteritems():
+	for name, value in env.items():
 		#print('%s -> %s' % (name, value.encode('utf-8')))
 		putenv(name, value.encode('utf-8'))
 
