@@ -44,8 +44,6 @@ class site:
 		self.pages=[]
 		self.site_dir=''
 		self.base_url=''
-		self.menu_changed=False
-		self.omit_menu=False
 		self.ignore=[]
 		self.home_menu_name=''
 		self.sitemap=''
@@ -125,15 +123,13 @@ class site:
 		# Set target dir based on environment
 		self.target_dir=join(site_dir, TARGETDIR, self.environment)
 
-
 		try:
 			self.base_url=config.get(self.environment,'base_url')
 		except:
 			raise Exception('%s must contain base_url setting' % SITECONF)
 
-
 		try:
-			self.exclude_sitemap=config.get(self.environment,'exclude_sitemap')
+			self.exclude_sitemap=self.ensure_bool('exclude_sitemap', config.get(self.environment,'exclude_sitemap'))
 		except:
 			pass
 
@@ -158,11 +154,11 @@ class site:
 			pass
 
 		try:
-			self.include_rss=config.get(self.environment,'include_rss')
+			self.include_rss=self.ensure_bool('include_rss', config.get(self.environment,'include_rss'))
 		except:
 			pass
 
-		if self.include_rss != False:
+		if self.include_rss:
 			try:
 				self.rss_title=config.get(self.environment,'rss_title')
 			except:
@@ -179,22 +175,22 @@ class site:
 			pass
 
 		try:
-			self.absolute_urls=config.get(self.environment,'absolute_urls')
+			self.absolute_urls=self.ensure_bool('absolute_urls', config.get(self.environment,'absolute_urls'))
 		except:
 			pass
 
 		try:
-			self.minify_html=config.get(self.environment,'minify_html')
+			self.minify_html=self.ensure_bool('minify_html', config.get(self.environment,'minify_html'))
 		except:
 			pass
 
 		try:
-			self.minify_css=config.get(self.environment,'minify_css')
+			self.minify_css=self.ensure_bool('minify_css', config.get(self.environment,'minify_css'))
 		except:
 			pass
 
 		try:
-			self.minify_javascript=config.get(self.environment,'minify_javascript')
+			self.minify_javascript=self.ensure_bool('minify_javascript', config.get(self.environment,'minify_javascript'))
 		except:
 			pass
 
@@ -226,22 +222,22 @@ class site:
 			pass
 
 		try:
-			self.url_include_index=config.get(self.environment,'url_include_index')
+			self.url_include_index=self.ensure_bool('url_include', config.get(self.environment,'url_include_index'))
 		except:
 			pass
 
 		try:
-			self.symlink_include=config.get(self.environment,'symlink_include')
+			self.symlink_include=self.ensure_bool('symlink_include', config.get(self.environment,'symlink_include'))
 		except:
 			pass
 
 		try:
-			self.page_titles=config.get(self.environment,'page_titles')
+			self.page_titles=self.ensure_bool('page_title', config.get(self.environment,'page_titles'))
 		except:
 			pass
 
 		try:
-			self.include_search=config.get(self.environment,'include_search')
+			self.include_search=self.ensure_bool('include_search', config.get(self.environment,'include_search'))
 		except:
 			pass
 
@@ -267,6 +263,23 @@ class site:
 				#self.ftp_file_permissions=config.get(self.environment, 'ftp_file_permissions')
 			except:
 				report_error(1,'Unable to load ftp settings')
+
+		if self.symlink_include:
+			if self.minify_javascript:
+				report_error(1,'Config settings "symlink_include" and "minify_javascript" cannot be both "True", it could result in changes to source "include" directory')
+			if self.minify_css:
+				report_error(1,'Config settings "symlink_include" and "minify_css" cannot be both "True", it could result in changes to source "include" directory')
+
+
+	def ensure_bool(self, setting_name, data):
+		if data == "True":
+			#print(setting_name + ' is True')
+			return True
+		elif data == "False":
+			#print(setting_name + ' is False')
+			return False
+
+		report_error(1,'Setting "' + setting_name + '" must be either "True" or "False", value "' + data + '" is unrecognized')
 
 
 	def prepare(self):
@@ -596,7 +609,7 @@ class site:
 				page_html=self.update_place_holder(page_html, 'sub_menu', self.html_sub_menu(p))
 
 				# Page content
-				if self.page_titles != False:
+				if self.page_titles:
 					underline=sub('.', '#', p.title)
 					rst=p.title+'\n'+underline+'\n\n'+p.rst
 				else:
@@ -681,11 +694,11 @@ class site:
 			if p.target_path in page_target_paths:
 				report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (relative_path(p.target_path), relative_path(p.source_path), relative_path(page_target_paths[p.target_path])))
 			# TODO Better checking than ends with
-			elif ((p.target_path.endswith(SITEMAPFILE) or p.target_path.endswith(SITEMAPTXTFILE)) and self.exclude_sitemap == 'False') or p.target_path==join(self.site_dir, INCLUDEDIR):
+			elif ((p.target_path.endswith(SITEMAPFILE) or p.target_path.endswith(SITEMAPTXTFILE)) and self.exclude_sitemap == False) or p.target_path==join(self.site_dir, INCLUDEDIR):
 				report_error(1,"Page '%s' illegal name, cannot be either '%s' or '%s'" % (relative_path(p.source_path), SITEMAPFILE, SITEMAPTXTFILE))
-			elif p.target_path.endswith(RSSFEEDFILE) and self.include_rss != False:
+			elif p.target_path.endswith(RSSFEEDFILE) and self.include_rss:
 				report_error(1,"Page '%s' illegal name '%s'" % (relative_path(p.source_path), RSSFEEDFILE))
-			elif p.target_path.endswith(SEARCHINDEXFILE) and self.include_search != False:
+			elif p.target_path.endswith(SEARCHINDEXFILE) and self.include_search:
 				report_error(1,"Page '%s' illegal name '%s'" % (relative_path(p.source_path), SEARCHINDEXFILE))
 
 			else:
@@ -804,16 +817,16 @@ class site:
 			write_file(join(self.target_dir, SITEMAPTXTFILE), self.sitemaptxt)
 
 		# Create rss feed
-		if self.include_rss != False:
+		if self.include_rss:
 			write_file(join(self.target_dir, RSSFEEDFILE), self.rss)
 
-		if self.include_search != False:
+		if self.include_search:
 			self.generate_search_index()
 
-		if self.minify_javascript != False:
+		if self.minify_javascript:
 			self.minify_javascript_in_directory(include_dir)
 
-		if self.minify_css != False:
+		if self.minify_css:
 			self.minify_css_in_directory(include_dir)
 
 
@@ -881,7 +894,7 @@ class site:
 
 		for p in pages:
 
-			if p.headers['menu exclude'] != False:
+			if p.headers['menu exclude']:
 				continue
 
 			if p == page:
@@ -1003,7 +1016,7 @@ class site:
 	def create_rss_sequence(self, pages):
 		''' Get all pages with header rss include True '''
 		for p in pages:
-			if p.headers['rss include'] != False:
+			if p.headers['rss include']:
 				self.rss_sequence.append(p)
 				if p.children or p.url_path == '/':
 					self.create_rss_sequence(p.children)
