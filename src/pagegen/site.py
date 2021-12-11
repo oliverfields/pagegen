@@ -32,6 +32,9 @@ from operator import itemgetter
 from pagegen.searchindex import searchindex
 from pagegen.upload import upload
 from htmlmin import minify
+from glob import glob
+from rcssmin import cssmin
+from jsmin import jsmin
 
 
 class site:
@@ -81,6 +84,9 @@ class site:
 		self.ftp_target_directory=None
 		#self.ftp_directory_permissions=None
 		#self.ftp_file_permissions=None
+		self.minify_html=False
+		self.minify_css=False
+		self.minify_javascript=False
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -179,6 +185,16 @@ class site:
 
 		try:
 			self.minify_html=config.get(self.environment,'minify_html')
+		except:
+			pass
+
+		try:
+			self.minify_css=config.get(self.environment,'minify_css')
+		except:
+			pass
+
+		try:
+			self.minify_javascript=config.get(self.environment,'minify_javascript')
 		except:
 			pass
 
@@ -793,6 +809,38 @@ class site:
 
 		if self.include_search != False:
 			self.generate_search_index()
+
+		if self.minify_javascript != False:
+			self.minify_javascript_in_directory(include_dir)
+
+		if self.minify_css != False:
+			self.minify_css_in_directory(include_dir)
+
+
+	def minify_javascript_in_directory(self, dir):
+		files = self.find_files_by_extension(dir, 'js')
+		for file_name in files:
+			with open(file_name, 'r+') as f:
+				text = jsmin(f.read())
+				f.seek(0)
+				f.write(text)
+				f.truncate()
+
+
+	def minify_css_in_directory(self, dir):
+		files = self.find_files_by_extension(dir, 'css')
+		for file_name in files:
+			with open(file_name, 'r+') as f:
+				text = cssmin(f.read())
+				f.seek(0)
+				f.write(text)
+				f.truncate()
+
+
+	def find_files_by_extension(self, dir, extension):
+		pathname = dir + "/**/*." + extension
+		files = glob(pathname, recursive=True)
+		return files
 
 
 	def save_pages(self, pages):
