@@ -18,7 +18,6 @@
 
 from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, load_template
 from configparser import ConfigParser
-from distutils.version import LooseVersion
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, sep, makedirs, symlink, remove, unlink
 from shutil import rmtree
@@ -32,6 +31,7 @@ from datetime import datetime
 from operator import itemgetter
 from pagegen.searchindex import searchindex
 from pagegen.upload import upload
+from htmlmin import minify
 
 
 class site:
@@ -151,7 +151,6 @@ class site:
 		except:
 			pass
 
-
 		try:
 			self.include_rss=config.get(self.environment,'include_rss')
 		except:
@@ -175,6 +174,11 @@ class site:
 
 		try:
 			self.absolute_urls=config.get(self.environment,'absolute_urls')
+		except:
+			pass
+
+		try:
+			self.minify_html=config.get(self.environment,'minify_html')
 		except:
 			pass
 
@@ -795,6 +799,10 @@ class site:
 		''' Create files and directories in target dir '''
 
 		for p in pages:
+
+			if self.minify_html:
+				p.html = minify(p.html)
+
 			if p.parent and is_default_file(p.target_path):
 				dir_path=p.target_path.rpartition(sep)[0]
 				makedirs(dir_path)

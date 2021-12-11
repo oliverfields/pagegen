@@ -40,7 +40,6 @@ def gen_mode(site_conf_path, environment):
 
 	if not site_conf_path:
 		report_error(1, "Not in pagegen directory tree, unable to find a valid site.conf")
-
 	site_dir=site_conf_path[:-len(sep+basename(site_conf_path))]
 
 	try:
