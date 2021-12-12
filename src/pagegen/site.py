@@ -45,30 +45,16 @@ class site:
 		self.site_dir=''
 		self.base_url=''
 		self.ignore=[]
-		self.home_menu_name=''
 		self.sitemap=''
 		self.sitemaptxt=''
-		self.default_extension=''
-		self.title_warn_min=0
-		self.title_warn_max=0
-		self.description_warn_min=0
-		self.description_warn_max=0
 		self.link_sequence=[]
 		self.rss_sequence=[]
-		self.max_rss_items=15
-		self.rss_title=''
-		self.rss_description=''
 		self.rss=''
 		self.tags={}
-		self.tag_dir='tag'
-		self.tag_title='Tags'
 		self.categories={}
-		self.category_dir='category'
-		self.category_title='Categories'
 		self.search_index=searchindex(join(site_dir, STOPWORDSFILE))
 		self.search_xpaths=[]
 		self.environment=environment
-		self.deploy_mode=None
 		self.ftp_host=None
 		self.ftp_username=None
 		self.ftp_password=None
@@ -124,22 +110,22 @@ class site:
 		try:
 			self.tag_dir=config.get(self.environment,'tag_url')
 		except:
-			pass
+			self.tag_dir='tag'
 
 		try:
 			self.tag_title=config.get(self.environment,'tag_title')
 		except:
-			pass
+			self.tag_title='Tags'
 
 		try:
 			self.category_dir=config.get(self.environment,'category_url')
 		except:
-			pass
+			self.category_dir='category'
 
 		try:
 			self.category_title=config.get(self.environment,'category_title')
 		except:
-			pass
+			self.category_title='Categories'
 
 		try:
 			self.include_rss=self.ensure_bool('include_rss', config.get(self.environment,'include_rss'))
@@ -150,17 +136,17 @@ class site:
 			try:
 				self.rss_title=config.get(self.environment,'rss_title')
 			except:
-				pass
+				self.rss_title=''
 
 			try:
 				self.rss_description=config.get(self.environment,'rss_description')
 			except:
-				pass
+				self.rss_description=''
 
 		try:
 			self.max_rss_items=int(config.get(self.environment,'max_rss_items'))
 		except:
-			pass
+			self.max_rss_items=15
 
 		try:
 			self.absolute_urls=self.ensure_bool('absolute_urls', config.get(self.environment,'absolute_urls'))
@@ -191,7 +177,8 @@ class site:
 				self.title_warn_min=min
 				self.title_warn_max=max
 		except:
-			pass
+			self.title_warn_min=0
+			self.title_warn_max=0
 
 		try:
 			description_length_range=config.get(self.environment,'description_length_range').split('-')
@@ -202,12 +189,13 @@ class site:
 				self.description_warn_min=min
 				self.description_warn_max=max
 		except:
-			pass
+			self.description_warn_min=0
+			self.description_warn_max=0
 
 		try:
 			self.default_extension=config.get(self.environment,'default_extension')
 		except:
-			pass
+			self.default_extension=''
 
 		try:
 			self.url_include_index=self.ensure_bool('url_include', config.get(self.environment,'url_include_index'))
@@ -239,7 +227,7 @@ class site:
 		try:
 			self.deploy_mode=config.get(self.environment, 'deploy_mode')
 		except:
-			pass
+			self.deploy_mode=None
 
 		if self.deploy_mode == 'ftp':
 			try:
