@@ -48,18 +48,12 @@ class site:
 		self.home_menu_name=''
 		self.sitemap=''
 		self.sitemaptxt=''
-		self.exclude_sitemap=False
-		self.absolute_urls=True
-		self.symlink_include=False
-		self.page_titles=False
-		self.url_include_index=True
 		self.default_extension=''
 		self.title_warn_min=0
 		self.title_warn_max=0
 		self.description_warn_min=0
 		self.description_warn_max=0
 		self.link_sequence=[]
-		self.include_rss=False
 		self.rss_sequence=[]
 		self.max_rss_items=15
 		self.rss_title=''
@@ -71,7 +65,6 @@ class site:
 		self.categories={}
 		self.category_dir='category'
 		self.category_title='Categories'
-		self.include_search=False
 		self.search_index=searchindex(join(site_dir, STOPWORDSFILE))
 		self.search_xpaths=[]
 		self.environment=environment
@@ -80,11 +73,6 @@ class site:
 		self.ftp_username=None
 		self.ftp_password=None
 		self.ftp_target_directory=None
-		#self.ftp_directory_permissions=None
-		#self.ftp_file_permissions=None
-		self.minify_html=False
-		self.minify_css=False
-		self.minify_javascript=False
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -131,7 +119,7 @@ class site:
 		try:
 			self.exclude_sitemap=self.ensure_bool('exclude_sitemap', config.get(self.environment,'exclude_sitemap'))
 		except:
-			pass
+			self.exclude_sitemap=False
 
 		try:
 			self.tag_dir=config.get(self.environment,'tag_url')
@@ -156,7 +144,7 @@ class site:
 		try:
 			self.include_rss=self.ensure_bool('include_rss', config.get(self.environment,'include_rss'))
 		except:
-			pass
+			self.include_rss=False
 
 		if self.include_rss:
 			try:
@@ -177,22 +165,22 @@ class site:
 		try:
 			self.absolute_urls=self.ensure_bool('absolute_urls', config.get(self.environment,'absolute_urls'))
 		except:
-			pass
+			self.absolute_urls=True
 
 		try:
 			self.minify_html=self.ensure_bool('minify_html', config.get(self.environment,'minify_html'))
 		except:
-			pass
+			self.minify_html=False
 
 		try:
 			self.minify_css=self.ensure_bool('minify_css', config.get(self.environment,'minify_css'))
 		except:
-			pass
+			self.minify_css=False
 
 		try:
 			self.minify_javascript=self.ensure_bool('minify_javascript', config.get(self.environment,'minify_javascript'))
 		except:
-			pass
+			self.minify_javascript=False
 
 		try:
 			title_length_range=config.get(self.environment,'title_length_range').split('-')
@@ -224,22 +212,22 @@ class site:
 		try:
 			self.url_include_index=self.ensure_bool('url_include', config.get(self.environment,'url_include_index'))
 		except:
-			pass
+			self.url_include_index=True
 
 		try:
 			self.symlink_include=self.ensure_bool('symlink_include', config.get(self.environment,'symlink_include'))
 		except:
-			pass
+			self.symlink_include=False
 
 		try:
 			self.page_titles=self.ensure_bool('page_title', config.get(self.environment,'page_titles'))
 		except:
-			pass
+			self.page_titles=False
 
 		try:
 			self.include_search=self.ensure_bool('include_search', config.get(self.environment,'include_search'))
 		except:
-			pass
+			self.include_search=False
 
 		try:
 			xpaths=config.get(self.environment,'search_xpaths').split(',')
