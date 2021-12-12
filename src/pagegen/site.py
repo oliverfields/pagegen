@@ -55,10 +55,6 @@ class site:
 		self.search_index=searchindex(join(site_dir, STOPWORDSFILE))
 		self.search_xpaths=[]
 		self.environment=environment
-		self.ftp_host=None
-		self.ftp_username=None
-		self.ftp_password=None
-		self.ftp_target_directory=None
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -225,20 +221,9 @@ class site:
 			self.search_index.index_xpaths.append('/html/body')
 
 		try:
-			self.deploy_mode=config.get(self.environment, 'deploy_mode')
+			self.deploy_script=config.get(self.environment, 'deploy_script')
 		except:
-			self.deploy_mode=None
-
-		if self.deploy_mode == 'ftp':
-			try:
-				self.ftp_host=config.get(self.environment, 'ftp_host')
-				self.ftp_username=config.get(self.environment, 'ftp_username')
-				self.ftp_password=config.get(self.environment, 'ftp_password')
-				self.ftp_target_directory=config.get(self.environment, 'ftp_target_directory')
-				#self.ftp_directory_permissions=config.get(self.environment, 'ftp_directory_permissions')
-				#self.ftp_file_permissions=config.get(self.environment, 'ftp_file_permissions')
-			except:
-				report_error(1,'Unable to load ftp settings')
+			self.deploy_script=None
 
 		if self.symlink_include:
 			if self.minify_javascript:
@@ -997,18 +982,3 @@ class site:
 				if p.children or p.url_path == '/':
 					self.create_rss_sequence(p.children)
 
-
-	def ftp_upload(self):
-		''' Upload to ftp '''
-
-		u = upload()
-
-		u.ftp_upload(
-			self.target_dir,
-			{
-				'ftp_host': self.ftp_host,
-				'ftp_username': self.ftp_username,
-				'ftp_password': self.ftp_password,
-				'ftp_target_directory': self.ftp_target_directory
-			}
-		)

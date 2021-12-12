@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from pagegen.utility import report_error, report_notice, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_hook
+from pagegen.utility import report_error, report_notice, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, DEPLOYSCRIPTDIR, HOOKDIR, CONTENTDIR, exec_hook
 from pagegen.site import site
 from os.path import expanduser, basename, join, isfile
 from os import getcwd, listdir, sep, chdir
@@ -47,10 +47,11 @@ def gen_mode(site_conf_path, environment):
 	except Exception as e:
 		report_error(1, "Unable to load site: %s" % e)
 
-	# Set environment variable for hooks
+	# Set environment variable for hooks and deploy scripts
 	envs={
 		'PAGEGEN_SITE_DIR': site_dir,
 		'PAGEGEN_HOOK_DIR': join(site_dir, HOOKDIR),
+		'PAGEGEN_DEPLOY_SCRIPT_DIR': join(site_dir, DEPLOYSCRIPTDIR),
 		'PAGEGEN_SOURCE_DIR': join(site_dir, CONTENTDIR),
 		'PAGEGEN_TARGET_DIR': join(site_dir, TARGETDIR, s.environment),
 		'PAGEGEN_ENVIRONMENT': s.environment,
@@ -89,14 +90,19 @@ def gen_mode(site_conf_path, environment):
 	envs['PAGEGEN_HOOK']='post_generate'
 	exec_hook(join(site_dir,HOOKDIR,'post_generate'), envs)
 
-	# If deploy mode set, then run it
-	if s.deploy_mode == 'ftp':
-		s.ftp_upload()
+	# If deploy mode set, then try to run the script of same name
+	if s.deploy_script != None:
+		exec_hook(join(site_dir,DEPLOYSCRIPTDIR,s.deploy_script), envs)
+		print('Hola, lets run ' + s.deploy_script)
+#		if access(<config deploy_mode>, X_OK):
+#			try:
+#				content=check_output(config_deploy_mode, site_deployed_to_dir, env={})
 
-	if s.deploy_mode != None:
-		# Run post deploy
-		envs['PAGEGEN_HOOK']='post_deploy'
-		exec_hook(join(site_dir,HOOKDIR,'post_deploy'), envs)
+#			except Exception as e:
+#				report_error(1,"Upload '%s' execution failed: %s" % (config_deploy_mode, e))
+	# Run post deploy
+	envs['PAGEGEN_HOOK']='post_deploy'
+	exec_hook(join(site_dir,HOOKDIR,'post_deploy'), envs)
 
 
 def init_mode():
