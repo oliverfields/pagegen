@@ -30,7 +30,6 @@ from datetime import date
 from datetime import datetime
 from operator import itemgetter
 from pagegen.searchindex import searchindex
-from pagegen.upload import upload
 from htmlmin import minify
 from glob import glob
 from rcssmin import cssmin
@@ -65,6 +64,7 @@ class site:
 
 		try:
 			config=load_config([config_file], add_dummy_section=False)
+			self.raw_config=config
 		except Exception as e:
 			raise Exception("Unable to load site config '%s': %s" % e)
 

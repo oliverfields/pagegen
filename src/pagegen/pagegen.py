@@ -47,7 +47,7 @@ def gen_mode(site_conf_path, environment):
 	except Exception as e:
 		report_error(1, "Unable to load site: %s" % e)
 
-	# Set environment variable for hooks and deploy scripts
+	# Set environment variable for hooks
 	envs={
 		'PAGEGEN_SITE_DIR': site_dir,
 		'PAGEGEN_HOOK_DIR': join(site_dir, HOOKDIR),
@@ -92,14 +92,20 @@ def gen_mode(site_conf_path, environment):
 
 	# If deploy mode set, then try to run the script of same name
 	if s.deploy_script != None:
-		exec_hook(join(site_dir,DEPLOYSCRIPTDIR,s.deploy_script), envs)
-		print('Hola, lets run ' + s.deploy_script)
-#		if access(<config deploy_mode>, X_OK):
-#			try:
-#				content=check_output(config_deploy_mode, site_deployed_to_dir, env={})
 
-#			except Exception as e:
-#				report_error(1,"Upload '%s' execution failed: %s" % (config_deploy_mode, e))
+		# Environment settings for deploy script
+		envs={
+			'PAGEGEN_SITE_DIR': site_dir,
+			'PAGEGEN_SOURCE_DIR': join(site_dir, CONTENTDIR),
+			'PAGEGEN_GENERATED_DIR': join(site_dir, TARGETDIR, s.environment),
+		}
+
+		for (key, value) in  s.raw_config.items(s.environment):
+			envs['PAGEGEN_' + key.upper()] = value
+
+		exec_hook(join(site_dir,DEPLOYSCRIPTDIR,s.deploy_script), envs)
+
+
 	# Run post deploy
 	envs['PAGEGEN_HOOK']='post_deploy'
 	exec_hook(join(site_dir,HOOKDIR,'post_deploy'), envs)

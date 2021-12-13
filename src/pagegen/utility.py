@@ -202,4 +202,7 @@ def exec_hook(hook, env=None):
 		try:
 			check_call(hook)
 		except Exception as e:
-			report_error(1,"Hook '%s' execution failed: %s" % (hook, e))
+			report_error(1,"Script '%s' execution failed: %s" % (hook, e))
+	else:
+		report_error(1,'Script ' + hook + ' not found or not executable')
+
