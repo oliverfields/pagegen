@@ -43,8 +43,7 @@ class page(virtualpage):
 		# If file is executable then the contents from it's stdout, else just read the file
 		if access(self.source_path, X_OK):
 			try:
-				content=check_output(self.source_path)
-
+				content=check_output(self.source_path, text=True)
 			except Exception as e:
 				report_error(1,"File '%s' execution failed: %s" % (self.source_path, e))
 		else:

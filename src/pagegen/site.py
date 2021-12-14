@@ -513,6 +513,7 @@ class site:
 
 		return p
 
+
 	def update_place_holder(self, template, name, value):
 
 		result = template.replace('{{%s}}' % name, value)
@@ -523,6 +524,7 @@ class site:
 			raise Exception("Unable to update name '%s' with value '%s'" % (name, value))
 
 		return result
+
 
 	def generate_pages(self, pages):
 		''' Recursively iterate over and generate html for pages '''
@@ -564,6 +566,7 @@ class site:
 					description=p.headers['description']
 				else:
 					description=''
+
 				page_html=self.update_place_holder(page_html, 'description', description)
 				page_html=self.update_place_holder(page_html, 'page_tags', self.html_page_tag_list(p.headers['tags']))
 				page_html=self.update_place_holder(page_html, 'page_category', self.html_page_category(p.headers['category']))
