@@ -44,6 +44,7 @@ class page(virtualpage):
 		if access(self.source_path, X_OK):
 			try:
 				content=check_output(self.source_path, text=True)
+
 			except Exception as e:
 				report_error(1,"File '%s' execution failed: %s" % (self.source_path, e))
 		else:
@@ -230,9 +231,12 @@ class page(virtualpage):
 		else:
 			self.menu_title=self.title
 
+
 		if file_extension:
 			self.extension=file_extension
 			self.set_paths(path, site_dir)
 		else:
-			self.extension=default_extension
+			if self.headers['preserve file name'] == False:
+				self.extension=default_extension
 			self.set_paths(path+self.extension, site_dir)
+
