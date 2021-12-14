@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_hook, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, load_template
+from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, load_template
 from configparser import ConfigParser
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, sep, makedirs, symlink, remove, unlink
@@ -546,7 +546,9 @@ class site:
 			}
 
 			# Run hook
-			exec_hook(join(self.site_dir,HOOKDIR,'pre_generate_page'), p.hook_environment)
+			hook = join(self.site_dir,HOOKDIR,'pre_generate_page')
+			if isfile(hook):
+				exec_script(hook, p.hook_environment)
 
 			if p.headers['generate html'] == True:
 				try:
@@ -835,7 +837,10 @@ class site:
 				write_file(p.target_path, p.html)
 
 			p.hook_environment['PAGEGEN_HOOK']='post_generate_page'
-			exec_hook(join(self.site_dir,HOOKDIR,'post_generate_page'), p.hook_environment)
+
+			hook = join(self.site_dir,HOOKDIR,'post_generate_page')
+			if isfile(hook):
+				exec_script(hook, p.hook_environment)
 
 
 	def generate_crumb_trail(self, crumb_trail_page, page):

@@ -187,22 +187,21 @@ def write_file(file, content):
 	except Exception as e:
 		raise (Exception('Unable to write file %s: %s' % (file, e)))
 
+
 def is_default_file(file):
 	return match('.*'+DIRDEFAULTFILE+'[.a-z]*$', file)
 
-def exec_hook(hook, env=None):
-	''' Run specified hook if executable '''
+
+def exec_script(script, env=None):
+	''' Run specified script if executable '''
 
 	# Ensure all environment values are utf-8
 	for name, value in env.items():
 		#print('%s -> %s' % (name, value.encode('utf-8')))
 		putenv(name, value.encode('utf-8'))
 
-	if isfile(hook) and access(hook, X_OK):
-		try:
-			check_call(hook)
-		except Exception as e:
-			report_error(1,"Script '%s' execution failed: %s" % (hook, e))
-	else:
-		report_error(1,'Script ' + hook + ' not found or not executable')
+	try:
+		check_call(script)
+	except Exception as e:
+		report_error(1,"Script '%s' execution failed: %s" % (script, e))
 

@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v3.1.1 - 2021-12-14
+
+### Changed
+
+- pagegen --init now includes examples of scripts
+
+
 ## v3.1.0 - 2021-12-13
 
 ### Added

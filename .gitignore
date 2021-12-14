@@ -1,8 +1,9 @@
-*.pyc
 stopwords.txt
 pagegen.egg-info
-dist
+dist/
 pypi_details
-bin
+bin/
 pyvenv.cfg
-lib
+lib/
+__pycache__/
+*.py[cod]

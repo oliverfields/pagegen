@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+# Remove .example from this file name and ensure it is executable (chmod +x <file>)
+# to start using this hook
+
+import os
+
+print('Pagegen environment variables')
+print('=============================\n')
+
+for item, value in os.environ.items():
+	if item.startswith('PAGEGEN'):
+		print('{}: {}'.format(item, value))
+

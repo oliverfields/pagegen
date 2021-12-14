@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 
 setup(name = 'pagegen',
-        version='3.1.0',
+	version='3.1.1',
 	description='Static site generator',
 	author='Oliver Fields',
 	author_email='pagegen@phnd.net',
@@ -17,12 +17,12 @@ setup(name = 'pagegen',
 		"Operating System :: OS Independent",
 	],
 	python_requires=">=3.8",
-        packages=['pagegen'],
-        package_dir={'':'src'},
-        include_package_data=True,
+	packages=['pagegen'],
+	package_dir={'':'src'},
+	include_package_data=True,
 	long_description="""Python static site generator with reStructuredText markup.""",
 	install_requires=['lxml','docutils','configparser','htmlmin','rcssmin','jsmin'],
-        entry_points={
-            'console_scripts': ['pagegen=pagegen.pagegen:main']
-        }
+	entry_points={
+		'console_scripts': ['pagegen=pagegen.pagegen:main'],
+	}
 )

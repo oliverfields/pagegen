@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
 
-from pagegen.utility import report_error, report_notice, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, DEPLOYSCRIPTDIR, HOOKDIR, CONTENTDIR, exec_hook
+from pagegen.utility import report_error, report_notice, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, DEPLOYSCRIPTDIR, HOOKDIR, CONTENTDIR, exec_script
 from pagegen.site import site
 from os.path import expanduser, basename, join, isfile
 from os import getcwd, listdir, sep, chdir
@@ -60,7 +60,9 @@ def gen_mode(site_conf_path, environment):
 
 	# Run pre hook
 	envs['PAGEGEN_HOOK']='pre_generate'
-	exec_hook(join(site_dir,HOOKDIR,'pre_generate'), envs)
+	hook = join(site_dir,HOOKDIR,'pre_generate')
+	if isfile(hook):
+		exec_script(hook, envs)
 
 	try:
 		s.prepare()
@@ -88,7 +90,9 @@ def gen_mode(site_conf_path, environment):
 
 	# Run post hook
 	envs['PAGEGEN_HOOK']='post_generate'
-	exec_hook(join(site_dir,HOOKDIR,'post_generate'), envs)
+	hook = join(site_dir,HOOKDIR,'post_generate')
+	if isfile(hook):
+		exec_script(hook, envs)
 
 	# If deploy mode set, then try to run the script of same name
 	if s.deploy_script != None:
@@ -103,12 +107,14 @@ def gen_mode(site_conf_path, environment):
 		for (key, value) in  s.raw_config.items(s.environment):
 			envs['PAGEGEN_' + key.upper()] = value
 
-		exec_hook(join(site_dir,DEPLOYSCRIPTDIR,s.deploy_script), envs)
+		exec_script(join(site_dir,DEPLOYSCRIPTDIR,s.deploy_script), envs)
 
 
 	# Run post deploy
 	envs['PAGEGEN_HOOK']='post_deploy'
-	exec_hook(join(site_dir,HOOKDIR,'post_deploy'), envs)
+	hook = join(site_dir,HOOKDIR,'post_deploy')
+	if isfile(hook):
+		exec_script(hook, envs)
 
 
 def init_mode():
