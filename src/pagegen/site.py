@@ -827,7 +827,7 @@ class site:
 
 		for p in pages:
 
-			if self.minify_html:
+			if self.minify_html and p.headers['exclude html minify'] == False:
 				p.html = minify(p.html)
 
 			if p.parent and is_default_file(p.target_path):

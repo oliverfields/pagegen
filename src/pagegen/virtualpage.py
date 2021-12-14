@@ -65,6 +65,7 @@ class virtualpage:
 			'sitemap lastmod': None,
 			'sitemap changefreq': None,
 			'sitemap priority': None,
+			'exclude html minify': False
 		}
 
 
