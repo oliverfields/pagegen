@@ -20,16 +20,9 @@ Builds Pagegen Python package for pip install
    $ pip install <path to pagegen-X.X.X-py3-none-any.whl>
    <test>
 
-4. Upload to pypi
+4. Update site documentation with new pagegen version
+
+5. Upload to pypi
    $ twine upload dist/pagegen-X.X.X-py3-none-any.whl 
 
-5. Create github release
-
-6. Update site
-    - Update content/030_Download/index
-    - Update hooks/script/set_site_variables
-    - Deploy
-
-If need to delete remote tag:
-$ git tag -d <tag>
-$ git push origin :refs/tags/</tag>
+6. Create github release
