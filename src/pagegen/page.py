@@ -20,7 +20,7 @@ from pagegen.virtualpage import virtualpage
 from os import sep, access, X_OK
 from os.path import splitext, join
 from re import sub, search
-from pagegen.utility import DIRDEFAULTFILE, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR, relative_path, TARGETDIR
+from pagegen.utility import DIRDEFAULTFILE, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR, relative_path, TARGETDIR, report_error
 from subprocess import check_output
 
 
