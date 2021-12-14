@@ -2,11 +2,7 @@ Builds Pagegen Python package for pip install
 
 1. Increment version in files in setup.py
 
-2. Create git tag
-   $ git tag -a <tag> -m '<describe tag>'
-   $ git push origin <tag>
-
-3. Build python package and add to pypi.python.org
+2. Build python package and add to pypi.python.org
    $ python3 setup.py clean --all
    $ rm -Rf dist
    $ python3 setup.py bdist_wheel # Build package
@@ -16,10 +12,20 @@ Builds Pagegen Python package for pip install
    $ pip install dist/pagegen-X.X.X-py3-none-any.whl # install package
    $ virtualenv <directory> && cd <directory> && . bin/activate # Create virual env for testing install/uninstall
 
+3. Test new package
+   $ mkdir test
+   $ cd test
+   $ virtualenv .
+   $ . bin/activate
+   $ pip install <path to pagegen-X.X.X-py3-none-any.whl>
+   <test>
+
 4. Upload to pypi
    $ twine upload dist/pagegen-X.X.X-py3-none-any.whl 
 
-5. Update site
+5. Create github release
+
+6. Update site
     - Update content/030_Download/index
     - Update hooks/script/set_site_variables
     - Deploy
