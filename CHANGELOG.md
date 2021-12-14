@@ -3,7 +3,7 @@
 <!--next-version-placeholder-->
 Bug fix: Executable content files where returning bytes instead of strings, this is python3 behaviour and has been fixed
 Bug fix: Page header preserve file name now is enforced, before the file name could have the default extension added, if specified in site.conf'
-
+Feature: Added page header Exclude html minify, set to True to disable html minifying of the page
 
 ## v3.1.1 - 2021-12-14
 
