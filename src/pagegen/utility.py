@@ -138,7 +138,7 @@ def load_file(file):
 		with codecs.open (file, "r", 'utf-8') as f:
 			data=f.read()
 	except Exception as e:
-		raise Exception('Unable to load file %s: %s' % (template_file, e))
+		raise Exception('Unable to load file %s: %s' % (file, e))
 
 	return data
 
