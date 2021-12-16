@@ -1,0 +1,288 @@
+Title: reStructuredText cheat sheet
+
+RST syntax primer/examples.
+
+Paragraphs
+----------
+
+::
+
+	First paragraph.
+	
+	Another paragraph.
+
+First paragraph.
+
+Another paragraph.
+
+
+Link
+----
+
+::
+
+	`Website <http://website.com>`_
+
+`Website <http://website.com>`_
+
+
+Italics
+-------
+
+::
+
+	*italic text*
+
+*italic text*
+
+
+Bold
+----
+
+::
+
+	**bold text**
+
+*bold text*
+
+
+Fixed width text
+----------------
+
+::
+
+	``fixed width text``
+
+``fixed width text``
+
+
+Line breaks
+-----------
+
+::
+
+	| the line breaks
+	| here
+
+| the line breaks
+| here
+
+
+Horizontal rule
+---------------
+
+*Four or more punctuation characters set off by blank lines.*
+
+::
+
+	----
+
+----
+
+
+Headings
+--------
+
+::
+
+	##########
+	h1 heading
+	##########
+	
+	**********
+	h2 heading
+	**********
+	
+	h3 heading
+	==========
+	
+	h4 heading
+	----------
+
+
+.. raw:: html
+
+	<h1>h1 heading</h1>
+	<p>Lorum ipsum</p>
+	<h2>h2 heading</h2>
+	<p>Lorum ipsum</p>
+	<h3>h3 heading</h3>
+	<p>Lorum ipsum</p>
+	<h4>h4 heading</h4>
+	<p>Lorum ipsum</p>
+
+
+Unorderd list
+-------------
+
+::
+
+	- Apple
+	- Cider
+
+- Apple
+- Cider
+
+
+Ordered list
+------------
+
+::
+
+	1. First
+	2. Second
+
+1. First
+2. Second
+
+
+Definition list
+---------------
+
+::
+
+	one
+		the 1st cardinal
+	two
+		the 2nd cardinal
+
+one
+	the 1st cardinal
+two
+	the 2nd cardinal
+
+
+Block quote
+-----------
+
+::
+
+	Main body text.
+
+		Four score and twenty
+		years ago…
+
+	More main body text.
+
+
+Main body text.
+
+	Four score and twenty
+	years ago…
+
+More main body text.
+
+
+Image
+-----
+
+*:alt:, :target: and :width: are optional.*
+
+::
+
+	.. image:: /include/images/pagegen.png
+		:alt: Foo
+		:target: http://duckduckgo.com
+		:width: 300px
+
+.. image:: /include/images/pagegen.png
+	:alt: Foo
+	:target: http://duckduckgo.com
+	:width: 300px
+
+
+Tables
+------
+
+::
+
+	== ==
+	A  B
+	== ==
+	1  2
+	3  4
+	== ==
+
+== ==
+A  B
+== ==
+1  2
+3  4
+== ==
+
+*Or*
+
+::
+
+	+---+---+
+	| A | B |
+	+===+===+
+	| 1 | 2 |
+	+---+---+
+	| 3 | 4 |
+	+---+---+
+
++---+---+
+| A | B |
++===+===+
+| 1 | 2 |
++---+---+
+| 3 | 4 |
++---+---+
+
+
+Preformatted text
+-----------------
+
+.. raw:: html
+
+	<pre>::
+	&nbsp;&nbsp;
+	&nbsp;&nbsp;int add(int a, int b) {
+	&nbsp;&nbsp;&nbsp;&nbsp;return (a+b);
+	&nbsp;&nbsp;}
+	</pre>
+
+
+::
+
+	int add(int a, int b) {
+		return (a+b);
+	}
+
+
+Admonitions
+-----------
+
+*Admonitions variants are attention, caution, danger, error, hint, important, note, tip, warning or admonition. The following shows the tip admonition.*
+
+::
+
+	.. tip::
+	
+		A friendly tip
+		
+		Multilines are possible
+
+.. tip::
+
+	A friendly tip
+	
+	Multilines are possible
+
+
+HTML
+----
+
+::
+
+	.. raw:: html
+		
+		<em>Raw HTML</em>
+
+.. raw:: html
+
+	<em>Raw HTML</em>
+
+
+
