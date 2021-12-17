@@ -145,7 +145,7 @@ def load_file(file):
 
 
 def load_template(template_file):
-	''' Load template and for all {{.*:.*}} replace with contents '''
+	''' Load template and for all {{<protocol>:<path>}} replace with contents, currently only protocol file supported '''
 
 	try:
 		with codecs.open (template_file, "r", 'utf-8') as f:
@@ -153,7 +153,7 @@ def load_template(template_file):
 	except Exception as e:
 		raise Exception('Unable to load template %s: %s' % (template_file, e))
 
-	for includes in finditer('{{.*:.*}}', data):
+	for includes in finditer('{{[^}]*:.*}}', data):
 		# Chop off curly brackets
 		include_file = includes.group().replace('{{', '')
 		include_file = include_file.replace('}}', '')

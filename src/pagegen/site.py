@@ -867,18 +867,18 @@ class site:
 				continue
 
 			if p == page:
-				css_class=' class="selected_page"'
+				css_id=' id="pagegen-current-page"'
 			else:
-				css_class=''
+				css_id=''
 
 			if p.children:
-				page.menu+='<li><a href="%s"%s>%s</a>' % (p.url_path, css_class, p.menu_title)
+				page.menu+='<li><a href="%s"%s>%s</a>' % (p.url_path, css_id, p.menu_title)
 				page.menu+='<ul>'
 				self.generate_menu(p.children, page, level=level+1)
 				page.menu+='</ul>'
 				page.menu+='</li>'
 			else:
-				page.menu+='<li><a href="%s"%s>%s</a></li>' % (p.url_path, css_class, p.menu_title)
+				page.menu+='<li><a href="%s"%s>%s</a></li>' % (p.url_path, css_id, p.menu_title)
 
 		if level==1:
 			if page.menu=='<ul>':

@@ -45,9 +45,20 @@ display: table;
 #footer {
 text-align: right;
 margin: 2em auto;
-font-size: .8em;
+font-size: 13px;
+line-height: 13px;
+}
+#footer a {
+border: none;
+}
+#footer img {
+position: relative;
+top: 1px;
 }
 @media screen and (max-width: 940px) {
+  i.sub-menu-toggle {
+  color: #ddd;
+  }
   article {
     padding: 1em;
   }
@@ -213,4 +224,11 @@ padding: .4em;
 }
 a.image-reference {
 border: none;
+}
+i.sub-menu-toggle {
+margin-left: .6em;
+cursor: pointer;
+}
+#pagegen-current-page {
+font-weight: bold;
 }
