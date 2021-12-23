@@ -10,7 +10,6 @@ from subprocess import check_call
 import codecs
 
 # Constants
-PAGEGENCONF='pagegen.conf'
 HOME=expanduser("~")
 SITECONF='site.conf'
 CONFROOT='root'
@@ -37,6 +36,24 @@ def get_first_words(string, x):
 		string=sub('\ [^ ]*$','...', string[:x])
 
 	return string
+
+
+def get_environment_config(config):
+
+	if len(config.sections()) == 1:
+		return config.sections()[0]
+	else:
+		default_environment=None
+		for section in config.sections():
+			try:
+				# If true then we have our environment
+				config.get(section,'default_environment')
+				return section
+
+			except Exception as e:
+				pass
+
+		report_error(1, "Unable to load a section from site.conf")
 
 
 def relative_path(path):
@@ -74,6 +91,7 @@ def load_config(files, add_dummy_section=True):
 			break
 
 	if not conf_path:
+		print(files)
 		report_error(1, "pagegen.conf, not found in current, ~/.config/ or /etc/ directories")
 
 	try:
@@ -178,9 +196,10 @@ def exec_script(script, env=None):
 	''' Run specified script if executable '''
 
 	# Ensure all environment values are utf-8
-	for name, value in env.items():
-		#print('%s -> %s' % (name, value.encode('utf-8')))
-		putenv(name, value.encode('utf-8'))
+	if env != None:
+		for name, value in env.items():
+			#print('%s -> %s' % (name, value.encode('utf-8')))
+			putenv(name, value.encode('utf-8'))
 
 	try:
 		check_call(script)

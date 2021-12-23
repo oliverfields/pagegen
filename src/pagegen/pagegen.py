@@ -1,4 +1,4 @@
-from pagegen.utility import report_error, report_notice, get_site_conf_path, PAGEGENCONF, SITECONF, HOME, CONFROOT, TARGETDIR, DEPLOYSCRIPTDIR, HOOKDIR, CONTENTDIR, exec_script
+from pagegen.utility import report_error, report_notice, get_site_conf_path, SITECONF, HOME, CONFROOT, TARGETDIR, DEPLOYSCRIPTDIR, HOOKDIR, CONTENTDIR, exec_script
 from pagegen.site import site
 from os.path import expanduser, basename, join, isfile
 from os import getcwd, listdir, sep, chdir
@@ -6,23 +6,33 @@ from sys import exit, argv
 from distutils.dir_util import copy_tree
 from getopt import getopt, GetoptError
 import pkg_resources
+from pagegen.auto_build_serve import auto_build_serve
 
 
 def usage(exit_after=True):
-	print('Usage: %s [-i|--init] [-g|--generate] [-e|--environment <environment>] [-c|--config <site config file>] [-v|--version]' % (basename(argv[0])))
+	print('Usage: %s [-i|--init] [-g|--generate] [-e|--environment <environment>] [-c|--config <site config file>] [-v|--version] [-s|--serve]' % (basename(argv[0])))
 
 	if exit_after:
 		exit(0)
 
 
-def gen_mode(site_conf_path, environment):
-
+def guess_site_conf_and_dir_paths(site_conf_path):
 	if not site_conf_path:
 		site_conf_path=get_site_conf_path()
 
 	if not site_conf_path:
 		report_error(1, "Not in pagegen directory tree, unable to find a valid site.conf")
-	site_dir=site_conf_path[:-len(sep+basename(site_conf_path))]
+
+	return (site_conf_path, site_conf_path[:-len(sep+basename(site_conf_path))])
+
+
+def serve_mode(site_conf_path):
+	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
+	auto_build_serve(site_conf_path, site_dir + '/' + CONTENTDIR, site_dir + '/' + TARGETDIR)
+
+
+def gen_mode(site_conf_path, environment):
+	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
 
 	try:
 		s=site(site_dir, site_conf_path, environment)
@@ -119,7 +129,7 @@ def main():
 	environment=None
 
 	try:
-		opts, args=getopt(argv[1:],"igvc:e:", ["init", "generate", "version", "config=", "environment="])
+		opts, args=getopt(argv[1:],"igvc:e:s", ["init", "generate", "version", "config=", "environment=", "serve"])
 	except GetoptError as e:
 		usage(exit_after=False)
 		report_error(1, "Invalid arguments: %s" % e)
@@ -142,11 +152,15 @@ def main():
 				site_config=join(getcwd(), site_config)
 		elif opt in ('-e', '--environment'):
 			environment=arg.lstrip('=')
+		elif opt in ('-s', '--serve'):
+			mode='serve'
 
 	if mode == 'gen':
 		gen_mode(site_config, environment)
 	elif mode == 'init':
 		init_mode()
+	elif mode == 'serve':
+		serve_mode(site_config)
 	else:
 		usage(exit_after=True)
 
