@@ -38,7 +38,7 @@ def auto_build_serve(site_conf_path, site_content_dir, site_target_dir):
 		port = 8000
 		http_daemon = threading.Thread(name='daemon_server',
 			target=start_server,
-			args=(site_content_dir, port))
+			args=(site_target_dir, port))
 
 		http_daemon.setDaemon(True) # Set as a daemon so it will be killed once the main thread is dead.
 
