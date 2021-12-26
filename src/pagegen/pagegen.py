@@ -1,4 +1,4 @@
-from pagegen.utility import report_error, report_notice, get_site_conf_path, SITECONF, HOME, CONFROOT, TARGETDIR, DEPLOYSCRIPTDIR, HOOKDIR, CONTENTDIR, exec_script
+from pagegen.utility import report_error, report_notice, get_site_conf_path, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_script
 from pagegen.site import site
 from os.path import expanduser, basename, join, isfile
 from os import getcwd, listdir, sep, chdir
@@ -43,12 +43,14 @@ def gen_mode(site_conf_path, environment):
 	envs={
 		'PAGEGEN_SITE_DIR': site_dir,
 		'PAGEGEN_HOOK_DIR': join(site_dir, HOOKDIR),
-		'PAGEGEN_DEPLOY_SCRIPT_DIR': join(site_dir, DEPLOYSCRIPTDIR),
 		'PAGEGEN_SOURCE_DIR': join(site_dir, CONTENTDIR),
 		'PAGEGEN_TARGET_DIR': join(site_dir, TARGETDIR, s.environment),
-		'PAGEGEN_ENVIRONMENT': s.environment,
-		'PAGEGEN_BASE_URL': s.base_url,
+		'PAGEGEN_ENVIRONMENT': s.environment
 	}
+
+	# Put all config settings for current environment into hook env
+	for (key, value) in  s.raw_config.items(s.environment):
+		envs['PAGEGEN_' + key.upper()] = value
 
 	# Run pre hook
 	envs['PAGEGEN_HOOK']='pre_generate'
@@ -86,21 +88,11 @@ def gen_mode(site_conf_path, environment):
 	if isfile(hook):
 		exec_script(hook, envs)
 
-	# If deploy mode set, then try to run the script of same name
-	if s.deploy_script != None:
-
-		# Environment settings for deploy script
-		envs={
-			'PAGEGEN_SITE_DIR': site_dir,
-			'PAGEGEN_SOURCE_DIR': join(site_dir, CONTENTDIR),
-			'PAGEGEN_GENERATED_DIR': join(site_dir, TARGETDIR, s.environment),
-		}
-
-		for (key, value) in  s.raw_config.items(s.environment):
-			envs['PAGEGEN_' + key.upper()] = value
-
-		exec_script(join(site_dir,DEPLOYSCRIPTDIR,s.deploy_script), envs)
-
+	# Run deploy hook
+	envs['PAGEGEN_HOOK']='deploy'
+	hook = join(site_dir,HOOKDIR,'deploy')
+	if isfile(hook):
+		exec_script(hook, envs)
 
 	# Run post deploy
 	envs['PAGEGEN_HOOK']='post_deploy'
