@@ -1,7 +1,7 @@
 from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, load_template
 from configparser import ConfigParser
 from os.path import isdir, join, isfile, exists, islink
-from os import listdir, sep, makedirs, symlink, remove, unlink
+from os import listdir, sep, makedirs, remove, unlink
 from shutil import rmtree, copytree
 from pagegen.page import page
 from pagegen.virtualpage import virtualpage
@@ -162,11 +162,6 @@ class site:
 			self.url_include_index=True
 
 		try:
-			self.symlink_include=self.ensure_bool('symlink_include', config.get(self.environment,'symlink_include'))
-		except:
-			self.symlink_include=False
-
-		try:
 			self.page_titles=self.ensure_bool('page_title', config.get(self.environment,'page_titles'))
 		except:
 			self.page_titles=False
@@ -187,12 +182,6 @@ class site:
 			self.deploy_script=config.get(self.environment, 'deploy_script')
 		except:
 			self.deploy_script=None
-
-		if self.symlink_include:
-			if self.minify_javascript:
-				report_error(1,'Config settings "symlink_include" and "minify_javascript" cannot be both "True", it could result in changes to source "include" directory')
-			if self.minify_css:
-				report_error(1,'Config settings "symlink_include" and "minify_css" cannot be both "True", it could result in changes to source "include" directory')
 
 
 	def ensure_bool(self, setting_name, data):
@@ -735,10 +724,7 @@ class site:
 		if exists(include_dir):
 			report_warning('Include exists, skipping copy to site directory')
 		else:
-			if self.symlink_include == False:
-				copytree(self.include_dir, include_dir)
-			else:
-				symlink(self.include_dir, join(self.target_dir, INCLUDEDIR))
+			copytree(self.include_dir, include_dir)
 
 		# Create sitemap
 		if self.exclude_sitemap == False:
