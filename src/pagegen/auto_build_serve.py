@@ -2,9 +2,11 @@ import hashlib
 import glob
 import os
 import time
-import time
 from pagegen.utility import load_config, get_environment_config, exec_script
 import subprocess
+import sys
+import signal
+import atexit
 
 def write_status(msg):
 	print(msg, end='\r')
@@ -15,12 +17,21 @@ def get_time_stamp():
 	return time.strftime("%H:%M:%S", t)
 
 
+def kill_http_server():
+	if http_server_pid is None:
+		pass
+	else:
+		os.kill(http_server_pid, signal.SIGTERM)
+
+
 def auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_hooks, build_function):
 
 	try:
 		port = "8000"
-		with open(os.devnull, 'w') as t:
-			subprocess.Popen(["python3", "-m", "http.server", port, "-d", serve_dir], stdout=t, stderr=t)
+		http_server_process = subprocess.Popen(["python3", "-m", "http.server", port, "-d", serve_dir], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+		global http_server_pid
+		http_server_pid = http_server_process.pid
+		atexit.register(kill_http_server)
 
 		print('[' + get_time_stamp() + '] Serving from: ' + serve_dir)
 		print('[' + get_time_stamp() + '] Serving to: http://localhost:' + port)
