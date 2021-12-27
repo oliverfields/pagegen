@@ -10,7 +10,7 @@ from pagegen.auto_build_serve import auto_build_serve
 
 
 def usage(exit_after=True):
-	print('Usage: %s [-i|--init] [-g|--generate] [-e|--environment <environment>] [-c|--config <site config file>] [-v|--version] [-s|--serve]' % (basename(argv[0])))
+	print('Usage: %s [-i|--init] [-g|--generate <environment>] [-s|--serve <environment>] [-v|--version] [-h|--help]' % (basename(argv[0])))
 
 	if exit_after:
 		exit(0)
@@ -26,12 +26,7 @@ def guess_site_conf_and_dir_paths(site_conf_path):
 	return (site_conf_path, site_conf_path[:-len(sep+basename(site_conf_path))])
 
 
-def serve_mode(site_conf_path):
-	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
-	auto_build_serve(site_conf_path, site_dir + '/' + CONTENTDIR, site_dir + '/' + TARGETDIR)
-
-
-def gen_mode(site_conf_path, environment):
+def build_site(site_conf_path, environment, exclude_hooks=[]):
 	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
 
 	try:
@@ -53,10 +48,11 @@ def gen_mode(site_conf_path, environment):
 		envs['PAGEGEN_' + key.upper()] = value
 
 	# Run pre hook
-	envs['PAGEGEN_HOOK']='pre_generate'
-	hook = join(site_dir,HOOKDIR,'pre_generate')
-	if isfile(hook):
-		exec_script(hook, envs)
+	if not 'pre_generate' in exclude_hooks:
+		envs['PAGEGEN_HOOK']='pre_generate'
+		hook = join(site_dir,HOOKDIR,'pre_generate')
+		if isfile(hook):
+			exec_script(hook, envs)
 
 	try:
 		s.prepare()
@@ -77,10 +73,11 @@ def gen_mode(site_conf_path, environment):
 		except Exception as e:
 			report_error(1, "Unable to generate /feed.rss: %s" % e)
 
-	try:
-		s.move_to_target()
-	except Exception as e:
-		report_error(1, "Unable to copy to target directory '%s': %s" % (s.target_dir, e))
+	s.move_to_target()
+	#try:
+	#	s.move_to_target()
+	#except Exception as e:
+	#	report_error(1, "Unable to copy to target directory '%s': %s" % (s.target_dir, e))
 
 	# Run post hook
 	envs['PAGEGEN_HOOK']='post_generate'
@@ -99,6 +96,21 @@ def gen_mode(site_conf_path, environment):
 	hook = join(site_dir,HOOKDIR,'post_deploy')
 	if isfile(hook):
 		exec_script(hook, envs)
+
+
+def serve_mode(site_conf_path, environment):
+	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
+	# TODO Refactor so build function is passed and executed instead of calling pagegen script
+	#
+	watch_dir = site_dir + '/' + CONTENTDIR
+	serve_dir = site_dir + '/' + TARGETDIR + '/' + environment
+	exclude_hooks=['deploy','post_deploy']
+
+	auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_hooks, build_site)
+
+
+def gen_mode(site_conf_path, environment):
+	build_site(site_conf_path, environment, ['pre_generatex'])
 
 
 def init_mode():
@@ -121,7 +133,7 @@ def main():
 	environment=None
 
 	try:
-		opts, args=getopt(argv[1:],"igvc:e:s", ["init", "generate", "version", "config=", "environment=", "serve"])
+		opts, args=getopt(argv[1:],"ig:vs:h", ["init", "generate", "version", "serve=", "help"])
 	except GetoptError as e:
 		usage(exit_after=False)
 		report_error(1, "Invalid arguments: %s" % e)
@@ -133,26 +145,23 @@ def main():
 		if opt in ('-i', '--init'): 
 			mode="init"
 		elif opt in ('-g', '--generate'):
+			environment=arg.lstrip('=')
 			mode='gen'
 		elif opt in ('-v', '--version'):
 			print("pagegen %s" % pkg_resources.get_distribution("pagegen").version)
 			exit(0)
-		elif opt in ('-c', '--config'):
-			site_config=arg.lstrip('=')
-			# Add current dir absolute path if supplied releative path argument
-			if not site_config.startswith(sep):
-				site_config=join(getcwd(), site_config)
-		elif opt in ('-e', '--environment'):
-			environment=arg.lstrip('=')
 		elif opt in ('-s', '--serve'):
+			environment=arg.lstrip('=')
 			mode='serve'
+		elif opt in ('-h', '--help'):
+			usage(exit_after=True)
 
 	if mode == 'gen':
 		gen_mode(site_config, environment)
 	elif mode == 'init':
 		init_mode()
 	elif mode == 'serve':
-		serve_mode(site_config)
+		serve_mode(site_config, environment)
 	else:
 		usage(exit_after=True)
 

@@ -3,17 +3,8 @@ import glob
 import os
 import time
 import time
-from http.server import HTTPServer, CGIHTTPRequestHandler
-import threading
 from pagegen.utility import load_config, get_environment_config, exec_script
-
-
-def start_server(path, port=8000):
-    '''Start a simple webserver serving path on port'''
-    os.chdir(path)
-    httpd = HTTPServer(('', port), CGIHTTPRequestHandler)
-    httpd.serve_forever()
-
+import subprocess
 
 def write_status(msg):
 	print(msg, end='\r')
@@ -24,33 +15,21 @@ def get_time_stamp():
 	return time.strftime("%H:%M:%S", t)
 
 
-def auto_build_serve(site_conf_path, site_content_dir, site_target_dir):
-	try:
-		site_config=load_config([site_conf_path], add_dummy_section=False)
-	except Exception as e:
-		raise Exception("Unable to load site config '" + site_conf_path + "': " + str(e))
-
-	environment = get_environment_config(site_config)
-
-	site_target_dir = site_target_dir + '/' + environment
+def auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_hooks, build_function):
 
 	try:
-		port = 8000
-		http_daemon = threading.Thread(name='daemon_server',
-			target=start_server,
-			args=(site_target_dir, port))
+		port = "8000"
+		with open(os.devnull, 'w') as t:
+			subprocess.Popen(["python3", "-m", "http.server", port, "-d", serve_dir], stdout=t, stderr=t)
 
-		http_daemon.setDaemon(True) # Set as a daemon so it will be killed once the main thread is dead.
+		print('[' + get_time_stamp() + '] Serving from: ' + serve_dir)
+		print('[' + get_time_stamp() + '] Serving to: http://localhost:' + port)
 
-		print('[' + get_time_stamp() + '] Serving from: ' + site_target_dir)
-		print('[' + get_time_stamp() + '] Serving to: http://localhost:' + str(port))
-
-		http_daemon.start()
-
-		print('[' + get_time_stamp() + '] Watching changes to: ' + site_content_dir)
+		print('[' + get_time_stamp() + '] Watching changes to: ' + watch_dir)
 
 		while True:
-			root_dir = site_content_dir
+
+			root_dir = watch_dir + '/'
 			directory_list = ''
 
 			# root_dir needs a trailing slash (i.e. /root/dir/)
@@ -65,8 +44,9 @@ def auto_build_serve(site_conf_path, site_content_dir, site_target_dir):
 
 			if last_hash != this_hash:
 				print('[' + get_time_stamp() + '] Building..')
-				script = ['pagegen', '--generate', '--environment', environment]
-				exec_script(script)
+				#script = ['pagegen', '--generate', environment]
+				#exec_script(script)
+				build_function(site_conf_path, environment, exclude_hooks)
 				print('[' + get_time_stamp() + '] Serving..')
 			else:
 				write_status('[' + get_time_stamp() + '] Watching.. (Ctrl+C to quit)')

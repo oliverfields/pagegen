@@ -6,6 +6,7 @@ Fixed: Page header preserve file name now is enforced, before the file name coul
 Feature: Added page header Exclude html minify, set to True to disable html minifying of the page
 Fixed: Multiple variable in a line containing : where matching too much
 Changed: Moved deploy_scripts to new deploy hook
+Changed: Command line arguments changed environment now specified with -i or -s and --help argument added
 
 
 ## v3.1.1 - 2021-12-14

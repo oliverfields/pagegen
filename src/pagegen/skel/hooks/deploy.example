@@ -53,7 +53,7 @@ class ftp_upload():
 	def ftp_upload(self):
 		''' Upload site to ftp '''
 
-		self.get_file_lists(environ['PAGEGEN_GENERATED_DIR'])
+		self.get_file_lists(environ['PAGEGEN_TARGET_DIR'])
 
 		try:
 			file_permissions = environ['PAGEGEN_FTP_FILE_PERMISSIONS']
@@ -88,7 +88,7 @@ class ftp_upload():
 		# Need to know if file is binary or not for FTP upload
 		for f in self.source_files:
 			target_file = environ['PAGEGEN_FTP_TARGET_DIRECTORY'] + '/' + f
-			source_file = join(environ['PAGEGEN_GENERATED_DIR'], f)
+			source_file = join(environ['PAGEGEN_TARGET_DIR'], f)
 
 			try:
 				ftp.storbinary("STOR " + target_file, open(source_file, "rb"), 1024)
@@ -114,8 +114,6 @@ class ftp_upload():
 		for name in names:
 			if split(name)[1] in ('.', '..'): continue
 
-			# On domeneshop paths seem to come full, whilst the other one returned just the name.. May need rewrite
-			#file_or_dir = path + '/' + name
 			file_or_dir = name
 
 			try:

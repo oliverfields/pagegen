@@ -2,11 +2,10 @@ from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTE
 from configparser import ConfigParser
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, sep, makedirs, symlink, remove, unlink
-from shutil import rmtree
+from shutil import rmtree, copytree
 from pagegen.page import page
 from pagegen.virtualpage import virtualpage
 from docutils.core import publish_parts
-from distutils.dir_util import copy_tree
 from re import sub, search
 from datetime import date
 from datetime import datetime
@@ -50,27 +49,9 @@ class site:
 		except Exception as e:
 			raise Exception("Unable to load site config '%s': %s" % e)
 
-		# If no section supplied, look for first section containing default_section=True
-		if self.environment == None:
-			if len(config.sections()) == 1:
-				default_environment=config.sections()[0]
-			else:
-				default_environment=None
-				for section in config.sections():
-					try:
-						# If true then we have our environment
-						config.get(section,'default_environment')
-						default_environment=section
-						break
-
-					except Exception as e:
-						pass
-
-			# No default env set, exit
-			if default_environment==None:
-				report_error(1,"No environment specified from command arguments (-e or --environment) and no default_environment setting found in '%s'" % config_file)
-			else:
-				self.environment=default_environment
+		# Ensure supplied environment exists as a section in the config
+		if self.environment not in config.keys():
+			report_error(1,'Environment "' + self.environment + '" not found as section in site.conf')
 
 		# Set target dir based on environment
 		self.target_dir=join(site_dir, TARGETDIR, self.environment)
@@ -755,7 +736,7 @@ class site:
 			report_warning('Include exists, skipping copy to site directory')
 		else:
 			if self.symlink_include == False:
-				copy_tree(self.include_dir, include_dir)
+				copytree(self.include_dir, include_dir)
 			else:
 				symlink(self.include_dir, join(self.target_dir, INCLUDEDIR))
 
