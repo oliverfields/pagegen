@@ -26,13 +26,20 @@ def guess_site_conf_and_dir_paths(site_conf_path):
 	return (site_conf_path, site_conf_path[:-len(sep+basename(site_conf_path))])
 
 
-def build_site(site_conf_path, environment, exclude_hooks=[]):
+def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=None):
 	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
 
 	try:
 		s=site(site_dir, site_conf_path, environment)
 	except Exception as e:
 		report_error(1, "Unable to load site: %s" % e)
+
+	# Force base_url, needed to make --serve site build be correct
+	if force_base_url != None:
+		print('Force stting base_url')
+		s.base_url = force_base_url
+	else:
+		print(force_base_url)
 
 	# Set environment variable for hooks
 	envs={
@@ -100,17 +107,20 @@ def build_site(site_conf_path, environment, exclude_hooks=[]):
 
 def serve_mode(site_conf_path, environment):
 	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
-	# TODO Refactor so build function is passed and executed instead of calling pagegen script
-	#
 	watch_dir = site_dir + '/' + CONTENTDIR
 	serve_dir = site_dir + '/' + TARGETDIR + '/' + environment
 	exclude_hooks=['deploy','post_deploy']
+	serve_base_url='http://localhost'
+	serve_port = '8000'
 
-	auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_hooks, build_site)
+	# Build site and serve
+	build_site(site_conf_path, environment, exclude_hooks, serve_base_url + ':' + serve_port)
+
+	auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_hooks, build_site, serve_base_url, serve_port)
 
 
 def gen_mode(site_conf_path, environment):
-	build_site(site_conf_path, environment, ['pre_generatex'])
+	build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=None)
 
 
 def init_mode():

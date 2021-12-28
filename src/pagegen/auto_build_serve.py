@@ -24,17 +24,16 @@ def kill_http_server():
 		os.kill(http_server_pid, signal.SIGTERM)
 
 
-def auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_hooks, build_function):
+def auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_hooks, build_function, serve_base_url, serve_port):
 
 	try:
-		port = "8000"
-		http_server_process = subprocess.Popen(["python3", "-m", "http.server", port, "-d", serve_dir], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+		http_server_process = subprocess.Popen(["python3", "-m", "http.server", serve_port, "-d", serve_dir], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 		global http_server_pid
 		http_server_pid = http_server_process.pid
 		atexit.register(kill_http_server)
 
 		print('[' + get_time_stamp() + '] Serving from: ' + serve_dir)
-		print('[' + get_time_stamp() + '] Serving to: http://localhost:' + port)
+		print('[' + get_time_stamp() + '] Serving to: ' + serve_base_url + ':' + serve_port)
 
 		print('[' + get_time_stamp() + '] Watching changes to: ' + watch_dir)
 
@@ -57,7 +56,7 @@ def auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_
 				print('[' + get_time_stamp() + '] Building..')
 				#script = ['pagegen', '--generate', environment]
 				#exec_script(script)
-				build_function(site_conf_path, environment, exclude_hooks)
+				build_function(site_conf_path, environment, exclude_hooks, base_url)
 				print('[' + get_time_stamp() + '] Serving..')
 			else:
 				write_status('[' + get_time_stamp() + '] Watching.. (Ctrl+C to quit)')
