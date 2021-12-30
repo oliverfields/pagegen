@@ -333,7 +333,6 @@ class site:
 
 	def generate_search_index(self):
 		''' For all indexable files get their terms and create json index file for site search use (requires javascript '''
-		si=searchindex()
 		self.generate_page_indexes(self.pages)
 		write_file(join(self.target_dir, SEARCHINDEXFILE), self.search_index.build_json_index())
 

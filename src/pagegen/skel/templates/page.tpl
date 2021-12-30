@@ -40,7 +40,6 @@ function toggle_sub_menu(i) {
 
 
 function show_current_page_parent_menues(obj) {
-  console.log(obj);
   if (typeof obj === 'undefined') return;
 
   if (obj.id == 'menu') return;

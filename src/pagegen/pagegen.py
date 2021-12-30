@@ -34,12 +34,9 @@ def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=Non
 	except Exception as e:
 		report_error(1, "Unable to load site: %s" % e)
 
-	# Force base_url, needed to make --serve site build be correct
+	# Force base_url, needed to make --serve work correctly
 	if force_base_url != None:
-		print('Force stting base_url')
 		s.base_url = force_base_url
-	else:
-		print(force_base_url)
 
 	# Set environment variable for hooks
 	envs={

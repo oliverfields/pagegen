@@ -56,7 +56,7 @@ def auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_
 				print('[' + get_time_stamp() + '] Building..')
 				#script = ['pagegen', '--generate', environment]
 				#exec_script(script)
-				build_function(site_conf_path, environment, exclude_hooks, base_url)
+				build_function(site_conf_path, environment, exclude_hooks, serve_base_url + ':' + serve_port )
 				print('[' + get_time_stamp() + '] Serving..')
 			else:
 				write_status('[' + get_time_stamp() + '] Watching.. (Ctrl+C to quit)')
