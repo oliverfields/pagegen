@@ -232,3 +232,19 @@ cursor: pointer;
 #pagegen-current-page {
 font-weight: bold;
 }
+#search-query {
+max-width: 146px;
+border: solid 1px #999;
+}
+#search-submit {
+max-width: 57px;
+margin-left: -5px;
+border: solid 1px #999;
+}
+#search-form {
+margin: 1em auto;
+width: 220px;
+}
+.search-hit {
+line-height: 2.5em;
+}

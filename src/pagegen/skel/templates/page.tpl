@@ -18,6 +18,12 @@
       <div id="sidebar">
         <a id="page_logo" href="{{base_url}}"><img src="{{base_url}}/include/images/pagegen_150x28.png" alt="Pagegen" /></a>
         <p id="blurb">Every page is a file<br /><span>Static site generator</span></p>
+        <div id="search-form">
+          <form action="{{base_url}}/search.html" method="GET">
+            <input type="text" id="search-query" name="q" />
+            <input type="submit" id="search-submit" value="Search" />
+          </form>
+        </div>
         <div id="menu">{{menu}}</div>
       </div><!-- /sidebar -->
       <article id="content">
