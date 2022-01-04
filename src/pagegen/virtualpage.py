@@ -26,7 +26,7 @@ class virtualpage:
 		self.default_extension=''
 		self.raw_headers=[]
 		self.target_dir=None
-
+		self.custom_headers={}
 		self.headers={
 			'sitemap exclude': False, 
 			'menu exclude': False,

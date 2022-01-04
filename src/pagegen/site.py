@@ -466,7 +466,6 @@ class site:
 
 
 	def update_place_holder(self, template, name, value):
-
 		result = template.replace('{{%s}}' % name, value)
 		try:
 
@@ -524,6 +523,9 @@ class site:
 				page_html=self.update_place_holder(page_html, 'tags', self.html_tag_list())
 				page_html=self.update_place_holder(page_html, 'categories', self.html_category_list())
 				page_html=self.update_place_holder(page_html, 'sub_menu', self.html_sub_menu(p))
+
+				for header_name, header_value in p.custom_headers.items():
+					page_html=self.update_place_holder(page_html, 'page.' + header_name, header_value)
 
 				# Page content
 				if self.page_titles:

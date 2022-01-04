@@ -1,6 +1,11 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## vX.X.X - YYYY-MM-DD
+
+### Added
+
+- Page headers/frontmatter support custom headers. These can be referenced in templates using format {{page.<header name>}}. Example, if in a page the following header is set 'this is a custom header: At last', then in a template the following '{{page.this is a custom header}}' will be replaced with 'At last'
 
 ## v3.2.0 - 2021-12-30
 

@@ -107,8 +107,8 @@ class page(virtualpage):
 				self.headers[potential_name]=potential_value.strip()
 				return self.headers[potential_name]
 			else:
-				report_warning("Unknown header in '%s': %s" % (self.source_path, line))
-				return False
+				self.custom_headers[potential_name] = potential_value.strip()
+				return self.custom_headers[potential_name]
 		else:
 			return False
 
@@ -119,13 +119,14 @@ class page(virtualpage):
 			potential_name=potential_header[0].lower().strip()
 			potential_value=potential_header[1]
 
-			if potential_name in self.headers:
+			if isinstance(potential_name, str) and isinstance(potential_value, str):
 				return True
 			else:
 				report_warning("Unknown header in '%s': %s" % (self.source_path, line))
 				return False
 		else:
 			return False
+
 
 	def load_header_profile(self, site_dir):
 		''' If header profile specified, load header values from profile file '''
@@ -212,7 +213,6 @@ class page(virtualpage):
 			self.menu_title=self.headers['menu title']
 		else:
 			self.menu_title=self.title
-
 
 		if file_extension:
 			self.extension=file_extension
