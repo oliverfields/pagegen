@@ -480,9 +480,7 @@ class site:
 		''' Recursively iterate over and generate html for pages '''
 
 		for p in pages:
-
 			# Set environment variable for hooks
-			# Seems to require 
 			p.hook_environment={
 				'PAGEGEN_SITE_DIR': self.site_dir,
 				'PAGEGEN_SOURCE_DIR': join(self.site_dir, CONTENTDIR),
@@ -496,6 +494,16 @@ class site:
 				'PAGEGEN_ENVIRONMENT': self.environment,
 				'PAGEGEN_HOOK': 'pre_generate_page'
 			}
+
+			for header_name, header_value in p.headers.items():
+				header_value = str(header_value)
+				env_name = 'PAGEGEN_PAGE_HEADER_' + header_name.upper().replace(' ', '_')
+				p.hook_environment[env_name] = header_value
+
+			for custom_header_name, custom_header_value in p.custom_headers.items():
+				custom_header_value = str(header_value)
+				env_name = 'PAGEGEN_PAGE_CUSTOM_HEADER_' + custom_header_name.upper().replace(' ', '_')
+				p.hook_environment[env_name] = custom_header_value
 
 			# Run hook
 			hook = join(self.site_dir,HOOKDIR,'pre_generate_page')
