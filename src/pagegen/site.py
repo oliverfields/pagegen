@@ -518,6 +518,8 @@ class site:
 
 				page_html=self.update_place_holder(page_html, 'base_url', self.base_url)
 				page_html=self.update_place_holder(page_html, 'title', p.title)
+				page_html=self.update_place_holder(page_html, 'page_file_name', p.page_file_name)
+				page_html=self.update_place_holder(page_html, 'page_relative_url', p.url_path)
 				page_html=self.update_place_holder(page_html, 'publish', p.headers['publish'])
 
 				if p.headers['description']:

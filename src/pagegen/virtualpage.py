@@ -11,6 +11,7 @@ class virtualpage:
 		self.title=''
 		self.source_path=''
 		self.target_path=''
+		self.page_file_name=''
 		self.html=''
 		self.menu=''
 		self.crumb_trail=[]
