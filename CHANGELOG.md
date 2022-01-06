@@ -2,7 +2,13 @@
 
 <!--next-version-placeholder-->
 
-## v3.3.0 - 2022-01-06
+## v3.3.3 - 2022-01-06
+
+### Fixed
+
+- Template page_file_name was incorrect for directories
+- --serve disables deploy and post_deploy hooks for serving locally
+- Removed superflous printing
 
 ### Added
 

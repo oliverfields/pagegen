@@ -84,22 +84,25 @@ def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=Non
 	#	report_error(1, "Unable to copy to target directory '%s': %s" % (s.target_dir, e))
 
 	# Run post hook
-	envs['PAGEGEN_HOOK']='post_generate'
-	hook = join(site_dir,HOOKDIR,'post_generate')
-	if isfile(hook):
-		exec_script(hook, envs)
+	if not 'post_generate' in exclude_hooks:
+		envs['PAGEGEN_HOOK']='post_generate'
+		hook = join(site_dir,HOOKDIR,'post_generate')
+		if isfile(hook):
+			exec_script(hook, envs)
 
 	# Run deploy hook
-	envs['PAGEGEN_HOOK']='deploy'
-	hook = join(site_dir,HOOKDIR,'deploy')
-	if isfile(hook):
-		exec_script(hook, envs)
+	if not 'deploy' in exclude_hooks:
+		envs['PAGEGEN_HOOK']='deploy'
+		hook = join(site_dir,HOOKDIR,'deploy')
+		if isfile(hook):
+			exec_script(hook, envs)
 
 	# Run post deploy
-	envs['PAGEGEN_HOOK']='post_deploy'
-	hook = join(site_dir,HOOKDIR,'post_deploy')
-	if isfile(hook):
-		exec_script(hook, envs)
+	if not 'post_deploy' in exclude_hooks:
+		envs['PAGEGEN_HOOK']='post_deploy'
+		hook = join(site_dir,HOOKDIR,'post_deploy')
+		if isfile(hook):
+			exec_script(hook, envs)
 
 
 def serve_mode(site_conf_path, environment):
