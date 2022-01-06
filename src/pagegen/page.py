@@ -49,6 +49,10 @@ class page(virtualpage):
 	def set_paths(self, path, site_path):
 		''' Create url'ed and target version of path '''
 
+		# Set page_file_name after all url_path above stuff is done
+		self.page_file_name = path.rpartition('/')[2]
+		print(self.page_file_name)
+
 		# Remove non site path
 		path_part=path.replace(site_path+sep+CONTENTDIR, '')
 
@@ -79,9 +83,6 @@ class page(virtualpage):
 
 		self.target_path="%s%s%s%s%s%s" % (self.site_dir, sep, TARGETDIR, sep, self.target_dir_name, path_part)
 		self.target_path = self.target_path
-
-		# Set page_file_name after all url_path above stuff is done
-		self.page_file_name = self.url_path.rpartition('/')[2]
 
 
 	def set_title_from_path(self, path):
