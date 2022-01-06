@@ -8,6 +8,7 @@
 - Page headers/frontmatter support custom headers. These can be referenced in templates using format {{page.<header name>}}. Example, if in a page the following header is set 'this is a custom header: At last', then in a template the following '{{page.this is a custom header}}' will be replaced with 'At last'
 - Template variable/placeholder page_file_name added, contains what you expect
 - Template variable/placeholder page_relative_url added, contains url relative to web root
+- Template variable/placeholder default_extension added, contains default file extension
 
 ## v3.2.0 - 2021-12-30
 

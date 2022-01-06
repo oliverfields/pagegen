@@ -1,8 +1,8 @@
 from pagegen.virtualpage import virtualpage
-from os import sep, access, X_OK
+from os import sep, access, X_OK, environ
 from os.path import splitext, join
 from re import sub, search
-from pagegen.utility import DIRDEFAULTFILE, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR, relative_path, TARGETDIR, report_error
+from pagegen.utility import DIRDEFAULTFILE, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR, relative_path, TARGETDIR, report_error, setup_environment_variables
 from subprocess import check_output
 
 
@@ -24,6 +24,16 @@ class page(virtualpage):
 
 		# If file is executable then the contents from it's stdout, else just read the file
 		if access(self.source_path, X_OK):
+			page_environment={
+				'PAGEGEN_SITE_DIR': self.site_dir,
+				'PAGEGEN_SOURCE_DIR': self.source_path,
+				'PAGEGEN_TARGET_DIR': self.target_dir_name,
+				'PAGEGEN_BASE_URL': self.base_url,
+				'PAGEGEN_DEFAULT_EXTENSION': self.default_extension
+			}
+
+			setup_environment_variables(page_environment)
+
 			try:
 				content=check_output(self.source_path, text=True)
 

@@ -1,7 +1,7 @@
 ''' General utility library '''
 
 from sys import exit, stderr
-from os import listdir, getcwd, sep, access, X_OK, putenv, O_APPEND, environ
+from os import listdir, getcwd, sep, access, X_OK, O_APPEND, environ
 from os.path import join, isdir, isfile, expanduser
 from configparser import RawConfigParser
 from io import StringIO
@@ -191,9 +191,7 @@ def is_default_file(file):
 	return match('.*'+DIRDEFAULTFILE+'[.a-z]*$', file)
 
 
-def exec_script(script, env=None):
-	''' Run specified script if executable '''
-
+def setup_environment_variables(env):
 	# Unset all PAGEGEN_* environment variables
 	for env_name, env_value in environ.items():
 		if env_name.startswith('PAGEGEN_'):
@@ -202,8 +200,14 @@ def exec_script(script, env=None):
 	# Ensure all environment values are utf-8
 	if env != None:
 		for name, value in env.items():
-			#print('%s -> %s' % (name, value.encode('utf-8')))
-			putenv(name, value.encode('utf-8'))
+			#putenv(name, value.encode('utf-8'))
+			environ[name] = value
+
+
+def exec_script(script, env=None):
+	''' Run specified script if executable '''
+
+	setup_environment_variables(env)
 
 	try:
 		check_call(script)

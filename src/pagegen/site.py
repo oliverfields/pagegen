@@ -520,6 +520,7 @@ class site:
 				page_html=self.update_place_holder(page_html, 'title', p.title)
 				page_html=self.update_place_holder(page_html, 'page_file_name', p.page_file_name)
 				page_html=self.update_place_holder(page_html, 'page_relative_url', p.url_path)
+				page_html=self.update_place_holder(page_html, 'default_extension', self.default_extension)
 				page_html=self.update_place_holder(page_html, 'publish', p.headers['publish'])
 
 				if p.headers['description']:
@@ -677,7 +678,7 @@ class site:
 			elif isfile(f_path):
 				if self.absolute_urls != True:
 					p=page()
-					p.load(f_path, self.site_dir, self.environment, parent=parent, default_extension=self.default_extension)
+					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension)
 				else:
 					p=page()
 					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension)
