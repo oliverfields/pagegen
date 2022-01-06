@@ -12,7 +12,7 @@ class page(virtualpage):
 	def __init__(self):
 		virtualpage.__init__(self)
 
-	def load(self, path, site_dir, target_dir_name, parent=False, base_url='', url_include_index=True, default_extension=''):
+	def load(self, path, site_dir, target_dir_name, parent=False, base_url='', url_include_index=True, default_extension='', environment=''):
 
 		self.source_path=path
 		self.site_dir=site_dir
@@ -28,6 +28,7 @@ class page(virtualpage):
 				'PAGEGEN_SITE_DIR': self.site_dir,
 				'PAGEGEN_SOURCE_DIR': self.source_path,
 				'PAGEGEN_TARGET_DIR': self.target_dir_name,
+				'PAGEGEN_ENVIRONMENT': environment,
 				'PAGEGEN_BASE_URL': self.base_url,
 				'PAGEGEN_DEFAULT_EXTENSION': self.default_extension
 			}

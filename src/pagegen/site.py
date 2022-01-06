@@ -186,10 +186,8 @@ class site:
 
 	def ensure_bool(self, setting_name, data):
 		if data == "True":
-			#print(setting_name + ' is True')
 			return True
 		elif data == "False":
-			#print(setting_name + ' is False')
 			return False
 
 		report_error(1,'Setting "' + setting_name + '" must be either "True" or "False", value "' + data + '" is unrecognized')
@@ -460,7 +458,7 @@ class site:
 
 		p=page()
 
-		p.load(path, self.site_dir, self.environment, parent=parent, base_url=base_url, url_include_index=url_include_index, default_extension=self.default_extension)
+		p.load(path, self.site_dir, self.environment, parent=parent, base_url=base_url, url_include_index=url_include_index, default_extension=self.default_extension, environment=self.environment)
 
 		return p
 
@@ -678,10 +676,10 @@ class site:
 			elif isfile(f_path):
 				if self.absolute_urls != True:
 					p=page()
-					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension)
+					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment)
 				else:
 					p=page()
-					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension)
+					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment)
 
 				if self.publish_page(p):
 					siblings.append(p)
