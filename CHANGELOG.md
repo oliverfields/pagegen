@@ -1,7 +1,8 @@
 # Changelog
 
 <!--next-version-placeholder-->
-## vX.X.X - YYYY-MM-DD
+
+## v3.3.0 - 2022-01-06
 
 ### Added
 
@@ -9,6 +10,7 @@
 - Template variable/placeholder page_file_name added, contains what you expect
 - Template variable/placeholder page_relative_url added, contains url relative to web root
 - Template variable/placeholder default_extension added, contains default file extension
+
 
 ## v3.2.0 - 2021-12-30
 
