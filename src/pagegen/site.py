@@ -446,10 +446,10 @@ class site:
 
 	def get_directory_page(self, path, parent):
 		''' Return page object set according to configuration settings '''
-		if self.absolute_urls != True:
-			base_url=''
-		else:
-			base_url=self.base_url
+		#if self.absolute_urls:
+		#	base_url=self.base_url
+		#else:
+		#	base_url=''
 
 		if self.url_include_index != True:
 			url_include_index=False
@@ -458,7 +458,7 @@ class site:
 
 		p=page()
 
-		p.load(path, self.site_dir, self.environment, parent=parent, base_url=base_url, url_include_index=url_include_index, default_extension=self.default_extension, environment=self.environment)
+		p.load(path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, url_include_index=url_include_index, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls)
 
 		return p
 
@@ -676,10 +676,10 @@ class site:
 			elif isfile(f_path):
 				if self.absolute_urls != True:
 					p=page()
-					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment)
+					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls)
 				else:
 					p=page()
-					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment)
+					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls)
 
 				if self.publish_page(p):
 					siblings.append(p)
@@ -847,7 +847,7 @@ class site:
 
 
 	def sitemap_url(self, page):
-		url='<url><loc>%s%s</loc>' % (self.base_url, page.url_path.rstrip('/'))
+		url='<url><loc>%s</loc>' % (page.absolute_url.rstrip('/'))
 
 		# Add lastmod if set
 		if page.headers['sitemap lastmod']:
@@ -883,12 +883,13 @@ class site:
 			if p.headers['sitemap exclude'] == False:
 				if p.children or p.url_path == '/':
 					self.sitemap+=self.sitemap_url(p)
-					self.sitemaptxt += self.base_url + p.url_path.rstrip('/') + '\n'
+
+					self.sitemaptxt += p.absolute_url.rstrip('/') + '\n'
 
 					self.generate_sitemap_urls(p.children)
 				else:
 					self.sitemap+=self.sitemap_url(p)
-					self.sitemaptxt += self.base_url + p.url_path + '\n'
+					self.sitemaptxt += p.absolute_url + '\n'
 
 
 	def generate_sitemap(self, pages):

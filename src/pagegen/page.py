@@ -12,7 +12,7 @@ class page(virtualpage):
 	def __init__(self):
 		virtualpage.__init__(self)
 
-	def load(self, path, site_dir, target_dir_name, parent=False, base_url='', url_include_index=True, default_extension='', environment=''):
+	def load(self, path, site_dir, target_dir_name, parent=False, base_url='', url_include_index=True, default_extension='', environment='', absolute_urls=False):
 
 		self.source_path=path
 		self.site_dir=site_dir
@@ -43,10 +43,10 @@ class page(virtualpage):
 		else:
 			content=load_file(self.source_path)
 
-		self.load_page_content(self.source_path, content, self.site_dir,  self.default_extension)
+		self.load_page_content(self.source_path, content, self.site_dir, self.default_extension, absolute_urls)
 
 
-	def set_paths(self, path, site_path):
+	def set_paths(self, path, site_path, absolute_urls):
 		''' Create url'ed and target version of path '''
 
 		# Remove non site path
@@ -68,7 +68,13 @@ class page(virtualpage):
 			# Replace anything that isn't a charachter, number, slash, underscore or hyphen with a hyphen
 			path_part=urlify(path_part)
 
-		self.url_path=self.base_url+path_part
+
+		if absolute_urls:
+			self.url_path = self.base_url+path_part
+		else:
+			self.url_path = path_part
+
+		self.absolute_url = self.base_url + path_part
 
 		# If not show index in url, strip it
 		if self.url_include_index != True:
@@ -162,7 +168,7 @@ class page(virtualpage):
 				break
 
 
-	def load_page_content(self, path, content, site_dir, default_extension):
+	def load_page_content(self, path, content, site_dir, default_extension, absolute_urls):
 		'''
 		Parse source and save headers and content attributes
 		Format:
@@ -232,9 +238,9 @@ class page(virtualpage):
 
 		if file_extension:
 			self.extension=file_extension
-			self.set_paths(path, site_dir)
+			self.set_paths(path, site_dir, absolute_urls)
 		else:
 			if self.headers['preserve file name'] == False:
 				self.extension=default_extension
-			self.set_paths(path+self.extension, site_dir)
+			self.set_paths(path+self.extension, site_dir, absolute_urls)
 

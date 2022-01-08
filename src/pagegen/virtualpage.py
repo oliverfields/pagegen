@@ -6,6 +6,7 @@ class virtualpage:
 
 	def __init__(self):
 		self.url_path='',
+		self.absolute_url='',
 		self.children=[]
 		self.rst=''
 		self.title=''
