@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## vx.x.x - yyyy-mm-dd
+
+### Fixed
+
+- Sitemaps now have corecct urls
+
 ## v3.3.3 - 2022-01-06
 
 ### Fixed
