@@ -4,6 +4,10 @@
 
 ## vx.x.x - yyyy-mm-dd
 
+### Added
+
+- Templates can now be executables, where template content is executable output
+
 ### Fixed
 
 - Sitemaps now have corecct urls

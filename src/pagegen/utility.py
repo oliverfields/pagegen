@@ -6,7 +6,7 @@ from os.path import join, isdir, isfile, expanduser
 from configparser import RawConfigParser
 from io import StringIO
 from re import match, sub, finditer
-from subprocess import check_call
+from subprocess import check_call, check_output
 import codecs
 
 # Constants
@@ -143,16 +143,25 @@ def load_file(file):
 
 
 
-def load_template(template_file):
-	''' Load template and for all {{<protocol>:<path>}} replace with contents, currently only protocol file supported '''
+def load_template(template_file, environment):
+	''' Read template from file, or if file is executable use output as template '''
 
-	try:
-		with codecs.open (template_file, "r", 'utf-8') as f:
-			data=f.read()
-	except Exception as e:
-		raise Exception('Unable to load template %s: %s' % (template_file, e))
+	if access(template_file, X_OK):
+		setup_environment_variables(environment)
 
-	for includes in finditer('{{[^}]*:.*}}', data):
+		try:
+			template_content = check_output(template_file, text=True)
+		except Exception as e:
+			report_error(1,"Template '%s' execution failed: %s" % (template_file, e))
+
+	else:
+		try:
+			with codecs.open (template_file, "r", 'utf-8') as f:
+				template_content = f.read()
+		except Exception as e:
+			raise Exception('Unable to load template %s: %s' % (template_file, e))
+
+	for includes in finditer('{{[^}]*:.*}}', template_content):
 		# Chop off curly brackets
 		include_file = includes.group().replace('{{', '')
 		include_file = include_file.replace('}}', '')
@@ -169,13 +178,13 @@ def load_template(template_file):
 			# Load content from include file
 			try:
 				include_content = load_file(include_file_path).rstrip()
-				data = data.replace(includes.group(), include_content)
+				template_content = template_content.replace(includes.group(), include_content)
 			except Exception as e:
 				raise Exception('Template %s: Unable to load include %s: %s' % (template_file, include_file_path, e))
 		else:
 			raise Exception('Unsupported protocol %s in %s' % (protocol, include_file)) 
 
-	return data
+	return template_content
 
 
 def write_file(file, content):

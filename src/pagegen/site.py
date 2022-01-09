@@ -479,7 +479,7 @@ class site:
 
 		for p in pages:
 			# Set environment variable for hooks
-			p.hook_environment={
+			p.environment={
 				'PAGEGEN_SITE_DIR': self.site_dir,
 				'PAGEGEN_SOURCE_DIR': join(self.site_dir, CONTENTDIR),
 				'PAGEGEN_TARGET_DIR': self.target_dir,
@@ -496,21 +496,23 @@ class site:
 			for header_name, header_value in p.headers.items():
 				header_value = str(header_value)
 				env_name = 'PAGEGEN_PAGE_HEADER_' + header_name.upper().replace(' ', '_')
-				p.hook_environment[env_name] = header_value
+				p.environment[env_name] = header_value
 
 			for custom_header_name, custom_header_value in p.custom_headers.items():
 				custom_header_value = str(header_value)
 				env_name = 'PAGEGEN_PAGE_CUSTOM_HEADER_' + custom_header_name.upper().replace(' ', '_')
-				p.hook_environment[env_name] = custom_header_value
+				p.environment[env_name] = custom_header_value
 
 			# Run hook
 			hook = join(self.site_dir,HOOKDIR,'pre_generate_page')
 			if isfile(hook):
-				exec_script(hook, p.hook_environment)
+				exec_script(hook, p.environment)
 
 			if p.headers['generate html'] == True:
 				try:
-					page_html = load_template(join(self.site_dir, TEMPLATEDIR, p.headers['template']))
+					#page_html = load_template(join(self.site_dir, TEMPLATEDIR, p.headers['template']))
+					template_file = self.site_dir + '/' + TEMPLATEDIR + '/' + p.headers['template']
+					page_html = load_template(template_file, p.environment)
 				except Exception as e:
 					raise Exception("Unable to load page template: '%s': %s" % (join(self.site_dir, TEMPLATEDIR, p.headers['template']), e))
 
@@ -798,11 +800,11 @@ class site:
 			else:
 				write_file(p.target_path, p.html)
 
-			p.hook_environment['PAGEGEN_HOOK']='post_generate_page'
+			p.environment['PAGEGEN_HOOK']='post_generate_page'
 
 			hook = join(self.site_dir,HOOKDIR,'post_generate_page')
 			if isfile(hook):
-				exec_script(hook, p.hook_environment)
+				exec_script(hook, p.environment)
 
 
 	def generate_crumb_trail(self, crumb_trail_page, page):
