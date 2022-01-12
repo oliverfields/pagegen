@@ -1,7 +1,7 @@
 from pagegen.utility import report_error, report_notice, get_site_conf_path, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_script
 from pagegen.site import site
 from os.path import expanduser, basename, join, isfile
-from os import getcwd, listdir, sep, chdir
+from os import getcwd, listdir, sep, chdir, X_OK, access
 from sys import exit, argv
 from distutils.dir_util import copy_tree
 from getopt import getopt, GetoptError
@@ -55,7 +55,7 @@ def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=Non
 	if not 'pre_generate' in exclude_hooks:
 		envs['PAGEGEN_HOOK']='pre_generate'
 		hook = join(site_dir,HOOKDIR,'pre_generate')
-		if isfile(hook):
+		if isfile(hook) and access(hook, X_OK):
 			exec_script(hook, envs)
 
 	try:
@@ -87,21 +87,21 @@ def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=Non
 	if not 'post_generate' in exclude_hooks:
 		envs['PAGEGEN_HOOK']='post_generate'
 		hook = join(site_dir,HOOKDIR,'post_generate')
-		if isfile(hook):
+		if isfile(hook) and access(hook, X_OK):
 			exec_script(hook, envs)
 
 	# Run deploy hook
 	if not 'deploy' in exclude_hooks:
 		envs['PAGEGEN_HOOK']='deploy'
 		hook = join(site_dir,HOOKDIR,'deploy')
-		if isfile(hook):
+		if isfile(hook) and access(hook, X_OK):
 			exec_script(hook, envs)
 
 	# Run post deploy
 	if not 'post_deploy' in exclude_hooks:
 		envs['PAGEGEN_HOOK']='post_deploy'
 		hook = join(site_dir,HOOKDIR,'post_deploy')
-		if isfile(hook):
+		if isfile(hook) and access(hook, X_OK):
 			exec_script(hook, envs)
 
 

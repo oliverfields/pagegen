@@ -1,7 +1,7 @@
-from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, load_template
+from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template
 from configparser import ConfigParser
 from os.path import isdir, join, isfile, exists, islink
-from os import listdir, sep, makedirs, remove, unlink
+from os import listdir, sep, makedirs, remove, unlink, X_OK, access
 from shutil import rmtree, copytree
 from pagegen.page import page
 from pagegen.virtualpage import virtualpage
@@ -35,6 +35,7 @@ class site:
 		self.search_index=searchindex(join(site_dir, STOPWORDSFILE))
 		self.search_xpaths=[]
 		self.environment=environment
+		self.templates_dir=site_dir + '/' + TEMPLATEDIR
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -505,38 +506,41 @@ class site:
 
 			# Run hook
 			hook = join(self.site_dir,HOOKDIR,'pre_generate_page')
-			if isfile(hook):
+			if isfile(hook) and access(hook, X_OK):
 				exec_script(hook, p.environment)
 
 			if p.headers['generate html'] == True:
-				try:
-					#page_html = load_template(join(self.site_dir, TEMPLATEDIR, p.headers['template']))
-					template_file = self.site_dir + '/' + TEMPLATEDIR + '/' + p.headers['template']
-					page_html = load_template(template_file, p.environment)
-				except Exception as e:
-					raise Exception("Unable to load page template: '%s': %s" % (join(self.site_dir, TEMPLATEDIR, p.headers['template']), e))
-
-				page_html=self.update_place_holder(page_html, 'base_url', self.base_url)
-				page_html=self.update_place_holder(page_html, 'title', p.title)
-				page_html=self.update_place_holder(page_html, 'page_file_name', p.page_file_name)
-				page_html=self.update_place_holder(page_html, 'page_relative_url', p.url_path)
-				page_html=self.update_place_holder(page_html, 'default_extension', self.default_extension)
-				page_html=self.update_place_holder(page_html, 'publish', p.headers['publish'])
 
 				if p.headers['description']:
 					description=p.headers['description']
 				else:
 					description=''
 
-				page_html=self.update_place_holder(page_html, 'description', description)
-				page_html=self.update_place_holder(page_html, 'page_tags', self.html_page_tag_list(p.headers['tags']))
-				page_html=self.update_place_holder(page_html, 'page_category', self.html_page_category(p.headers['category']))
-				page_html=self.update_place_holder(page_html, 'tags', self.html_tag_list())
-				page_html=self.update_place_holder(page_html, 'categories', self.html_category_list())
-				page_html=self.update_place_holder(page_html, 'sub_menu', self.html_sub_menu(p))
+				# Setup context for Mako template
+				context = {
+					'base_url': self.base_url,
+					'title': p.title,
+					'site_dir': self.site_dir,
+					'source_dir': join(self.site_dir, CONTENTDIR),
+					'target_dir': self.target_dir,
+					'page_source_path': p.source_path,
+					'page_target_path': p.target_path,
+					'page_file_name': p.page_file_name,
+					'page_relative_url': p.url_path,
+					'default_extension': self.default_extension,
+					'publish': p.headers['publish'],
+					'description': description,
+					'page_file_name': p.page_file_name,
+					'page_tags': self.html_page_tag_list(p.headers['tags']),
+					'page_category': self.html_page_category(p.headers['category']),
+					'tags': self.html_tag_list(),
+					'categories': self.html_category_list(),
+					'sub_menu': self.html_sub_menu(p),
+					'environment': self.environment
+				}
 
 				for header_name, header_value in p.custom_headers.items():
-					page_html=self.update_place_holder(page_html, 'page.' + header_name, header_value)
+					context['page.' + header_name] = header_value
 
 				# Page content
 				if self.page_titles:
@@ -547,17 +551,16 @@ class site:
 
 				# Previous and next links
 				if p.previous_page is False:
-					page_html=self.update_place_holder(page_html, 'previous_link', '')
+					context['previous_link'] = ''
 				else:
-					page_html=self.update_place_holder(page_html, 'previous_link', '<a href="%s">%s</a>' % (p.previous_page.url_path, p.previous_page.menu_title))
+					context['previous_link'] = '<a href="%s">%s</a>' % (p.previous_page.url_path, p.previous_page.menu_title)
 
 				if p.next_page is False:
-					page_html=self.update_place_holder(page_html, 'next_link', '')
+					context['next_link'] = ''
 				else:
-					page_html=self.update_place_holder(page_html, 'next_link', '<a href="%s">%s</a>' % (p.next_page.url_path, p.next_page.menu_title))
+					context['next_link'] = '<a href="%s">%s</a>' % (p.next_page.url_path, p.next_page.menu_title)
 
 				try:
-					#overrides = {'input_encoding': 'utf-8', 'output_encoding': 'unicode','doctitle_xform': False}
 					overrides = {'doctitle_xform': False}
 					parts = publish_parts(rst, writer_name='html', settings_overrides=overrides)
 				except:
@@ -565,21 +568,23 @@ class site:
 
 				content=parts['html_body']
 
-				page_html=self.update_place_holder(page_html, 'content', content)
+				context['content'] = content
 
 				self.generate_menu(self.pages, p)
 				self.generate_crumb_trail(p, p)
-				page_html=self.update_place_holder(page_html, 'menu', p.menu)
+
+				context['menu'] = p.menu
 
 				# Replace time variables year, month and day
 				Y=date.today().strftime('%Y')
 				M=date.today().strftime('%m')
 				D=date.today().strftime('%d')
-				page_html=self.update_place_holder(page_html, 'year', Y)
-				page_html=self.update_place_holder(page_html, 'month', M)
-				page_html=self.update_place_holder(page_html, 'day', D)
 
-				page_html=self.update_place_holder(page_html, 'absolute_url', self.base_url+p.url_path)
+				context['year'] = Y
+				context['month'] = M
+				context['day'] = D
+
+				context['absolute_url'] = self.base_url+p.url_path
 
 				if p.crumb_trail:
 					crumb_trail_html='<ul>'
@@ -587,9 +592,9 @@ class site:
 						crumb_trail_html+='<li><a href="%s">%s</a></li>' % (crumb.url_path, crumb.menu_title)
 					crumb_trail_html+=('</ul>')
 
-					page_html=self.update_place_holder(page_html, 'crumb_trail', crumb_trail_html)
+					context['crumb_trail'] = crumb_trail_html
 
-				p.html=page_html
+				p.html = render_template(self.templates_dir, p.headers['template'], context)
 			else:
 				p.html=p.rst
 
@@ -803,7 +808,7 @@ class site:
 			p.environment['PAGEGEN_HOOK']='post_generate_page'
 
 			hook = join(self.site_dir,HOOKDIR,'post_generate_page')
-			if isfile(hook):
+			if isfile(hook) and access(hook, X_OK):
 				exec_script(hook, p.environment)
 
 

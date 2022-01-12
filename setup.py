@@ -21,7 +21,7 @@ setup(name = 'pagegen',
 	package_dir={'':'src'},
 	include_package_data=True,
 	long_description="""Python static site generator with reStructuredText markup.""",
-	install_requires=['lxml','docutils','htmlmin','rcssmin','jsmin'],
+	install_requires=['lxml','docutils','htmlmin','rcssmin','jsmin','mako'],
 	entry_points={
 		'console_scripts': ['pagegen=pagegen.pagegen:main'],
 	}

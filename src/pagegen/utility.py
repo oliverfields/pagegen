@@ -1,5 +1,3 @@
-''' General utility library '''
-
 from sys import exit, stderr
 from os import listdir, getcwd, sep, access, X_OK, O_APPEND, environ
 from os.path import join, isdir, isfile, expanduser
@@ -8,6 +6,11 @@ from io import StringIO
 from re import match, sub, finditer
 from subprocess import check_call, check_output
 import codecs
+from mako.template import Template
+from mako.lookup import TemplateLookup
+from mako.exceptions import RichTraceback
+from mako.runtime import Context
+
 
 # Constants
 HOME=expanduser("~")
@@ -142,49 +145,18 @@ def load_file(file):
 	return data
 
 
+def render_template(templates_dir, template_name, context):
+	''' Apply Mako template to file content '''
 
-def load_template(template_file, environment):
-	''' Read template from file, or if file is executable use output as template '''
+	lookup = TemplateLookup(templates_dir)
 
-	if access(template_file, X_OK):
-		setup_environment_variables(environment)
-
-		try:
-			template_content = check_output(template_file, text=True)
-		except Exception as e:
-			report_error(1,"Template '%s' execution failed: %s" % (template_file, e))
-
-	else:
-		try:
-			with codecs.open (template_file, "r", 'utf-8') as f:
-				template_content = f.read()
-		except Exception as e:
-			raise Exception('Unable to load template %s: %s' % (template_file, e))
-
-	for includes in finditer('{{[^}]*:.*}}', template_content):
-		# Chop off curly brackets
-		include_file = includes.group().replace('{{', '')
-		include_file = include_file.replace('}}', '')
-
-		include_file_parts = include_file.split(':')
-		protocol = include_file_parts[0]
-		path = include_file_parts[1]
-
-		if protocol == 'file':
-
-			# Chop off first two slashes to get file path
-			include_file_path = path[2:]
-
-			# Load content from include file
-			try:
-				include_content = load_file(include_file_path).rstrip()
-				template_content = template_content.replace(includes.group(), include_content)
-			except Exception as e:
-				raise Exception('Template %s: Unable to load include %s: %s' % (template_file, include_file_path, e))
-		else:
-			raise Exception('Unsupported protocol %s in %s' % (protocol, include_file)) 
-
-	return template_content
+	try:
+		template = lookup.get_template(template_name)
+		return template.render(**context)
+	except Exception as e:
+		traceback = RichTraceback()
+		for (filename, lineno, function, line) in traceback.traceback:
+			report_error(1,"Template '" + template_name + "' execution failed: " + function + ": " + str(traceback.error.__class__.__name__) + ": " + str(traceback.error))
 
 
 def write_file(file, content):

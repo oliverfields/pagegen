@@ -6,11 +6,12 @@
 
 ### Added
 
-- Templates can now be executables, where template content is executable output
+- Mako template engine, now templates can have full power of Mako, incl if else, loops and full on python code execution
 
 ### Fixed
 
 - Sitemaps now have corecct urls
+- Hooks now only execute if they have execute rights (linux)
 
 ## v3.3.3 - 2022-01-06
 
