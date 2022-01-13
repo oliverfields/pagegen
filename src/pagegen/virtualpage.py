@@ -8,7 +8,7 @@ class virtualpage:
 		self.url_path='',
 		self.absolute_url='',
 		self.children=[]
-		self.rst=''
+		self.content=''
 		self.title=''
 		self.source_path=''
 		self.target_path=''
@@ -29,6 +29,7 @@ class virtualpage:
 		self.raw_headers=[]
 		self.target_dir=None
 		self.custom_headers={}
+		self.markup='rst'
 		self.headers={
 			'sitemap exclude': False, 
 			'menu exclude': False,
@@ -49,7 +50,8 @@ class virtualpage:
 			'sitemap lastmod': None,
 			'sitemap changefreq': None,
 			'sitemap priority': None,
-			'exclude html minify': False
+			'exclude html minify': False,
+			'markup': None
 		}
 
 

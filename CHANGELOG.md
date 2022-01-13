@@ -1,32 +1,29 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## vX.X.X - yyyy-mm-dd
 
-## vx.x.x - yyyy-mm-dd
+### Added
+
+- Markdown support, in site.conf set default "markup=md" to use markdown as default, can be overriden in page headers using "Markdown: mk". Default is rst
+
+## v3.4.0 - 2022-01-13
 
 ### Added
 
 - Mako template engine, now templates can have full power of Mako, incl if else, loops and full on python code execution
-
-### Fixed
-
-- Sitemaps now have corecct urls
-- Hooks now only execute if they have execute rights (linux)
-
-## v3.3.3 - 2022-01-06
+- Page headers/frontmatter support custom headers. These can be referenced in templates using format {{page.<header name>}}. Example, if in a page the following header is set 'this is a custom header: At last', then in a template the following '{{page.this is a custom header}}' will be replaced with 'At last'
+- Template variable/placeholder page_file_name added, contains what you expect
+- Template variable/placeholder page_relative_url added, contains url relative to web root
+- Template variable/placeholder default_extension added, contains default file extension
 
 ### Fixed
 
 - Template page_file_name was incorrect for directories
 - --serve disables deploy and post_deploy hooks for serving locally
 - Removed superflous printing
-
-### Added
-
-- Page headers/frontmatter support custom headers. These can be referenced in templates using format {{page.<header name>}}. Example, if in a page the following header is set 'this is a custom header: At last', then in a template the following '{{page.this is a custom header}}' will be replaced with 'At last'
-- Template variable/placeholder page_file_name added, contains what you expect
-- Template variable/placeholder page_relative_url added, contains url relative to web root
-- Template variable/placeholder default_extension added, contains default file extension
+- Sitemaps now have corecct urls
+- Hooks now only execute if they have execute rights (linux)
 
 
 ## v3.2.0 - 2021-12-30

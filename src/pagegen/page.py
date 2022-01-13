@@ -12,7 +12,7 @@ class page(virtualpage):
 	def __init__(self):
 		virtualpage.__init__(self)
 
-	def load(self, path, site_dir, target_dir_name, parent=False, base_url='', url_include_index=True, default_extension='', environment='', absolute_urls=False):
+	def load(self, path, site_dir, target_dir_name, parent=False, base_url='', url_include_index=True, default_extension='', environment='', absolute_urls=False, default_markup='rst'):
 
 		self.source_path=path
 		self.site_dir=site_dir
@@ -21,6 +21,7 @@ class page(virtualpage):
 		self.base_url=base_url
 		self.url_include_index=url_include_index
 		self.default_extension=default_extension
+		self.markup = default_markup
 
 		# If file is executable then the contents from it's stdout, else just read the file
 		if access(self.source_path, X_OK):
@@ -174,7 +175,7 @@ class page(virtualpage):
 		Format:
 			<header>: <value>	<- Optional
 								<-Blanke line, if headers
-			<rst content>
+			<content>
 
 		First line must either be header or content
 		'''
@@ -210,7 +211,7 @@ class page(virtualpage):
 					in_header=False
 					continue
 			else:
-				self.rst+=line+NEWLINE
+				self.content+=line+NEWLINE
 
 
 		# Check if using a header profile
@@ -221,7 +222,7 @@ class page(virtualpage):
 			self.set_header(header)
 
 		# Strip last new line
-		self.rst=self.rst.rstrip(NEWLINE)
+		self.content=self.content.rstrip(NEWLINE)
 
 		# Split off extension
 		path_part, file_extension=splitext(path)
@@ -235,6 +236,9 @@ class page(virtualpage):
 			self.menu_title=self.headers['menu title']
 		else:
 			self.menu_title=self.title
+
+		if self.headers['markup'] != None:
+			self.markup = self.headers['markup']
 
 		if file_extension:
 			self.extension=file_extension

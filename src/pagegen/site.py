@@ -6,6 +6,7 @@ from shutil import rmtree, copytree
 from pagegen.page import page
 from pagegen.virtualpage import virtualpage
 from docutils.core import publish_parts
+from markdown import markdown
 from re import sub, search
 from datetime import date
 from datetime import datetime
@@ -36,6 +37,7 @@ class site:
 		self.search_xpaths=[]
 		self.environment=environment
 		self.templates_dir=site_dir + '/' + TEMPLATEDIR
+		self.default_markup='rst'
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
@@ -168,6 +170,11 @@ class site:
 			self.page_titles=False
 
 		try:
+			self.default_markup=config.get(self.environment,'default_markup')
+		except:
+			self.default_markup='rst'
+
+		try:
 			self.include_search=self.ensure_bool('include_search', config.get(self.environment,'include_search'))
 		except:
 			self.include_search=False
@@ -214,8 +221,6 @@ class site:
 
 		# Load pages
 		try:
-			# Python 2.7 line:
-			#self.load_pages(content_path.decode('utf-8'), self.pages, home_page, self.default_extension)
 			self.load_pages(content_path, self.pages, home_page, self.default_extension)
 		except Exception as e:
 			raise Exception('Unable to load content: %s' % e)
@@ -376,13 +381,13 @@ class site:
 			l.url_path=self.get_url(l.url_path)
 
 			for p in pages:
-				l.rst+='* %s `%s <%s>`_ %s%s' % (p.headers['publish'], p.menu_title, p.url_path, p.headers['description'], NEWLINE)
+				l.content+='* %s `%s <%s>`_ %s%s' % (p.headers['publish'], p.menu_title, p.url_path, p.headers['description'], NEWLINE)
 
 			o.children.append(l)
 
 		# Create tag overview content now so get right urls etc
 		for p in o.children:
-			o.rst+='* `%s <%s>`_%s' % (p.menu_title, p.url_path, NEWLINE)
+			o.content+='* `%s <%s>`_%s' % (p.menu_title, p.url_path, NEWLINE)
 
 		self.pages.append(o)
 
@@ -459,7 +464,7 @@ class site:
 
 		p=page()
 
-		p.load(path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, url_include_index=url_include_index, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls)
+		p.load(path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, url_include_index=url_include_index, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls, default_markup=self.default_markup)
 
 		return p
 
@@ -544,10 +549,14 @@ class site:
 
 				# Page content
 				if self.page_titles:
-					underline=sub('.', '#', p.title)
-					rst=p.title+'\n'+underline+'\n\n'+p.rst
+					# If defined use markdown, else use rst
+					if p.markup == 'md':
+						content = '# ' + p.title + '\n\n' + p.content
+					else:
+						underline = sub('.', '#', p.title)
+						content = p.title + '\n'+underline + '\n\n' + p.content
 				else:
-					rst=p.rst
+					content=p.content
 
 				# Previous and next links
 				if p.previous_page is False:
@@ -560,13 +569,19 @@ class site:
 				else:
 					context['next_link'] = '<a href="%s">%s</a>' % (p.next_page.url_path, p.next_page.menu_title)
 
-				try:
-					overrides = {'doctitle_xform': False}
-					parts = publish_parts(rst, writer_name='html', settings_overrides=overrides)
-				except:
-					raise(Exception('docutils.publish_parts failed'))
-
-				content=parts['html_body']
+					# If defined use markdown, else use rst
+					if p.markup == 'md':
+						try:
+							content = markdown(content)
+						except Exception as e:
+							raise(Exception('Markdown conversion failed'))
+					else:
+						try:
+							overrides = {'doctitle_xform': False}
+							parts = publish_parts(content, writer_name='html', settings_overrides=overrides)
+							content=parts['html_body']
+						except:
+							raise(Exception('reStructruedText conversion failed'))
 
 				context['content'] = content
 
@@ -596,7 +611,7 @@ class site:
 
 				p.html = render_template(self.templates_dir, p.headers['template'], context)
 			else:
-				p.html=p.rst
+				p.html=p.content
 
 			if p.children:
 				self.generate_pages(p.children)
@@ -683,10 +698,10 @@ class site:
 			elif isfile(f_path):
 				if self.absolute_urls != True:
 					p=page()
-					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls)
+					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls, default_markup=self.default_markup)
 				else:
 					p=page()
-					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls)
+					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls, default_markup=self.default_markup)
 
 				if self.publish_page(p):
 					siblings.append(p)
