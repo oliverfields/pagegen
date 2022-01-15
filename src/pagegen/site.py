@@ -1,4 +1,4 @@
-from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template
+from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template, SEARCHMODEJSFILE
 from configparser import ConfigParser
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, sep, makedirs, remove, unlink, X_OK, access
@@ -16,12 +16,13 @@ from htmlmin import minify
 from glob import glob
 from rcssmin import cssmin
 from jsmin import jsmin
+import pkg_resources
 
 
 class site:
 	""" Master object """
 
-	def __init__(self, site_dir, config_file, environment):
+	def __init__(self, site_dir, config_file, environment, serve_mode):
 		self.pages=[]
 		self.site_dir=''
 		self.base_url=''
@@ -36,6 +37,7 @@ class site:
 		self.search_index=searchindex(join(site_dir, STOPWORDSFILE))
 		self.search_xpaths=[]
 		self.environment=environment
+		self.serve_mode=serve_mode
 		self.templates_dir=site_dir + '/' + TEMPLATEDIR
 		self.default_markup='rst'
 
@@ -45,6 +47,9 @@ class site:
 			self.CONTENTDIR=join(site_dir, CONTENTDIR)
 		else:
 			raise Exception("Site dir '%s' is not a directory" % site_dir)
+
+		if self.serve_mode:
+			self.serve_mode_js_script = load_file(pkg_resources.resource_filename('pagegen', SEARCHMODEJSFILE))
 
 		try:
 			config=load_config([config_file], add_dummy_section=False)
@@ -452,10 +457,6 @@ class site:
 
 	def get_directory_page(self, path, parent):
 		''' Return page object set according to configuration settings '''
-		#if self.absolute_urls:
-		#	base_url=self.base_url
-		#else:
-		#	base_url=''
 
 		if self.url_include_index != True:
 			url_include_index=False
@@ -467,17 +468,6 @@ class site:
 		p.load(path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, url_include_index=url_include_index, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls, default_markup=self.default_markup)
 
 		return p
-
-
-	def update_place_holder(self, template, name, value):
-		result = template.replace('{{%s}}' % name, value)
-		try:
-
-			result = template.replace('{{%s}}' % name, value)
-		except Exception as e:
-			raise Exception("Unable to update name '%s' with value '%s'" % (name, value))
-
-		return result
 
 
 	def generate_pages(self, pages):
@@ -612,6 +602,12 @@ class site:
 				p.html = render_template(self.templates_dir, p.headers['template'], context)
 			else:
 				p.html=p.content
+
+			# If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated
+			
+			if self.serve_mode:
+				js = '<script>' + self.serve_mode_js_script + '</script>'
+				p.html = p.html.replace('</body>', js + '</body>')
 
 			if p.children:
 				self.generate_pages(p.children)

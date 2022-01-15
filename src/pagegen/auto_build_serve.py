@@ -2,7 +2,7 @@ import hashlib
 import glob
 import os
 import time
-from pagegen.utility import load_config, get_environment_config, exec_script
+from pagegen.utility import load_config, get_environment_config, exec_script, SEARCHMODESITEUPDATEDFILE, write_file
 import subprocess
 import sys
 import signal
@@ -24,7 +24,7 @@ def kill_http_server():
 		os.kill(http_server_pid, signal.SIGTERM)
 
 
-def auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_hooks, build_function, serve_base_url, serve_port):
+def auto_build_serve(site_conf_path, environment, watch_elements, serve_dir, exclude_hooks, build_function, serve_base_url, serve_port):
 
 	try:
 		http_server_process = subprocess.Popen(["python3", "-m", "http.server", serve_port, "-d", serve_dir], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -35,28 +35,33 @@ def auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_
 		print('[' + get_time_stamp() + '] Serving from: ' + serve_dir)
 		print('[' + get_time_stamp() + '] Serving to: ' + serve_base_url + ':' + serve_port)
 
-		print('[' + get_time_stamp() + '] Watching changes to: ' + watch_dir)
+		print('[' + get_time_stamp() + '] Watching changes to: ')
+		for we in watch_elements:
+			print('           ' + we)
 
 		while True:
+			names_and_modified_times = '' # Create string of file and directories with timestamps, create hash of this and compare to previous hash to detect changes
 
-			root_dir = watch_dir + '/'
-			directory_list = ''
+			for we in watch_elements:
 
-			# root_dir needs a trailing slash (i.e. /root/dir/)
-			for filename in glob.iglob(root_dir + '**/*', recursive=True):
-				directory_list += (filename + ' ' + str(os.path.getmtime(filename)) + '\n')
+				if os.path.isdir(we):
+					we += '/**/*'
 
-			#print(directory_list)
-			this_hash = hashlib.md5(directory_list.encode('utf-8')).hexdigest()
+				#for item in glob.iglob(root_dir + '**/*', recursive=True):
+				for item in glob.iglob(we, recursive=True):
+					names_and_modified_times += (item + ' ' + str(os.path.getmtime(item)) + '\n')
+
+			this_hash = hashlib.md5(names_and_modified_times.encode('utf-8')).hexdigest()
 
 			if 'last_hash' not in locals():
 				last_hash = this_hash
 
 			if last_hash != this_hash:
 				print('[' + get_time_stamp() + '] Building..')
-				#script = ['pagegen', '--generate', environment]
-				#exec_script(script)
-				build_function(site_conf_path, environment, exclude_hooks, serve_base_url + ':' + serve_port )
+				build_function(site_conf_path, environment, exclude_hooks, serve_base_url + ':' + serve_port, serve_mode=True)
+
+				# Update timestamp to signal to live reaload js poll script to reload
+				write_file(serve_dir + '/' + SEARCHMODESITEUPDATEDFILE, this_hash)
 				print('[' + get_time_stamp() + '] Serving..')
 			else:
 				write_status('[' + get_time_stamp() + '] Watching.. (Ctrl+C to quit)')

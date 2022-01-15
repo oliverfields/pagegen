@@ -26,11 +26,11 @@ def guess_site_conf_and_dir_paths(site_conf_path):
 	return (site_conf_path, site_conf_path[:-len(sep+basename(site_conf_path))])
 
 
-def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=None):
+def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=None, serve_mode=False):
 	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
 
 	try:
-		s=site(site_dir, site_conf_path, environment)
+		s=site(site_dir, site_conf_path, environment, serve_mode)
 	except Exception as e:
 		report_error(1, "Unable to load site: %s" % e)
 
@@ -107,20 +107,30 @@ def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=Non
 
 def serve_mode(site_conf_path, environment):
 	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
-	watch_dir = site_dir + '/' + CONTENTDIR
 	serve_dir = site_dir + '/' + TARGETDIR + '/' + environment
 	exclude_hooks=['deploy','post_deploy']
 	serve_base_url='http://localhost'
 	serve_port = '8000'
 
 	# Build site and serve
-	build_site(site_conf_path, environment, exclude_hooks, serve_base_url + ':' + serve_port)
+	build_site(site_conf_path, environment, exclude_hooks, serve_base_url + ':' + serve_port, serve_mode=True)
 
-	auto_build_serve(site_conf_path, environment, watch_dir, serve_dir, exclude_hooks, build_site, serve_base_url, serve_port)
+	watch_elements = [
+		'content',
+		'header_profiles',
+		'hooks',
+		'include',
+		'site.conf',
+		'templates'
+	]
+
+	watch_elements_full_path = [site_dir + '/' + we for we in watch_elements]
+
+	auto_build_serve(site_conf_path, environment, watch_elements_full_path, serve_dir, exclude_hooks, build_site, serve_base_url, serve_port)
 
 
 def gen_mode(site_conf_path, environment):
-	build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=None)
+	build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=None, serve_mode=False)
 
 
 def init_mode():

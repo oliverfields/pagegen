@@ -31,6 +31,8 @@ RSSFEEDFILE='feed.rss'
 HEADERPROFILEDIR='header_profiles'
 STOPWORDSFILE='stopwords.txt'
 SEARCHINDEXFILE='search-index.json'
+SEARCHMODEJSFILE='pagegen-reload-on-regenerate.js'
+SEARCHMODESITEUPDATEDFILE='pagegen_site_hash'
 
 
 def get_first_words(string, x):
