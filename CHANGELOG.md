@@ -7,6 +7,18 @@
 
 - When using --serve any changes to the site will trigger rebuild. Pages being served will reload if a rebuild has occured. The F5 key will appreciate
 - Markdown support, in site.conf set default "markup=md" to use markdown as default, can be overriden in page headers using "Markdown: mk". Default is rst
+-
+
+
+### Fixed
+
+- Pages with header exclude link chain where not being converted to html
+
+
+### Removed
+
+- Header_profiles functionality
+
 
 ## v3.4.0 - 2022-01-13
 

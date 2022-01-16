@@ -151,24 +151,6 @@ class page(virtualpage):
 			return False
 
 
-	def load_header_profile(self, site_dir):
-		''' If header profile specified, load header values from profile file '''
-		for h in self.raw_headers:
-			header=h.split(':')
-			if header[0].lower().strip() == 'header profile':
-				profile_file=join(site_dir, HEADERPROFILEDIR, header[1].strip())
-				try:
-					profile=load_file(profile_file)
-				except:
-					report_warning("Unable to open header profile '%s'" % relative_path(profile_file))
-				
-				for header in profile.split(NEWLINE):
-					self.set_header(header)
-				# Remember to set header profile
-				self.headers['header profile']=profile_file
-				break
-
-
 	def load_page_content(self, path, content, site_dir, default_extension, absolute_urls):
 		'''
 		Parse source and save headers and content attributes
@@ -213,11 +195,7 @@ class page(virtualpage):
 			else:
 				self.content+=line+NEWLINE
 
-
-		# Check if using a header profile
-		self.load_header_profile(site_dir)
-
-		# Load headers from page, can overwrite header profiles
+		# Load headers from page
 		for header in self.raw_headers:
 			self.set_header(header)
 

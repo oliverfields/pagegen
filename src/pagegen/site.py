@@ -1,4 +1,4 @@
-from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, INCLUDEDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template, SEARCHMODEJSFILE
+from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, THEMEDIR, ASSETDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template, SEARCHMODEJSFILE, ASSETDIR, THEMEDIR
 from configparser import ConfigParser
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, sep, makedirs, remove, unlink, X_OK, access
@@ -26,6 +26,9 @@ class site:
 		self.pages=[]
 		self.site_dir=''
 		self.base_url=''
+		self.theme=''
+		self.theme_template_dir=''
+		self.theme_asset_dir=''
 		self.ignore=[]
 		self.sitemap=''
 		self.sitemaptxt=''
@@ -38,12 +41,11 @@ class site:
 		self.search_xpaths=[]
 		self.environment=environment
 		self.serve_mode=serve_mode
-		self.templates_dir=site_dir + '/' + TEMPLATEDIR
 		self.default_markup='rst'
 
 		if isdir(site_dir):
 			self.site_dir=site_dir
-			self.include_dir=join(site_dir, INCLUDEDIR)
+			self.asset_dir= site_dir + '/' + CONTENTDIR + '/' + ASSETDIR
 			self.CONTENTDIR=join(site_dir, CONTENTDIR)
 		else:
 			raise Exception("Site dir '%s' is not a directory" % site_dir)
@@ -68,6 +70,13 @@ class site:
 			self.base_url=config.get(self.environment,'base_url')
 		except:
 			raise Exception('%s must contain base_url setting' % SITECONF)
+
+		try:
+			self.theme = config.get(self.environment,'theme')
+			self.theme_template_dir = site_dir + '/' + THEMEDIR + '/' + self.theme + '/' + TEMPLATEDIR
+			self.theme_assets_dir = site_dir + '/' + THEMEDIR + '/' + self.theme + '/' + ASSETDIR
+		except:
+			raise Exception('%s must contain theme setting' % SITECONF)
 
 		try:
 			self.exclude_sitemap=self.ensure_bool('exclude_sitemap', config.get(self.environment,'exclude_sitemap'))
@@ -328,13 +337,14 @@ class site:
 
 
 	def generate_page_indexes(self, pages):
-		''' Index all pages with header no index=True '''
+		''' Index all pages with header Search index exclude: True '''
 		for p in pages:
 			if p.headers['search index exclude'] == False:
 				if p.headers['description'] != None:
 					description=p.headers['description']
 				else:
 					description=''
+
 				self.search_index.index_file(p.target_path, p.url_path, p.title, get_first_words(description, 150))
 			if p.children:
 				self.generate_page_indexes(p.children)
@@ -516,6 +526,7 @@ class site:
 					'base_url': self.base_url,
 					'title': p.title,
 					'site_dir': self.site_dir,
+					'asset_dir': self.asset_dir,
 					'source_dir': join(self.site_dir, CONTENTDIR),
 					'target_dir': self.target_dir,
 					'page_source_path': p.source_path,
@@ -559,19 +570,19 @@ class site:
 				else:
 					context['next_link'] = '<a href="%s">%s</a>' % (p.next_page.url_path, p.next_page.menu_title)
 
-					# If defined use markdown, else use rst
-					if p.markup == 'md':
-						try:
-							content = markdown(content)
-						except Exception as e:
-							raise(Exception('Markdown conversion failed'))
-					else:
-						try:
-							overrides = {'doctitle_xform': False}
-							parts = publish_parts(content, writer_name='html', settings_overrides=overrides)
-							content=parts['html_body']
-						except:
-							raise(Exception('reStructruedText conversion failed'))
+				# If defined use markdown, else use rst
+				if p.markup == 'md':
+					try:
+						content = markdown(content)
+					except Exception as e:
+						raise(Exception('Markdown conversion failed'))
+				else:
+					try:
+						overrides = {'doctitle_xform': False}
+						parts = publish_parts(content, writer_name='html', settings_overrides=overrides)
+						content=parts['html_body']
+					except:
+						raise(Exception('reStructruedText conversion failed'))
 
 				context['content'] = content
 
@@ -592,14 +603,14 @@ class site:
 				context['absolute_url'] = self.base_url+p.url_path
 
 				if p.crumb_trail:
-					crumb_trail_html='<ul>'
+					crumb_trail_html='<ol>'
 					for crumb in p.crumb_trail:
 						crumb_trail_html+='<li><a href="%s">%s</a></li>' % (crumb.url_path, crumb.menu_title)
-					crumb_trail_html+=('</ul>')
+					crumb_trail_html+=('</ol>')
 
 					context['crumb_trail'] = crumb_trail_html
 
-				p.html = render_template(self.templates_dir, p.headers['template'], context)
+				p.html = render_template(self.theme_template_dir, p.headers['template'], context)
 			else:
 				p.html=p.content
 
@@ -640,7 +651,7 @@ class site:
 			if p.target_path in page_target_paths:
 				report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (relative_path(p.target_path), relative_path(p.source_path), relative_path(page_target_paths[p.target_path])))
 			# TODO Better checking than ends with
-			elif ((p.target_path.endswith(SITEMAPFILE) or p.target_path.endswith(SITEMAPTXTFILE)) and self.exclude_sitemap == False) or p.target_path==join(self.site_dir, INCLUDEDIR):
+			elif ((p.target_path.endswith(SITEMAPFILE) or p.target_path.endswith(SITEMAPTXTFILE)) and self.exclude_sitemap == False) or p.target_path==join(self.site_dir, ASSETDIR):
 				report_error(1,"Page '%s' illegal name, cannot be either '%s' or '%s'" % (relative_path(p.source_path), SITEMAPFILE, SITEMAPTXTFILE))
 			elif p.target_path.endswith(RSSFEEDFILE) and self.include_rss:
 				report_error(1,"Page '%s' illegal name '%s'" % (relative_path(p.source_path), RSSFEEDFILE))
@@ -673,8 +684,11 @@ class site:
 		file_list = sorted(listdir(dir_path))
 
 		for f in file_list:
-
 			f_path=join(dir_path, f)
+
+			# Just skip content/assets file
+			if f_path == self.asset_dir:
+				continue
 
 			# If dir then must have default file defined
 			if isdir(f_path):
@@ -746,13 +760,19 @@ class site:
 		# Write pages to disk
 		self.save_pages(self.pages)
 
-		# Copy include dir to target dir
-		include_dir=join(self.target_dir, INCLUDEDIR)
+		# Copy assets
+		target_assets_dir = self.target_dir + '/' + ASSETDIR
+		if exists(target_assets_dir):
+			report_error(1, target_assets_dir + ' already exists, aborting')
+			if exists(self.asset_dir):
+				copytree(self.asset_dir, target_assets_dir)
 
-		if exists(include_dir):
-			report_warning('Include exists, skipping copy to site directory')
+		# Copy theme assets
+		target_theme_assets_dir = target_assets_dir + '/theme'
+		if exists(target_theme_assets_dir):
+			report_error(1, target_theme_assets_dir + ' already exists, aborting')
 		else:
-			copytree(self.include_dir, include_dir)
+			copytree(self.theme_assets_dir, target_theme_assets_dir)
 
 		# Create sitemap
 		if self.exclude_sitemap == False:
@@ -767,10 +787,10 @@ class site:
 			self.generate_search_index()
 
 		if self.minify_javascript:
-			self.minify_javascript_in_directory(include_dir)
+			self.minify_javascript_in_directory(target_assets_dir)
 
 		if self.minify_css:
-			self.minify_css_in_directory(include_dir)
+			self.minify_css_in_directory(target_assets_dir)
 
 
 	def minify_javascript_in_directory(self, dir):
