@@ -363,8 +363,6 @@ class site:
 			title=self.tag_title
 			dir=self.tag_dir
 			items=self.tags.items()
-			overview_template=
-			item_template=XXXXXX
 		else:
 			title=self.category_title
 			dir=self.category_dir
