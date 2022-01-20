@@ -66,6 +66,7 @@ def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=Non
 		report_error(1, "Unable to generate site: %s" % e)
 
 	if s.exclude_sitemap != True:
+		s.generate_sitemap(s.pages)
 		try:
 			s.generate_sitemap(s.pages)
 		except Exception as e:
@@ -78,10 +79,6 @@ def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=Non
 			report_error(1, "Unable to generate /feed.rss: %s" % e)
 
 	s.move_to_target()
-	#try:
-	#	s.move_to_target()
-	#except Exception as e:
-	#	report_error(1, "Unable to copy to target directory '%s': %s" % (s.target_dir, e))
 
 	# Run post hook
 	if not 'post_generate' in exclude_hooks:

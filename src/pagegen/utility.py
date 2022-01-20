@@ -34,6 +34,7 @@ STOPWORDSFILE='stopwords.txt'
 SEARCHINDEXFILE='search-index.json'
 SEARCHMODEJSFILE='pagegen-reload-on-regenerate.js'
 SEARCHMODESITEUPDATEDFILE='pagegen_site_hash'
+VIRTUALINDEXPAGE='Virtual index page'
 
 
 def get_first_words(string, x):

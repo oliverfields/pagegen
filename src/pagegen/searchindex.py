@@ -124,20 +124,26 @@ class searchindex:
 
 		# Loop over meta tags
 		for search_attribute in self.meta_tags:
-			result=tree.xpath("//meta[@name='"+search_attribute+"']")
-			for tag in result:
-				self.index_string(tag.attrib['content'], url, 5, title, description)
+			try:
+				result=tree.xpath("//meta[@name='"+search_attribute+"']")
+				for tag in result:
+					self.index_string(tag.attrib['content'], url, 5, title, description)
+			except:
+				pass # No meta tags found, fair enough
 
 		# Index title
-		result=tree.xpath("/html/head/title")
-		for tag in result:
-			text=''
-			if tag.text:
-				text+=tag.text+' '
-			if tag.tail:
-				text+=tag.tail
+		try:
+			result=tree.xpath("/html/head/title")
+			for tag in result:
+				text=''
+				if tag.text:
+					text+=tag.text+' '
+				if tag.tail:
+					text+=tag.tail
 
-			self.index_string(text, url, 10, title, description)
+				self.index_string(text, url, 10, title, description)
+		except:
+			pass # Unable to find a title
 
 
 		# Loop over tags in content_tags and get text
@@ -147,33 +153,37 @@ class searchindex:
 		for content_tag in self.index_xpaths:
 			for search_tag in self.content_tags:
 				xpath=content_tag+"//"+search_tag
-				result=tree.xpath(xpath)
-				for tag in result:
-					text=''
-					if tag.text:
-						text+=tag.text+' '
-					if tag.tail:
-						text+=tag.tail
 
-					if text:
-						if tag.tag=='h1':
-							weight=7
-						elif tag.tag=='h2':
-							weight=6
-						elif tag.tag=='h3':
-							weight=5
-						elif tag.tag=='h4':
-							weight=4
-						elif tag.tag=='h5':
-							weight=3
-						elif tag.tag=='h6':
-							weight=2
-						elif tag.tag=='strong' or tag.tag=='em' or tag.tag=='b' or tag.tag=='i':
-							weight=1
-						else:
-							weight=0
+				try:
+					result=tree.xpath(xpath)
+					for tag in result:
+						text=''
+						if tag.text:
+							text+=tag.text+' '
+						if tag.tail:
+							text+=tag.tail
 
-						self.index_string(text, url, weight, title, description)
+						if text:
+							if tag.tag=='h1':
+								weight=7
+							elif tag.tag=='h2':
+								weight=6
+							elif tag.tag=='h3':
+								weight=5
+							elif tag.tag=='h4':
+								weight=4
+							elif tag.tag=='h5':
+								weight=3
+							elif tag.tag=='h6':
+								weight=2
+							elif tag.tag=='strong' or tag.tag=='em' or tag.tag=='b' or tag.tag=='i':
+								weight=1
+							else:
+								weight=0
+
+							self.index_string(text, url, weight, title, description)
+				except:
+					pass # No results
 
 
 class Hit:

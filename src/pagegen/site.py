@@ -1,4 +1,4 @@
-from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, THEMEDIR, ASSETDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template, SEARCHMODEJSFILE, ASSETDIR, THEMEDIR
+from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, THEMEDIR, ASSETDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template, SEARCHMODEJSFILE, ASSETDIR, THEMEDIR, VIRTUALINDEXPAGE
 from configparser import ConfigParser
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, sep, makedirs, remove, unlink, X_OK, access
@@ -44,9 +44,9 @@ class site:
 		self.default_markup='rst'
 
 		if isdir(site_dir):
-			self.site_dir=site_dir
-			self.asset_dir= site_dir + '/' + CONTENTDIR + '/' + ASSETDIR
-			self.CONTENTDIR=join(site_dir, CONTENTDIR)
+			self.site_dir = site_dir
+			self.asset_dir = site_dir + '/' + CONTENTDIR + '/' + ASSETDIR
+			self.content_dir = site_dir + '/' + CONTENTDIR
 		else:
 			raise Exception("Site dir '%s' is not a directory" % site_dir)
 
@@ -223,8 +223,8 @@ class site:
 		# Try to load home page, ok if not there
 		try:
 			# Get home page, append it as first item
-			home_page_path=self.get_dir_default_file(content_path)
-			home_page=self.get_directory_page(home_page_path, False)
+			home_page_path = self.get_dir_default_file(content_path)
+			home_page = self.get_directory_page(home_page_path, False)
 
 			if self.publish_page(home_page):
 				self.pages.append(home_page)
@@ -326,12 +326,12 @@ class site:
 		if not page.children:
 			return ''
 		else:
-			html='<ul class="sub_menu">'
+			html='<ol class="sub_menu">'
 
 			for p in page.children:
 				html+='<li><a href="%s">%s</a></li>' % (p.url_path, p.menu_title)
 
-			html += '</ul>'
+			html += '</ol>'
 
 			return html
 
@@ -690,19 +690,34 @@ class site:
 			if f_path == self.asset_dir:
 				continue
 
-			# If dir then must have default file defined
+			# If dir then load default index page, if none found then create virtual page
 			if isdir(f_path):
+
 				dir_page=self.get_dir_default_file(f_path)
+
+				# Index file exists on disk
 				if dir_page:
-					p=self.get_directory_page(dir_page, parent)
-					if self.publish_page(p):
-						siblings.append(p)
-						try:
-							self.load_pages(f_path, p.children, p, self.default_extension)
-						except Exception as e:
-							raise Exception('Unable to load pages for %s: %s' % (f, e))
+					p = self.get_directory_page(dir_page, parent)
+
+				# No index file defined, create virutal one
 				else:
-					report_error(1, "Directory '%s' is missing '%s' file" % (f_path, DIRDEFAULTFILE))
+					p = virtualpage()
+					p.site_dir = self.site_dir
+					p.target_dir_name = self.environment
+					v_path = f_path + '/' + DIRDEFAULTFILE + self.default_extension
+					p.parent = parent
+					p.title = p.set_title_from_path(v_path)
+					p.menu_title = p.title
+					p.set_paths(v_path, self.site_dir, self.absolute_urls)
+					p.headers[VIRTUALINDEXPAGE] = True
+
+				if self.publish_page(p):
+					siblings.append(p)
+					try:
+						self.load_pages(f_path, p.children, p, self.default_extension)
+					except Exception as e:
+						raise Exception('Unable to load pages for %s: %s' % (f, e))
+
 			elif is_default_file(f):
 				pass
 			elif isfile(f_path):
@@ -715,8 +730,17 @@ class site:
 
 				if self.publish_page(p):
 					siblings.append(p)
+
 			else:
 				raise Exception("Unknown object '%s'" % f_path)
+
+			self.append_virtual_index_page_content(parent, p)
+
+
+	def append_virtual_index_page_content(self, parent, child):
+		# If parent has been dynamically created, add children to its content
+		if VIRTUALINDEXPAGE in parent.headers.keys() and parent.headers[VIRTUALINDEXPAGE]:
+			parent.content += '* `%s <%s>`_ %s' % (child.menu_title, child.url_path, NEWLINE)
 
 
 	def publish_page(self, page):
@@ -856,7 +880,7 @@ class site:
 	def generate_menu(self, pages, page, level=1):
 
 		if page.menu == '':
-			page.menu='<ul>'
+			page.menu='<ol>'
 
 		for p in pages:
 
@@ -870,18 +894,18 @@ class site:
 
 			if p.children:
 				page.menu+='<li><a href="%s"%s>%s</a>' % (p.url_path, css_id, p.menu_title)
-				page.menu+='<ul>'
+				page.menu+='<ol>'
 				self.generate_menu(p.children, page, level=level+1)
-				page.menu+='</ul>'
+				page.menu+='</ol>'
 				page.menu+='</li>'
 			else:
 				page.menu+='<li><a href="%s"%s>%s</a></li>' % (p.url_path, css_id, p.menu_title)
 
 		if level==1:
-			if page.menu=='<ul>':
+			if page.menu=='<ol>':
 				page.menu=''
 			else:
-				page.menu+='</ul>'
+				page.menu+='</ol>'
 
 
 	def sitemap_url(self, page):

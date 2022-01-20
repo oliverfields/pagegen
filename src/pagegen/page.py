@@ -47,72 +47,6 @@ class page(virtualpage):
 		self.load_page_content(self.source_path, content, self.site_dir, self.default_extension, absolute_urls)
 
 
-	def set_paths(self, path, site_path, absolute_urls):
-		''' Create url'ed and target version of path '''
-
-		# Remove non site path
-		path_part=path.replace(site_path+sep+CONTENTDIR, '')
-
-		self.target_dir=join(site_path, self.target_dir_name)
-
-		# Replace os dir seperator with forward slash
-		path_part.replace(sep, '/')
-
-		# If not preserve file name, then make it nicely urlified
-		if self.headers['preserve file name'] == False:
-			# Remove ordering prefix
-			path_part=sub('/[0-9]*_', '/', path_part)
-
-			# Lowercase
-			path_part=path_part.lower()
-
-			# Replace anything that isn't a charachter, number, slash, underscore or hyphen with a hyphen
-			path_part=urlify(path_part)
-
-
-		if absolute_urls:
-			self.url_path = self.base_url+path_part
-		else:
-			self.url_path = path_part
-
-		self.absolute_url = self.base_url + path_part
-
-		# If not show index in url, strip it
-		if self.url_include_index != True:
-			self.url_path=sub('%s%s$' % (DIRDEFAULTFILE, self.extension), '', self.url_path)
-
-		# Replace / with os dir seperator for target path
-		path_part=path_part.replace('/', sep)
-
-		self.target_path="%s%s%s%s%s%s" % (self.site_dir, sep, TARGETDIR, sep, self.target_dir_name, path_part)
-		self.target_path = self.target_path
-
-		# Set page_file_name after all url_path above stuff is done
-		self.page_file_name = path_part
-		if self.page_file_name == '':
-			self.page_file_name = DIRDEFAULTFILE + self.default_extension
-
-
-	def set_title_from_path(self, path):
-		# Get path leaf
-
-		# Delete any extension
-		path, extension=splitext(path)
-
-		# If Directory, then need to chop off default to get actual title
-		if path.endswith(sep+DIRDEFAULTFILE):
-			path=sub(sep+DIRDEFAULTFILE+'$', '', path)
-
-		leaf=path.rpartition(sep)[2]
-
-		# Remove any XXX_ ordering prefix
-		split_leaf=leaf.split('_')
-		if len(split_leaf) == 1:
-			self.title=split_leaf[0]
-		else:
-			self.title=split_leaf[1]
-
-
 	def set_header(self, line):
 		''' Try to set header value, return false if fail '''
 
@@ -208,7 +142,7 @@ class page(virtualpage):
 		if self.headers['title'] != None:
 			self.title=self.headers['title']
 		else:
-			self.set_title_from_path(path)
+			self.title = self.set_title_from_path(path)
 
 		if self.headers['menu title'] != None:
 			self.menu_title=self.headers['menu title']

@@ -33,13 +33,13 @@
     </div><!-- /page -->
     <script>
 function toggle_sub_menu(i) {
-  var ul = i.nextSibling;
-  if (ul.style.display == 'block') {
-    ul.style.display = 'none'
+  var ol = i.nextSibling;
+  if (ol.style.display == 'block') {
+    ol.style.display = 'none'
     i.className = toggle_show_sub_menu;
   }
   else {
-    ul.style.display = 'block';
+    ol.style.display = 'block';
     i.className = toggle_hide_sub_menu;
   }
 }
@@ -50,7 +50,7 @@ function show_current_page_parent_menues(obj) {
 
   if (obj.id == 'menu') return;
 
-  if (obj.parentElement.tagName == 'UL') {
+  if (obj.parentElement.tagName == 'OL') {
     obj.parentElement.style.display = 'block';
   }
 
@@ -58,16 +58,16 @@ function show_current_page_parent_menues(obj) {
 }
 
 
-var uls = document.querySelectorAll('#menu ul');
+var ols = document.querySelectorAll('#menu ol');
 var toggle_show_sub_menu = 'sub-menu-toggle fas fa-angle-down';
 var toggle_hide_sub_menu = 'sub-menu-toggle fas fa-angle-up';
 
 
-for (var i = 0; i < uls.length; i++) {
+for (var i = 0; i < ols.length; i++) {
 
-  if (uls[i].parentElement.tagName === 'LI') {
+  if (ols[i].parentElement.tagName === 'LI') {
 
-    uls[i].style.display = 'none'; // Hide sub menu
+    ols[i].style.display = 'none'; // Hide sub menu
 
     // Create icon to toggle sub menu
     var toggle_icon = document.createElement('i');
@@ -76,7 +76,7 @@ for (var i = 0; i < uls.length; i++) {
       toggle_sub_menu(this);
     }
 
-    uls[i].parentNode.insertBefore(toggle_icon, uls[i]);
+    ols[i].parentNode.insertBefore(toggle_icon, ols[i]);
   }
 }
 

@@ -82,15 +82,15 @@ top: 1px;
   #content {
     margin-left: 0;
   }
-  #sidebar ul {
+  #sidebar ol {
     width: 220px;
     margin: 0 auto !important;
   }
-  #sidebar ul a {
+  #sidebar ol a {
     color: #ddd !important;
     border-bottom: 1px dotted #ddd !imporant;
   }
-  #sidebar ul a:hover {
+  #sidebar ol a:hover {
     color: #fff !important;
     border-bottom: 1px dotted #fff !important;
   }
@@ -99,7 +99,7 @@ top: 1px;
 display: block;
 margin: 10px auto;
 }
-#sidebar ul {
+#sidebar ol {
 list-style: none;
 padding-left: 10px;
 margin: 0;
@@ -122,12 +122,12 @@ font-size: .8em;
 color: #3E4349;
 font-style: italic;
 }
-#sidebar ul a {
+#sidebar ol a {
 border-bottom: 1px dotted #444;
 text-decoration: none;
 color: #444;
 }
-#sidebar ul a:hover {
+#sidebar ol a:hover {
 color: #000;
 border-bottom-color: #000;
 }
