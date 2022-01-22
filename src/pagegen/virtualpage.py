@@ -45,7 +45,7 @@ class virtualpage:
 			'publish': date.today().strftime(DATEFORMAT),
 			'rss include': False,
 			'tags': [],
-			'category': None,
+			'categories': [],
 			'header profile': None,
 			'search index exclude': False,
 			'preserve file name': False,
@@ -86,13 +86,17 @@ class virtualpage:
 		return title
 
 
-	def set_paths(self, path, site_path, absolute_urls):
+	def set_paths(self, source_path, site_path, absolute_urls, environment_dir_name, base_url):
 		''' Create url'ed and target version of path '''
-
+		#print('yyy source_path ' + source_path)
+		#print('yyy site_path ' + site_path)
+		#print('yyy absolute_urls ' + str(absolute_urls))
+		#print('yyy environment_dir_name ' + environment_dir_name)
+		#print('yyy base_url ' + base_url)
 		# Remove non site path
-		path_part = path.replace(site_path + '/' + CONTENTDIR, '')
+		path_part = source_path.replace(site_path + '/' + CONTENTDIR, '')
 
-		self.target_dir = site_path + '/' + self.target_dir_name
+		self.target_dir = site_path + '/' + environment_dir_name
 
 		# If not preserve file name, then make it nicely urlified
 		if self.headers['preserve file name'] == False:
@@ -106,22 +110,21 @@ class virtualpage:
 			path_part = urlify(path_part)
 
 		if absolute_urls:
-			self.url_path = self.base_url+path_part
+			self.url_path = base_url + path_part
 		else:
 			self.url_path = path_part
 
-		self.absolute_url = self.base_url + path_part
+		self.absolute_url = base_url + path_part
 
 		# If not show index in url, strip it
 		if self.url_include_index != True:
-			self.url_path=sub('%s%s$' % (DIRDEFAULTFILE, self.extension), '', self.url_path)
+			self.url_path = sub('%s%s$' % (DIRDEFAULTFILE, self.extension), '', self.url_path)
 
-		self.target_path="%s%s%s%s%s%s" % (self.site_dir, '/', TARGETDIR, '/', self.target_dir_name, path_part)
-		self.target_path = self.target_path
+		self.target_path="%s%s%s%s%s%s" % (site_path, '/', TARGETDIR, '/', environment_dir_name, path_part)
 
 		# Set page_file_name after all url_path above stuff is done
 		self.page_file_name = path_part
 		if self.page_file_name == '':
 			self.page_file_name = DIRDEFAULTFILE + self.default_extension
 
-
+		#print('')

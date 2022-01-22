@@ -1,4 +1,4 @@
-from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, THEMEDIR, ASSETDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, urlify, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template, SEARCHMODEJSFILE, ASSETDIR, THEMEDIR, VIRTUALINDEXPAGE
+from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, THEMEDIR, ASSETDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template, SEARCHMODEJSFILE, ASSETDIR, THEMEDIR, DIRECTORIESTEMPLATE, TAGSTEMPLATE, TAGTEMPLATE, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, urlify
 from configparser import ConfigParser
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, sep, makedirs, remove, unlink, X_OK, access
@@ -42,6 +42,7 @@ class site:
 		self.environment=environment
 		self.serve_mode=serve_mode
 		self.default_markup='rst'
+		self.default_templates = {}
 
 		if isdir(site_dir):
 			self.site_dir = site_dir
@@ -78,30 +79,45 @@ class site:
 		except:
 			raise Exception('%s must contain theme setting' % SITECONF)
 
+		# Set default template settings
+		default_templates = {
+			'directories': DIRECTORIESTEMPLATE,
+			'tags': TAGSTEMPLATE,
+			'tag': TAGTEMPLATE,
+			'categories': CATEGORIESTEMPLATE,
+			'category': CATEGORYTEMPLATE
+		}
+
+		for name, template in default_templates.items():
+			if isfile(self.theme_template_dir + '/' + template):
+				self.default_templates[name] = template
+			else:
+				self.default_templates[name] = False
+
 		try:
 			self.exclude_sitemap=self.ensure_bool('exclude_sitemap', config.get(self.environment,'exclude_sitemap'))
 		except:
 			self.exclude_sitemap=False
 
 		try:
-			self.tag_dir=config.get(self.environment,'tag_url')
+			self.tag_dir = config.get(self.environment,'tag_url')
 		except:
-			self.tag_dir='tag'
+			self.tag_dir = 'tag'
 
 		try:
-			self.tag_title=config.get(self.environment,'tag_title')
+			self.tag_title = config.get(self.environment,'tag_title')
 		except:
-			self.tag_title='Tags'
+			self.tag_title = 'Tags'
 
 		try:
-			self.category_dir=config.get(self.environment,'category_url')
+			self.category_dir = config.get(self.environment,'category_url')
 		except:
-			self.category_dir='category'
+			self.category_dir = 'category'
 
 		try:
-			self.category_title=config.get(self.environment,'category_title')
+			self.category_title = config.get(self.environment,'category_title')
 		except:
-			self.category_title='Categories'
+			self.category_title = 'Categories'
 
 		try:
 			self.include_rss=self.ensure_bool('include_rss', config.get(self.environment,'include_rss'))
@@ -200,11 +216,6 @@ class site:
 		except:
 			self.search_index.index_xpaths.append('/html/body')
 
-		try:
-			self.deploy_script=config.get(self.environment, 'deploy_script')
-		except:
-			self.deploy_script=None
-
 
 	def ensure_bool(self, setting_name, data):
 		if data == "True":
@@ -239,15 +250,15 @@ class site:
 		except Exception as e:
 			raise Exception('Unable to load content: %s' % e)
 
+		self.set_list_items(self.base_url, self.pages)
 
-		self.set_tags(self.pages)
-		self.set_categories(self.pages)
 		if self.tags:
 			self.load_list_pages('tag', home_page)
 		if self.categories:
 			self.load_list_pages('category', home_page)
 
 		self.check_pages(self.pages)
+
 		self.set_link_sequence(self.pages)
 		self.set_next_previous_links()
 
@@ -260,65 +271,6 @@ class site:
 
 		return url
 
-
-	def html_tag_list(self):
-		''' Generate html list of tags'''
-
-		html='<div id="tags"><h1>%s</h1><ul>' % self.tag_title
-
-		for tag, pages in self.tags.items():
-			url='/'+self.tag_dir+'/'+urlify(tag)+self.default_extension
-			url=self.get_url(url)
-			html+='<li><a href="%s">%s</a>' % (url, tag)
-
-		html+='</ul>'
-
-		return html
-
-
-	def html_category_list(self):
-		''' Generate html list of categories'''
-
-		html='<div id="categories"><h1>%s</h1><ul>' % self.category_title
-
-		for c, page in self.categories.items():
-			url='/'+self.category_dir+'/'+urlify(c)+self.default_extension
-			url=self.get_url(url)
-			html+='<li><a href="%s">%s</a>' % (url, c)
-
-		html+='</ul>'
-
-		return html
-
-
-	def html_page_tag_list(self, tags):
-		''' Generate list of tags for a page '''
-
-		if len(tags) == 0:
-			return ''
-
-		html='<ul id="page_tags">'
-
-		for tag in tags:
-			url='/'+self.tag_dir+'/'+urlify(tag)+self.default_extension
-			url=self.get_url(url)
-			html+='<li><a href="%s">%s</a>' % (url, tag)
-
-		html+='</ul>'
-
-		return html
-
-
-	def html_page_category(self, category):
-		''' Generate link to category for a page '''
-
-		if category is None:
-			return ''
-
-		url='/'+self.category_dir+'/'+urlify(category)+self.default_extension
-		url=self.get_url(url)
-
-		return '<a href="%s">%s</a>' % (url, category)
 
 	def html_sub_menu(self, page):
 		''' Return list of page child elements '''
@@ -356,86 +308,103 @@ class site:
 		write_file(join(self.target_dir, SEARCHINDEXFILE), self.search_index.build_json_index())
 
 
-	def load_list_pages(self, type, parent_page):
+	def load_list_pages(self, list_type, parent_page):
 		''' For each tag, create page objects and replace their content with list of tagged pages. and index page, which is list of tags. Type can be tag or category '''
 
-		if type == 'tag':
-			title=self.tag_title
-			dir=self.tag_dir
-			items=self.tags.items()
-		else:
-			title=self.category_title
-			dir=self.category_dir
-			items=self.categories.items()
-
 		# Create top level overview page (o)
-		o=virtualpage()
-		o.headers['sitemap exclude']=True
-		o.headers['menu exclude']=True
-		o.headers['link chain exclude']=True
-		o.parent=parent_page
-		o.title=title
-		o.menu_title=title
-		o.target_path=self.environment+'/'+dir+'/'+DIRDEFAULTFILE+self.default_extension
-		o.url_path='/'+dir+'/'+DIRDEFAULTFILE+self.default_extension
+		o = virtualpage()
 
-		o.url_path=self.get_url(o.url_path)
+		if list_type == 'tag':
+			title = self.tag_title
+			d = self.tag_dir
+			item_list = self.tags
 
-		# Create each list page (l)
-		for item, pages in items:
-			l=virtualpage()
-			l.headers['sitemap exclude']=True
-			l.headers['menu exclude']=True
-			l.headers['link chain exclude']=True
-			l.title=item.capitalize()
-			l.menu_title=item.capitalize()
-			l.target_path=self.environment+'/'+dir+'/'+urlify(item)+self.default_extension
-			l.url_path='/'+dir+'/'+urlify(item)+self.default_extension
-			l.parent=o
-			
-			l.url_path=self.get_url(l.url_path)
+			if self.default_templates['tags']:
+				o.headers['template'] = self.default_templates['tags']
+		else:
+			title = self.category_title
+			d = self.category_dir
+			item_list = self.categories
 
-			for p in pages:
-				l.content+='* %s `%s <%s>`_ %s%s' % (p.headers['publish'], p.menu_title, p.url_path, p.headers['description'], NEWLINE)
+			if self.default_templates['categories']:
+				o.headers['template'] = self.default_templates['categories']
+
+		o.headers['sitemap exclude'] = True
+		o.headers['menu exclude'] = True
+		o.headers['link chain exclude'] = True
+		o.parent = parent_page
+		o.title = title
+		o.menu_title = title
+		v_path = self.site_dir + '/' + CONTENTDIR + '/' + d + '/' + DIRDEFAULTFILE + self.default_extension
+		o.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
+
+
+		# Create each list page (l) for tags and categories
+		for name, items  in item_list.items():
+			l = virtualpage()
+			l.headers['sitemap exclude'] = True
+			l.headers['menu exclude'] = True
+			l.headers['link chain exclude'] = True
+			l.title = name.capitalize()
+			l.menu_title = name.capitalize()
+			v_path = self.site_dir + '/' + CONTENTDIR + '/' + d + '/' + name + self.default_extension
+			l.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
+			l.parent = o
+
+			if list_type == 'tag':
+				if self.default_templates['tag']:
+					l.headers['template'] = self.default_templates['tag']
+				l.tag_pages = items['pages']
+			else:
+				if self.default_templates['category']:
+					l.headers['template'] = self.default_templates['category']
+				l.category_pages = items['pages']
+
+			for page in items['pages']:
+				l.content += '* %s `%s <%s>`_ %s' % (page.headers['publish'], page.menu_title, page.url_path, NEWLINE)
 
 			o.children.append(l)
 
 		# Create tag overview content now so get right urls etc
 		for p in o.children:
-			o.content+='* `%s <%s>`_%s' % (p.menu_title, p.url_path, NEWLINE)
+			o.content += '* `%s <%s>`_%s' % (p.menu_title, p.url_path, NEWLINE)
 
 		self.pages.append(o)
 
 
-	def set_tags(self, pages):
-		''' Get all tags that are defined in page headers '''
+	def set_list_items(self, url_prefix, pages):
+		''' Get all tags and categories that are defined in page headers '''
 
 		for p in pages:
-			if len(p.headers['tags']):
 
+			# Tags
+			if 'tags' in p.headers.keys():
 				for t in p.headers['tags']:
-					# If tag not existing, create tag list
+					# If not existing, create new list
 					if not t in self.tags.keys():
-						self.tags[t]=[]
-					self.tags[t].append(p)
+						self.tags[t] = {
+							'name': t,
+							'url': url_prefix + '/' + self.tag_dir + '/' + urlify(t) + self.default_extension,
+							'pages': []
+						}
+
+					self.tags[t]['pages'].append(p)
+
+			# Categories
+			if 'categories' in p.headers.keys():
+				for c in p.headers['categories']:
+					# If not existing, create new list
+					if not c in self.categories.keys():
+						self.categories[c] = {
+							'name': c,
+							'url': url_prefix + '/' + self.category_dir + '/' + urlify(c) + self.default_extension,
+							'pages': []
+						}
+
+					self.categories[c]['pages'].append(p)
 
 			if p.children or p.url_path == '/':
-				self.set_tags(p.children)
-
-
-	def set_categories(self, pages):
-		''' Get all categories that are defined in page headers '''
-
-		for p in pages:
-			if p.headers['category']:
-
-				# If Category not existing, create category list
-				if not p.headers['category'] in self.categories.keys():
-					self.categories[p.headers['category']]=[]
-				self.categories[p.headers['category']].append(p)
-
-				if p.children or p.url_path == '/':
-					self.set_categories(p.children)
+				self.set_list_items(url_prefix, p.children)
 
 
 	def set_next_previous_links(self):
@@ -475,7 +444,17 @@ class site:
 
 		p=page()
 
-		p.load(path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, url_include_index=url_include_index, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls, default_markup=self.default_markup)
+		p.load(
+			path,
+			self.site_dir,
+			parent=parent,
+			base_url=self.base_url,
+			url_include_index=url_include_index,
+			default_extension=self.default_extension,
+			environment=self.environment,
+			absolute_urls=self.absolute_urls,
+			default_markup=self.default_markup
+		)
 
 		return p
 
@@ -487,9 +466,9 @@ class site:
 			# Set environment variable for hooks
 			p.environment={
 				'PAGEGEN_SITE_DIR': self.site_dir,
-				'PAGEGEN_SOURCE_DIR': join(self.site_dir, CONTENTDIR),
+				'PAGEGEN_SOURCE_DIR': self.site_dir + '/' + CONTENTDIR,
 				'PAGEGEN_TARGET_DIR': self.target_dir,
-				'PAGEGEN_HOOK_DIR': join(self.site_dir, HOOKDIR),
+				'PAGEGEN_HOOK_DIR': self.site_dir + '/' + HOOKDIR,
 				'PAGEGEN_BASE_URL': self.base_url,
 				'PAGEGEN_PAGE_TITLE': p.title,
 				'PAGEGEN_PAGE_URL': p.url_path,
@@ -516,106 +495,55 @@ class site:
 
 			if p.headers['generate html'] == True:
 
-				if p.headers['description']:
-					description=p.headers['description']
-				else:
-					description=''
-
 				# Setup context for Mako template
 				context = {
 					'base_url': self.base_url,
-					'title': p.title,
+					'page': p,
+					'page_titles': self.page_titles,
 					'site_dir': self.site_dir,
 					'asset_dir': self.asset_dir,
-					'source_dir': join(self.site_dir, CONTENTDIR),
+					'source_dir': self.site_dir + '/' + CONTENTDIR,
 					'target_dir': self.target_dir,
-					'page_source_path': p.source_path,
-					'page_target_path': p.target_path,
-					'page_file_name': p.page_file_name,
-					'page_relative_url': p.url_path,
 					'default_extension': self.default_extension,
-					'publish': p.headers['publish'],
-					'description': description,
-					'page_file_name': p.page_file_name,
-					'page_tags': self.html_page_tag_list(p.headers['tags']),
-					'page_category': self.html_page_category(p.headers['category']),
-					'tags': self.html_tag_list(),
-					'categories': self.html_category_list(),
+					'tags': self.tags,
+					'categories': self.categories,
 					'sub_menu': self.html_sub_menu(p),
-					'environment': self.environment
+					'environment': self.environment,
 				}
-
-				for header_name, header_value in p.custom_headers.items():
-					context['page.' + header_name] = header_value
-
-				# Page content
-				if self.page_titles:
-					# If defined use markdown, else use rst
-					if p.markup == 'md':
-						content = '# ' + p.title + '\n\n' + p.content
-					else:
-						underline = sub('.', '#', p.title)
-						content = p.title + '\n'+underline + '\n\n' + p.content
-				else:
-					content=p.content
-
-				# Previous and next links
-				if p.previous_page is False:
-					context['previous_link'] = ''
-				else:
-					context['previous_link'] = '<a href="%s">%s</a>' % (p.previous_page.url_path, p.previous_page.menu_title)
-
-				if p.next_page is False:
-					context['next_link'] = ''
-				else:
-					context['next_link'] = '<a href="%s">%s</a>' % (p.next_page.url_path, p.next_page.menu_title)
 
 				# If defined use markdown, else use rst
 				if p.markup == 'md':
 					try:
-						content = markdown(content)
+						p.content_html = markdown(content)
 					except Exception as e:
 						raise(Exception('Markdown conversion failed'))
 				else:
 					try:
 						overrides = {'doctitle_xform': False}
-						parts = publish_parts(content, writer_name='html', settings_overrides=overrides)
-						content=parts['html_body']
+						parts = publish_parts(p.content, writer_name='html', settings_overrides=overrides)
+						p.content_html = parts['html_body']
 					except:
 						raise(Exception('reStructruedText conversion failed'))
-
-				context['content'] = content
 
 				self.generate_menu(self.pages, p)
 				self.generate_crumb_trail(p, p)
 
-				context['menu'] = p.menu
-
 				# Replace time variables year, month and day
-				Y=date.today().strftime('%Y')
-				M=date.today().strftime('%m')
-				D=date.today().strftime('%d')
+				Y = date.today().strftime('%Y')
+				M = date.today().strftime('%m')
+				D = date.today().strftime('%d')
 
 				context['year'] = Y
 				context['month'] = M
 				context['day'] = D
 
-				context['absolute_url'] = self.base_url+p.url_path
-
-				if p.crumb_trail:
-					crumb_trail_html='<ol>'
-					for crumb in p.crumb_trail:
-						crumb_trail_html+='<li><a href="%s">%s</a></li>' % (crumb.url_path, crumb.menu_title)
-					crumb_trail_html+=('</ol>')
-
-					context['crumb_trail'] = crumb_trail_html
+				context['absolute_url'] = self.base_url + p.url_path
 
 				p.html = render_template(self.theme_template_dir, p.headers['template'], context)
 			else:
-				p.html=p.content
+				p.html = p.content
 
 			# If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated
-			
 			if self.serve_mode:
 				js = '<script>' + self.serve_mode_js_script + '</script>'
 				p.html = p.html.replace('</body>', js + '</body>')
@@ -703,13 +631,14 @@ class site:
 				else:
 					p = virtualpage()
 					p.site_dir = self.site_dir
-					p.target_dir_name = self.environment
 					v_path = f_path + '/' + DIRDEFAULTFILE + self.default_extension
 					p.parent = parent
 					p.title = p.set_title_from_path(v_path)
 					p.menu_title = p.title
-					p.set_paths(v_path, self.site_dir, self.absolute_urls)
-					p.headers[VIRTUALINDEXPAGE] = True
+					p.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
+
+					if self.default_templates['directories']:
+						p.headers['template'] = self.default_templates['directories']
 
 				if self.publish_page(p):
 					siblings.append(p)
@@ -723,24 +652,35 @@ class site:
 			elif isfile(f_path):
 				if self.absolute_urls != True:
 					p=page()
-					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls, default_markup=self.default_markup)
+					p.load(
+						f_path,
+						self.site_dir,
+						self.environment,
+						parent=parent,
+						base_url=self.base_url,
+						default_extension=self.default_extension,
+						environment=self.environment,
+						absolute_urls=self.absolute_urls,
+						default_markup=self.default_markup
+					)
 				else:
 					p=page()
-					p.load(f_path, self.site_dir, self.environment, parent=parent, base_url=self.base_url, default_extension=self.default_extension, environment=self.environment, absolute_urls=self.absolute_urls, default_markup=self.default_markup)
+					p.load(
+						f_path,
+						self.site_dir,
+						parent=parent,
+						base_url=self.base_url,
+						default_extension=self.default_extension,
+						environment=self.environment,
+						absolute_urls=self.absolute_urls,
+						default_markup=self.default_markup
+					)
 
 				if self.publish_page(p):
 					siblings.append(p)
 
 			else:
 				raise Exception("Unknown object '%s'" % f_path)
-
-			self.append_virtual_index_page_content(parent, p)
-
-
-	def append_virtual_index_page_content(self, parent, child):
-		# If parent has been dynamically created, add children to its content
-		if VIRTUALINDEXPAGE in parent.headers.keys() and parent.headers[VIRTUALINDEXPAGE]:
-			parent.content += '* `%s <%s>`_ %s' % (child.menu_title, child.url_path, NEWLINE)
 
 
 	def publish_page(self, page):
@@ -757,6 +697,7 @@ class site:
 			report_notice("Not publishing '%s' (or any child pages) until '%s': %s" % (page.title, page.headers['publish'], relative_path(page.source_path)))
 
 		return publish
+
 
 	def move_to_target(self):
 		''' Create generated site in target dir '''

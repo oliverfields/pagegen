@@ -24,7 +24,7 @@ THEMEDIR='themes'
 SITEMAPFILE='sitemap.xml'
 SITEMAPTXTFILE='sitemap.txt'
 HOOKDIR='hooks'
-DEFAULTPAGETEMPLATE='page.tpl'
+DEFAULTPAGETEMPLATE='pages.mako'
 TEMPLATEDIR='templates'
 NEWLINE='\n'
 DATEFORMAT='%Y-%m-%d'
@@ -34,7 +34,13 @@ STOPWORDSFILE='stopwords.txt'
 SEARCHINDEXFILE='search-index.json'
 SEARCHMODEJSFILE='pagegen-reload-on-regenerate.js'
 SEARCHMODESITEUPDATEDFILE='pagegen_site_hash'
-VIRTUALINDEXPAGE='Virtual index page'
+DIRECTORIESTEMPLATE='directories.mako'
+TAGSTEMPLATE='tags.mako'
+TAGTEMPLATE='tag.mako'
+CATEGORIESTEMPLATE='categories.mako'
+CATEGORYTEMPLATE='category.mako'
+
+
 
 
 def get_first_words(string, x):
@@ -152,7 +158,7 @@ def load_file(file):
 def render_template(templates_dir, template_name, context):
 	''' Apply Mako template to file content '''
 
-	lookup = TemplateLookup(templates_dir)
+	lookup = TemplateLookup(templates_dir, strict_undefined=True)
 
 	try:
 		template = lookup.get_template(template_name)
