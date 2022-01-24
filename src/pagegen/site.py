@@ -244,8 +244,6 @@ class site:
 		except Exception as e:
 			raise Exception("Unable to find home page '%s': %s" % (DIRDEFAULTFILE, e))
 
-		print(repr(home_page))
-
 		# Load pages
 		try:
 			self.load_pages(content_path, self.pages, home_page, self.default_extension)
@@ -545,7 +543,6 @@ class site:
 				self.generate_pages(p.children)
 
 
-
 	def check_pages(self, pages):
 		''' Check all files are uniquely named (because of xxx_ prefix potentially can have conflicts) '''
 		page_urls={}
@@ -644,31 +641,17 @@ class site:
 			elif is_default_file(f):
 				pass
 			elif isfile(f_path):
-				if self.absolute_urls != True:
-					p=page()
-					p.load(
-						f_path,
-						self.site_dir,
-						self.environment,
-						parent=parent,
-						base_url=self.base_url,
-						default_extension=self.default_extension,
-						environment=self.environment,
-						absolute_urls=self.absolute_urls,
-						default_markup=self.default_markup
-					)
-				else:
-					p=page()
-					p.load(
-						f_path,
-						self.site_dir,
-						parent=parent,
-						base_url=self.base_url,
-						default_extension=self.default_extension,
-						environment=self.environment,
-						absolute_urls=self.absolute_urls,
-						default_markup=self.default_markup
-					)
+				p=page()
+				p.load(
+					f_path,
+					self.site_dir,
+					parent=parent,
+					base_url=self.base_url,
+					default_extension=self.default_extension,
+					environment=self.environment,
+					absolute_urls=self.absolute_urls,
+					default_markup=self.default_markup
+				)
 
 				if self.publish_page(p):
 					siblings.append(p)
