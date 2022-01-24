@@ -403,19 +403,19 @@ class site:
 	def set_next_previous_links(self):
 		''' Add previous and next links to pages according to thier link sequence '''
 
-		previous=False
+		previous_page = False
 
 		for i, p in enumerate(self.link_sequence):
 
 			try:
-				next=self.link_sequence[i+1]
+				next_page = self.link_sequence[i+1]
 			except:
-				next=False
+				next_page = False
 
-			p.previous_page=previous
-			p.next_page=next
+			p.previous_page = previous_page
+			p.next_page = next_page
 
-			previous=p
+			previous_page = p
 
 
 	def set_link_sequence(self, pages):
@@ -512,9 +512,17 @@ class site:
 						raise(Exception('Markdown conversion failed'))
 				else:
 					try:
-						overrides = {'doctitle_xform': False}
+						if self.page_titles:
+							initial_header_level = 2
+						else:
+							initial_header_level = 1
+
+						overrides = {
+							'doctitle_xform': False,
+							'initial_header_level': initial_header_level
+						}
 						parts = publish_parts(p.content, writer_name='html', settings_overrides=overrides)
-						p.content_html = parts['html_body']
+						p.content_html = parts['body']
 					except:
 						raise(Exception('reStructruedText conversion failed'))
 
@@ -722,8 +730,8 @@ class site:
 
 		# Create sitemap
 		if self.exclude_sitemap == False:
-			write_file(join(self.target_dir, SITEMAPFILE), self.sitemap)
-			write_file(join(self.target_dir, SITEMAPTXTFILE), self.sitemaptxt)
+			write_file(self.target_dir + '/' + SITEMAPFILE, self.sitemap)
+			write_file(self.target_dir + '/' + SITEMAPTXTFILE, self.sitemaptxt)
 
 		# Create rss feed
 		if self.include_rss:
@@ -872,17 +880,18 @@ class site:
 		return url
 
 	def generate_sitemap_urls(self, pages):
+
 		''' Create sitmap.txt '''
 		for p in pages:
 			if p.headers['sitemap exclude'] == False:
 				if p.children or p.url_path == '/':
-					self.sitemap+=self.sitemap_url(p)
+					self.sitemap += self.sitemap_url(p)
 
 					self.sitemaptxt += p.absolute_url.rstrip('/') + '\n'
 
 					self.generate_sitemap_urls(p.children)
 				else:
-					self.sitemap+=self.sitemap_url(p)
+					self.sitemap += self.sitemap_url(p)
 					self.sitemaptxt += p.absolute_url + '\n'
 
 
@@ -892,7 +901,7 @@ class site:
 
 		self.generate_sitemap_urls(pages)
 
-		self.sitemap+='</urlset>'
+		self.sitemap += '</urlset>'
 
 
 	def generate_rss(self):

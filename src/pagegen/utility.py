@@ -103,7 +103,6 @@ def load_config(files, add_dummy_section=True):
 			break
 
 	if not conf_path:
-		print(files)
 		report_error(1, "pagegen.conf, not found in current, ~/.config/ or /etc/ directories")
 
 	try:

@@ -66,7 +66,6 @@ def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=Non
 		report_error(1, "Unable to generate site: %s" % e)
 
 	if s.exclude_sitemap != True:
-		s.generate_sitemap(s.pages)
 		try:
 			s.generate_sitemap(s.pages)
 		except Exception as e:

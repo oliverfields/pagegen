@@ -57,6 +57,10 @@ class virtualpage:
 		}
 
 
+	def __str__(self):
+		return '<page: ' + self.title + ' ' + self.url_path + '>'
+
+
 	def __repr__(self):
 
 		r = '{\n'
