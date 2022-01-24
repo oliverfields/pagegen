@@ -1,4 +1,6 @@
-from pagegen.utility import report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, THEMEDIR, ASSETDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template, SEARCHMODEJSFILE, ASSETDIR, THEMEDIR, DIRECTORIESTEMPLATE, TAGSTEMPLATE, TAGTEMPLATE, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, urlify
+from pagegen.utility import ASSETDIR, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, urlify, write_file
+#report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, THEMEDIR, ASSETDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template, SEARCHMODEJSFILE, ASSETDIR, THEMEDIR, DIRECTORIESTEMPLATE, TAGSTEMPLATE, TAGTEMPLATE, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, urlify
+import sass
 from configparser import ConfigParser
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, sep, makedirs, remove, unlink, X_OK, access
@@ -716,6 +718,8 @@ class site:
 		else:
 			copytree(self.theme_assets_dir, target_theme_assets_dir)
 
+		self.process_sass(target_theme_assets_dir)
+
 		# Create sitemap
 		if self.exclude_sitemap == False:
 			write_file(join(self.target_dir, SITEMAPFILE), self.sitemap)
@@ -735,8 +739,18 @@ class site:
 			self.minify_css_in_directory(target_assets_dir)
 
 
-	def minify_javascript_in_directory(self, dir):
-		files = self.find_files_by_extension(dir, 'js')
+	def process_sass(self, directory):
+		files = self.find_files_by_extension(directory, 'sass')
+		for sass_file_name in files:
+			css_file_name = sass_file_name.replace('.sass', '.css')
+			sass_content = load_file(sass_file_name)
+			css = sass.compile(string=sass_content, output_style='compressed')
+			write_file(css_file_name, css)
+			remove(sass_file_name)
+
+
+	def minify_javascript_in_directory(self, directory):
+		files = self.find_files_by_extension(directory, 'js')
 		for file_name in files:
 			with open(file_name, 'r+') as f:
 				text = jsmin(f.read())
@@ -745,8 +759,8 @@ class site:
 				f.truncate()
 
 
-	def minify_css_in_directory(self, dir):
-		files = self.find_files_by_extension(dir, 'css')
+	def minify_css_in_directory(self, directory):
+		files = self.find_files_by_extension(directory, 'css')
 		for file_name in files:
 			with open(file_name, 'r+') as f:
 				text = cssmin(f.read())
@@ -755,8 +769,8 @@ class site:
 				f.truncate()
 
 
-	def find_files_by_extension(self, dir, extension):
-		pathname = dir + "/**/*." + extension
+	def find_files_by_extension(self, directory, extension):
+		pathname = directory + "/**/*." + extension
 		files = glob(pathname, recursive=True)
 		return files
 
