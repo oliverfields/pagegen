@@ -141,9 +141,9 @@ class site:
 			self.max_rss_items=15
 
 		try:
-			self.absolute_urls=self.ensure_bool('absolute_urls', config.get(self.environment,'absolute_urls'))
+			self.absolute_urls = self.ensure_bool('absolute_urls', config.get(self.environment,'absolute_urls'))
 		except:
-			self.absolute_urls=True
+			self.absolute_urls = True
 
 		try:
 			self.minify_html=self.ensure_bool('minify_html', config.get(self.environment,'minify_html'))
@@ -244,6 +244,8 @@ class site:
 		except Exception as e:
 			raise Exception("Unable to find home page '%s': %s" % (DIRDEFAULTFILE, e))
 
+		print(repr(home_page))
+
 		# Load pages
 		try:
 			self.load_pages(content_path, self.pages, home_page, self.default_extension)
@@ -261,15 +263,6 @@ class site:
 
 		self.set_link_sequence(self.pages)
 		self.set_next_previous_links()
-
-
-	def get_url(self, url):
-		''' Return relative of absolute url depending on config setting '''
-
-		if self.absolute_urls == True:
-			url=self.base_url+url
-
-		return url
 
 
 	def html_sub_menu(self, page):
@@ -642,6 +635,7 @@ class site:
 
 				if self.publish_page(p):
 					siblings.append(p)
+
 					try:
 						self.load_pages(f_path, p.children, p, self.default_extension)
 					except Exception as e:

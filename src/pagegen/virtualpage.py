@@ -57,6 +57,34 @@ class virtualpage:
 		}
 
 
+	def __repr__(self):
+
+		r = '{'
+
+		for attribute, value in self.__dict__.items():
+			if isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
+				r += "'" + attribute + "': " + repr(value) + ",\n"
+			elif isinstance(value, list):
+				if len(value) > 0:
+					r += "'" + attribute + "': [\n"
+					for i in value:
+						r += "\t" + repr(i) + ",\n"
+					r = r.rstrip(",\n")
+					r += "\n]\n"
+				else:
+					r += "'" + attribute + "': []\n"
+			elif isinstance(value, dict):
+				if len(value.keys()):
+					r += "'" + attribute + "': {\n"
+					for k, v in value.items():
+						r += "\t'" + k + "': " + repr(v) + ",\n"
+					r = r.rstrip("\n,")
+					r += "\n},\n"
+				else:
+					r += "'" + attribute + "': {}\n"
+		return r
+
+
 	def generate_crumb_trail(self):
 		html=''
 		for p in self.crumb_trail:
