@@ -1,7 +1,7 @@
 # Changelog
 
 <!--next-version-placeholder-->
-## vX.X.X - yyyy-mm-dd
+## v3.5.0 - 2022-01-24
 
 ### Added
 
