@@ -1,2 +1,3 @@
 include README changelog
 recursive-include src/pagegen/skel *
+include src/pagegen/pagegen-reload-on-regenerate.js

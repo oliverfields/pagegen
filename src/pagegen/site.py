@@ -507,7 +507,7 @@ class site:
 				# If defined use markdown, else use rst
 				if p.markup == 'md':
 					try:
-						p.content_html = markdown(content)
+						p.content_html = markdown(p.content)
 					except Exception as e:
 						raise(Exception('Markdown conversion failed'))
 				else:

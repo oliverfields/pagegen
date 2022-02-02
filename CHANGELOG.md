@@ -1,6 +1,13 @@
 # Changelog
 
-<!--next-version-placeholder-->
+## v3.5.1 - 2022-01-30
+
+### Fixed
+
+- Hot reload (--serve) fixed
+- Markdown generation fixed
+
+
 ## v3.5.0 - 2022-01-24
 
 ### Added

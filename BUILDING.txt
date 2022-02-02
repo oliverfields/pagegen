@@ -26,3 +26,7 @@ Builds Pagegen Python package for pip install
    $ twine upload dist/pagegen-X.X.X-py3-none-any.whl 
 
 6. Create github release
+
+Profileing:
+$ python3 -m cProfile -o pagegen.prof ../profileling_venv/bin/pagegen -g test
+$ snakeviz pagegen.prof
