@@ -716,7 +716,7 @@ class site:
 		target_assets_dir = self.target_dir + '/' + ASSETDIR
 		if exists(target_assets_dir):
 			report_error(1, target_assets_dir + ' already exists, aborting')
-			if exists(self.asset_dir):
+		if exists(self.asset_dir):
 				copytree(self.asset_dir, target_assets_dir)
 
 		# Copy theme assets

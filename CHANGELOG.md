@@ -6,6 +6,7 @@
 
 - Hot reload (--serve) fixed
 - Markdown generation fixed
+- Asset directory now is copied to outpu
 
 
 ## v3.5.0 - 2022-01-24
