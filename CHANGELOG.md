@@ -1,6 +1,10 @@
 # Changelog
 
-## v3.5.1 - 2022-01-30
+## v3.6.0 - 2022-01-30
+
+## Added
+
+- Graphviz support for both markdown and rst added
 
 ### Fixed
 

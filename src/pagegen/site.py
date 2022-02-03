@@ -7,8 +7,7 @@ from os import listdir, sep, makedirs, remove, unlink, X_OK, access
 from shutil import rmtree, copytree
 from pagegen.page import page
 from pagegen.virtualpage import virtualpage
-from docutils.core import publish_parts
-from markdown import markdown
+import markdown
 from re import sub, search
 from datetime import date
 from datetime import datetime
@@ -19,6 +18,10 @@ from glob import glob
 from rcssmin import cssmin
 from jsmin import jsmin
 import pkg_resources
+from pagegen.markdown_inline_graphviz import InlineGraphvizExtension, InlineGraphvizPreprocessor
+import docutils_graphviz
+from docutils.parsers.rst import directives
+from docutils.core import publish_parts
 
 
 class site:
@@ -507,15 +510,30 @@ class site:
 				# If defined use markdown, else use rst
 				if p.markup == 'md':
 					try:
-						p.content_html = markdown(p.content)
+						graphviz_ext = InlineGraphvizExtension()
+						md = markdown.Markdown()
+						md.registerExtension(InlineGraphvizExtension)
+						md.preprocessors.add('graphviz_block',
+							InlineGraphvizPreprocessor(md),
+							"_begin"
+						)
+						p.content_html = md.convert(p.content)
+					except RuntimeError as e:
+						report_error(1, p.source_path + ': ' + str(e))
 					except Exception as e:
-						raise(Exception('Markdown conversion failed'))
+						raise(Exception(p.source_path + ': Markdown conversion failed'))
 				else:
 					try:
 						if self.page_titles:
 							initial_header_level = 2
 						else:
 							initial_header_level = 1
+
+						# Enable graphviz support, if Graphviz is not installed, do nothing, in the event a dot directive has been created docutils will itself report the error to the user
+						try:
+							directives.register_directive('dot', docutils_graphviz.Graphviz)
+						except:
+							pass
 
 						overrides = {
 							'doctitle_xform': False,
@@ -524,7 +542,7 @@ class site:
 						parts = publish_parts(p.content, writer_name='html', settings_overrides=overrides)
 						p.content_html = parts['body']
 					except:
-						raise(Exception('reStructruedText conversion failed'))
+						raise(Exception(p.source_path + ': reStructruedText conversion failed'))
 
 				self.generate_menu(self.pages, p)
 				self.generate_crumb_trail(p, p)
