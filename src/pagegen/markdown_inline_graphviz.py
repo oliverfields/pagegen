@@ -31,7 +31,7 @@ from pagegen.utility import report_warning
 
 
 BLOCK_RE_GRAPHVIZ_TAG = re.compile(
-	r'^<graphviz>graphviz[ ]* (?P<command>\w+)\s+(?P<filename>[^\s]+)\s*\n(?P<content>.*?)</graphviz>\s*$',
+	r'^<graphviz>(?P<command>\w+)\s+(?P<filename>[^\s]+)\s*\n(?P<content>.*?)</graphviz>\s*$',
 	re.MULTILINE | re.DOTALL)
 
 # Command whitelist
@@ -127,3 +127,5 @@ class InlineGraphvizPreprocessor(markdown.preprocessors.Preprocessor):
 				break
 		return text.split("\n")
 
+def makeExtension(*args, **kwargs):
+	return InlineGraphvizExtension(*args, **kwargs)

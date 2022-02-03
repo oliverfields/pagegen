@@ -125,11 +125,6 @@ class virtualpage:
 
 	def set_paths(self, source_path, site_path, absolute_urls, environment_dir_name, base_url):
 		''' Create url'ed and target version of path '''
-		#print('yyy source_path ' + source_path)
-		#print('yyy site_path ' + site_path)
-		#print('yyy absolute_urls ' + str(absolute_urls))
-		#print('yyy environment_dir_name ' + environment_dir_name)
-		#print('yyy base_url ' + base_url)
 		# Remove non site path
 		path_part = source_path.replace(site_path + '/' + CONTENTDIR, '')
 
@@ -152,6 +147,7 @@ class virtualpage:
 			self.url_path = path_part
 
 		self.absolute_url = base_url + path_part
+		self.source_path = '<virtual>'
 
 		# If not show index in url, strip it
 		if self.url_include_index != True:

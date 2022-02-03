@@ -18,7 +18,7 @@ from glob import glob
 from rcssmin import cssmin
 from jsmin import jsmin
 import pkg_resources
-from pagegen.markdown_inline_graphviz import InlineGraphvizExtension, InlineGraphvizPreprocessor
+import pagegen.markdown_inline_graphviz
 import docutils_graphviz
 from docutils.parsers.rst import directives
 from docutils.core import publish_parts
@@ -510,12 +510,12 @@ class site:
 				# If defined use markdown, else use rst
 				if p.markup == 'md':
 					try:
-						graphviz_ext = InlineGraphvizExtension()
-						md = markdown.Markdown()
-						md.registerExtension(InlineGraphvizExtension)
-						md.preprocessors.add('graphviz_block',
-							InlineGraphvizPreprocessor(md),
-							"_begin"
+						md = markdown.Markdown(
+							extensions = [
+								'tables',
+								'admonition',
+								pagegen.markdown_inline_graphviz.makeExtension()
+							]
 						)
 						p.content_html = md.convert(p.content)
 					except RuntimeError as e:
