@@ -46,7 +46,6 @@ class virtualpage:
 			'rss include': False,
 			'tags': [],
 			'categories': [],
-			'header profile': None,
 			'search index exclude': False,
 			'preserve file name': False,
 			'sitemap lastmod': None,
