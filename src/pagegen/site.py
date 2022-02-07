@@ -769,8 +769,7 @@ class site:
 		files = self.find_files_by_extension(directory, 'sass')
 		for sass_file_name in files:
 			css_file_name = sass_file_name.replace('.sass', '.css')
-			sass_content = load_file(sass_file_name)
-			css = sass.compile(string=sass_content, output_style='compressed')
+			css = sass.compile(filename=sass_file_name, output_style='compressed')
 			write_file(css_file_name, css)
 			remove(sass_file_name)
 
