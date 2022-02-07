@@ -147,7 +147,6 @@ class virtualpage:
 			self.url_path = path_part
 
 		self.absolute_url = base_url + path_part
-		self.source_path = '<virtual>'
 
 		# If not show index in url, strip it
 		if self.url_include_index != True:
