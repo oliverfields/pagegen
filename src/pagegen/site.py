@@ -1,5 +1,4 @@
 from pagegen.utility import ASSETDIR, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, urlify, write_file
-#report_error, load_config, SITECONF, CONFROOT, CONTENTDIR, DIRDEFAULTFILE, TARGETDIR, THEMEDIR, ASSETDIR, load_file, write_file, report_warning, is_default_file, SITEMAPFILE, SITEMAPTXTFILE, TEMPLATEDIR, exec_script, HOOKDIR, DATEFORMAT, report_notice, RSSFEEDFILE, NEWLINE, get_first_words, relative_path, SEARCHINDEXFILE, STOPWORDSFILE, render_template, SEARCHMODEJSFILE, ASSETDIR, THEMEDIR, DIRECTORIESTEMPLATE, TAGSTEMPLATE, TAGTEMPLATE, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, urlify
 import sass
 from configparser import ConfigParser
 from os.path import isdir, join, isfile, exists, islink
@@ -543,6 +542,10 @@ class site:
 						p.content_html = parts['body']
 					except:
 						raise(Exception(p.source_path + ': reStructruedText conversion failed'))
+
+				# Needs to happen to html content, i.e. after markup conversion
+				if p.headers['number headings']:
+					p.number_headings()
 
 				self.generate_menu(self.pages, p)
 				self.generate_crumb_trail(p, p)

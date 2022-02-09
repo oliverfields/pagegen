@@ -52,7 +52,8 @@ class virtualpage:
 			'sitemap changefreq': None,
 			'sitemap priority': None,
 			'exclude html minify': False,
-			'markup': None
+			'markup': None,
+			'number headings': False,
 		}
 
 

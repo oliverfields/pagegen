@@ -4,6 +4,7 @@ from os.path import splitext, join
 from re import sub, search
 from pagegen.utility import DIRDEFAULTFILE, CONTENTDIR, is_default_file, report_warning, load_file, NEWLINE, urlify, HEADERPROFILEDIR, relative_path, TARGETDIR, report_error, setup_environment_variables
 from subprocess import check_output
+from bs4 import BeautifulSoup
 
 
 class page(virtualpage):
@@ -45,6 +46,60 @@ class page(virtualpage):
 			content=load_file(self.source_path)
 
 		self.load_page_content(self.source_path, content, self.site_dir, self.default_extension, absolute_urls)
+
+
+	def number_headings(self):
+		''' Add mumbering to h2-5 tags, 1, 1.1, 1.2 etc '''
+
+		soup = BeautifulSoup(self.content_html, 'html.parser')
+
+		h_tags = ['h1', 'h2', 'h3', 'h4', 'h5']
+		h_c = { # Counters
+			'h2': 0,
+			'h3': 0,
+			'h4': 0,
+			'h5': 0,
+		}
+
+		for tag in soup.find_all(h_tags):
+
+			if tag.name == 'h1':
+
+				h_c['h2'] = 0
+				h_c['h3'] = 0
+				h_c['h4'] = 0
+				h_c['h5'] = 0
+
+			if tag.name == 'h2':
+				h_c['h2'] += 1
+
+				tag.string = str(h_c['h2']) + ' ' + tag.text
+
+				h_c['h3'] = 0
+				h_c['h4'] = 0
+				h_c['h5'] = 0
+
+			if tag.name == 'h3':
+				h_c['h3'] += 1
+
+				tag.string = str(h_c['h2']) + '.' + str(h_c['h3']) + ' ' + tag.text
+
+				h_c['h4'] = 0
+				h_c['h5'] = 0
+
+			if tag.name == 'h4':
+				h_c['h4'] += 1
+
+				tag.string = str(h_c['h2']) + '.' + str(h_c['h3']) + '.' + str(h_c['h4']) + ' ' + tag.text
+
+				h_c['h5'] = 0
+
+			if tag.name == 'h5':
+				h_c['h5'] += 1
+
+				tag.string = str(h_c['h2']) + '.' + str(h_c['h3']) + '.' + str(h_c['h4']) + '.' + str(h_c['h5']) + ' ' + tag.text
+
+		self.content_html = str(soup)
 
 
 	def set_header(self, line):
