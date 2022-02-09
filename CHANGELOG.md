@@ -5,6 +5,7 @@
 ## Added
 
 - Graphviz support for both markdown and rst added
+- Title numbering, use page header 'number headings: true'
 
 ### Fixed
 
