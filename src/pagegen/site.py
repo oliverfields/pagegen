@@ -547,6 +547,10 @@ class site:
 				if p.headers['number headings']:
 					p.number_headings()
 
+				# Needs to happen to after a possible numbering, to ensure titles are correct
+				if p.headers['toc']:
+					p.add_toc()
+
 				self.generate_menu(self.pages, p)
 				self.generate_crumb_trail(p, p)
 

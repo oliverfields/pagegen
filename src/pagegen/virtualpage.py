@@ -32,6 +32,7 @@ class virtualpage:
 		self.target_dir=None
 		self.custom_headers={}
 		self.markup='rst'
+		self.toc=False
 		self.headers={
 			'sitemap exclude': False, 
 			'menu exclude': False,
@@ -54,6 +55,7 @@ class virtualpage:
 			'exclude html minify': False,
 			'markup': None,
 			'number headings': False,
+			'toc': False,
 		}
 
 

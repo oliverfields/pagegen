@@ -48,13 +48,60 @@ class page(virtualpage):
 		self.load_page_content(self.source_path, content, self.site_dir, self.default_extension, absolute_urls)
 
 
+	def new_toc_id(self, title):
+		''' Creates a new unique toc id from title '''
+
+		new_id = urlify(title)
+
+		if new_id not in self.toc_ids:
+			self.toc_ids.append(new_id)
+			return new_id
+		else:
+			# If id already existed, keep adding _x until it is unique
+			tmp_new_id = new_id
+			counter = 0
+			while tmp_new_id in self.toc_ids:
+				counter += 1
+				tmp_new_id = new_id + '_' + str(counter)
+
+			self.toc_ids.append(tmp_new_id)
+			return tmp_new_id
+
+
+	def add_toc(self):
+		''' Add toc and anchor links to titles in page content '''
+
+		soup = BeautifulSoup(self.content_html, 'html.parser')
+		self.toc_ids = [] # Use to ensuer unique ids
+		self.toc = [] # For use in templates
+
+		h_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+
+		for tag in soup.find_all(h_tags):
+
+			new_id = self.new_toc_id(tag.string)
+
+			new_a = soup.new_tag('a')
+			new_a['id'] = new_id 
+
+			self.toc.append({
+				'title': tag.string,
+				'level': int(tag.name[-1]),
+				'id': new_id
+			})
+
+			tag.insert_before(new_a)
+
+		self.content_html = str(soup)
+
+
 	def number_headings(self):
 		''' Add mumbering to h2-5 tags, 1, 1.1, 1.2 etc '''
 
 		soup = BeautifulSoup(self.content_html, 'html.parser')
 
 		h_tags = ['h1', 'h2', 'h3', 'h4', 'h5']
-		h_c = { # Counters
+		h_c = { # Counters, h1 and h6 are not numbered
 			'h2': 0,
 			'h3': 0,
 			'h4': 0,
