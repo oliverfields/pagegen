@@ -6,6 +6,7 @@
 
 - Graphviz support for both markdown and rst added
 - Title numbering, use page header 'number headings: true'
+- TOC for pages, use page header 'toc: True' and page.toc will be available in templates
 
 ### Fixed
 
