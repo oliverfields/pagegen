@@ -248,3 +248,23 @@ width: 220px;
 .search-hit {
 line-height: 2.5em;
 }
+#toc {
+list-style: none;
+background-color: #eee;
+padding: 1em;
+}
+.toc-h2 {
+margin-left: 1em;
+}
+.toc-h3 {
+margin-left: 2em;
+}
+.toc-h4 {
+margin-left: 3em;
+}
+.toc-h5 {
+margin-left: 4em;
+}
+.toc-h6 {
+margin-left: 5em;
+}
