@@ -21,6 +21,7 @@ import pagegen.markdown_inline_graphviz
 import docutils_graphviz
 from docutils.parsers.rst import directives
 from docutils.core import publish_parts
+from pagegen.shortcodes import shortcodes
 
 
 class site:
@@ -54,6 +55,8 @@ class site:
 			self.content_dir = site_dir + '/' + CONTENTDIR
 		else:
 			raise Exception("Site dir '%s' is not a directory" % site_dir)
+
+		self.shortcodes = shortcodes(site_dir)
 
 		if self.serve_mode:
 			self.serve_mode_js_script = load_file(pkg_resources.resource_filename('pagegen', SEARCHMODEJSFILE))
@@ -219,6 +222,8 @@ class site:
 				self.search_index.index_xpaths.append(xpath)
 		except:
 			self.search_index.index_xpaths.append('/html/body')
+
+		
 
 
 	def ensure_bool(self, setting_name, data):
@@ -490,6 +495,9 @@ class site:
 
 			if p.headers['generate html'] == True:
 
+				# First run raw markup content by shortcodes
+				print('Shortcodes pre markup compilation: ' + p.target_path)
+
 				# Setup context for Mako template
 				context = {
 					'base_url': self.base_url,
@@ -543,6 +551,9 @@ class site:
 					except:
 						raise(Exception(p.source_path + ': reStructruedText conversion failed'))
 
+				# Run HTML content by shortcodes
+				print('Shortcodes post markup compilation: ' + p.target_path)
+
 				# Needs to happen to html content, i.e. after markup conversion
 				if p.headers['number headings']:
 					p.number_headings()
@@ -567,6 +578,8 @@ class site:
 
 				p.html = render_template(self.theme_template_dir, p.headers['template'], context)
 			else:
+				# Run HTML content by shortcodes
+				print('Shortcodes post page exec ' + p.target_path)
 				p.html = p.content
 
 			# If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated

@@ -39,8 +39,7 @@ TAGSTEMPLATE='tags.mako'
 TAGTEMPLATE='tag.mako'
 CATEGORIESTEMPLATE='categories.mako'
 CATEGORYTEMPLATE='category.mako'
-
-
+SHORTCODECUSTOM='shortcodes'
 
 
 def get_first_words(string, x):
