@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.7.0 - 2022-
+
+## Added
+
+- Shortcodes, define regular python functions that must reutrn a string in shortcodes.py and use "<sc>shortcode_name(arg1, .. argN)</sc>" in content where you want them.
+
+
 ## v3.6.0 - 2022-01-30
 
 ## Added
