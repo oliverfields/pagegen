@@ -56,7 +56,7 @@ class site:
 		else:
 			raise Exception("Site dir '%s' is not a directory" % site_dir)
 
-		self.shortcodes = shortcodes(site_dir)
+		self.shortcodes = shortcodes(self)
 
 		if self.serve_mode:
 			self.serve_mode_js_script = load_file(pkg_resources.resource_filename('pagegen', SEARCHMODEJSFILE))
@@ -495,8 +495,11 @@ class site:
 
 			if p.headers['generate html'] == True:
 
-				# First run raw markup content by shortcodes
-				print('Shortcodes pre markup compilation: ' + p.target_path)
+				# Run any shortcodes in content
+				try:
+					self.shortcodes.run(p)
+				except Exception as e:
+					report_error(1, 'Failed to run shortcodes: ' + p.source_path + ': ' + str(e))
 
 				# Setup context for Mako template
 				context = {
@@ -524,7 +527,7 @@ class site:
 								pagegen.markdown_inline_graphviz.makeExtension()
 							]
 						)
-						p.content_html = md.convert(p.content)
+						p.html = md.convert(p.content)
 					except RuntimeError as e:
 						report_error(1, p.source_path + ': ' + str(e))
 					except Exception as e:
@@ -547,12 +550,9 @@ class site:
 							'initial_header_level': initial_header_level
 						}
 						parts = publish_parts(p.content, writer_name='html', settings_overrides=overrides)
-						p.content_html = parts['body']
+						p.html = parts['body']
 					except:
 						raise(Exception(p.source_path + ': reStructruedText conversion failed'))
-
-				# Run HTML content by shortcodes
-				print('Shortcodes post markup compilation: ' + p.target_path)
 
 				# Needs to happen to html content, i.e. after markup conversion
 				if p.headers['number headings']:
@@ -578,9 +578,12 @@ class site:
 
 				p.html = render_template(self.theme_template_dir, p.headers['template'], context)
 			else:
-				# Run HTML content by shortcodes
-				print('Shortcodes post page exec ' + p.target_path)
-				p.html = p.content
+				# Run any shortcodes in HTML content
+				try:
+					self.shortcodes.run(p)
+				except Exception as e:
+					report_error(1, 'Failed to run shortcodes: ' + p.source_path + ': ' + str(e))
+
 
 			# If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated
 			if self.serve_mode:

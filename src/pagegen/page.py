@@ -71,7 +71,7 @@ class page(virtualpage):
 	def add_toc(self):
 		''' Add toc and anchor links to titles in page content '''
 
-		soup = BeautifulSoup(self.content_html, 'html.parser')
+		soup = BeautifulSoup(self.html, 'html.parser')
 		self.toc_ids = [] # Use to ensuer unique ids
 		self.toc = [] # For use in templates
 
@@ -92,13 +92,13 @@ class page(virtualpage):
 
 			tag.insert_before(new_a)
 
-		self.content_html = str(soup)
+		self.html = str(soup)
 
 
 	def number_headings(self):
 		''' Add mumbering to h2-5 tags, 1, 1.1, 1.2 etc '''
 
-		soup = BeautifulSoup(self.content_html, 'html.parser')
+		soup = BeautifulSoup(self.html, 'html.parser')
 
 		h_tags = ['h1', 'h2', 'h3', 'h4', 'h5']
 		h_c = { # Counters, h1 and h6 are not numbered
@@ -146,7 +146,7 @@ class page(virtualpage):
 
 				tag.string = str(h_c['h2']) + '.' + str(h_c['h3']) + '.' + str(h_c['h4']) + '.' + str(h_c['h5']) + ' ' + tag.text
 
-		self.content_html = str(soup)
+		self.html = str(soup)
 
 
 	def set_header(self, line):

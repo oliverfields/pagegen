@@ -9,5 +9,5 @@
 		% endfor
 		</ol>
 	% endif
-	${page.content_html}
+	${page.html}
 </%block>
