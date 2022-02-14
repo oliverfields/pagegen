@@ -69,6 +69,8 @@ class shortcodes:
 	def run(self, page):
 		''' Replace return value for any shortcode tags (<sc>...</sc>) fund in content '''
 
+		self.page = page # Use this just to make references from sc tags same for page and site, ie. self.page or self.site in shortcall argument list
+
 		for function in re.findall(self.sc_regexp, page.content):
 
 			# Get function name, everything until first ( is the name
