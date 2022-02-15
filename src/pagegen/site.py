@@ -516,6 +516,7 @@ class site:
 					'categories': self.categories,
 					'sub_menu': self.html_sub_menu(p),
 					'environment': self.environment,
+					'shortcodes': self.shortcodes,
 				}
 
 				# If defined use markdown, else use rst

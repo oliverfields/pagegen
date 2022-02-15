@@ -4,7 +4,7 @@
 
 ## Added
 
-- Shortcodes, define regular python functions that must reutrn a string in shortcodes.py and use "<sc>shortcode_name(arg1, .. argN)</sc>" in content where you want them.
+- Shortcodes, define regular python functions that must reutrn a string in shortcodes.py and use "<sc>shortcode_name(arg1, .. argN)</sc>" in content where you want them, or <% shortcodes['name'](arg1, .. argN) %> in templates. Disable shortcodes with page header "disable shortcodes: True"
 
 
 ## v3.6.0 - 2022-01-30

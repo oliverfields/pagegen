@@ -1,4 +1,4 @@
-from pagegen.utility import report_error, report_notice, get_site_conf_path, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_script, ASSETDIR, THEMEDIR
+from pagegen.utility import report_error, report_notice, get_site_conf_path, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_script, ASSETDIR, THEMEDIR, SHORTCODECUSTOM
 from pagegen.site import site
 from os.path import expanduser, basename, join, isfile
 from os import getcwd, listdir, sep, chdir, X_OK, access
@@ -116,7 +116,8 @@ def serve_mode(site_conf_path, environment):
 		HOOKDIR,
 		ASSETDIR,
 		SITECONF,
-		THEMEDIR
+		THEMEDIR,
+		SHORTCODECUSTOM + '.py',
 	]
 
 	watch_elements_full_path = [site_dir + '/' + we for we in watch_elements]

@@ -4,6 +4,7 @@ import importlib.util
 from inspect import getmembers, isfunction
 import pagegen.shortcodes_built_in
 import re
+from inspect import getargspec
 
 
 class shortcodes:
@@ -19,6 +20,11 @@ class shortcodes:
 		self.load_shortcodes(SHORTCODECUSTOM, sc_custom_file, self.sc_built_in)
 
 		self.sc_regexp = re.compile(r'<sc>(.*?)</sc>')
+
+
+	def __getitem__(self, shortcode):
+		''' Return shortcode function '''
+		return self.shortcodes[shortcode]
 
 
 	def load_shortcodes(self, module_name, file_path, built_in_shortcodes):
@@ -37,7 +43,6 @@ class shortcodes:
 				spec.loader.exec_module(m)
 			except Exception as e:
 				raise Exception('Unable to load ' + SHORTCODECUSTOM + '.py: ' + str(e))
-
 			# Check no naming conflicts
 			custom_functions = getmembers(m, isfunction)
 
@@ -48,19 +53,21 @@ class shortcodes:
 					self.shortcodes[custom_name] = custom_function
 
 
+	def get_required_args(self, func):
+		''' Get functions arguments '''
+		args, varargs, varkw, defaults = getargspec(func)
+		if defaults:
+			args = args[:-len(defaults)]
+		return args
+
+
 	def __repr__(self):
 
 		shortcodes = ''
 
 		for n, f in sorted(self.shortcodes.items()):
-			args = ''
-			is_first_arg = True
-			for a in f.__code__.co_varnames:
-				if is_first_arg:
-					args += a
-					is_first_arg = False
-				else:
-					args += ', ' + a
+			args = self.get_required_args(f)
+			args = ', '.join(args)
 			shortcodes += '<sc>' + n + '(' + args + ')</sc>\n'
 
 		return shortcodes.rstrip('\n')
