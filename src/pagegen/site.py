@@ -495,11 +495,12 @@ class site:
 
 			if p.headers['generate html'] == True:
 
-				# Run any shortcodes in content
-				try:
-					self.shortcodes.run(p)
-				except Exception as e:
-					report_error(1, 'Failed to run shortcodes: ' + p.source_path + ': ' + str(e))
+				if p.headers['disable shortcodes'] == False:
+					# Run any shortcodes in content
+					try:
+						self.shortcodes.run(p)
+					except Exception as e:
+						report_error(1, 'Failed to run shortcodes: ' + p.source_path + ': ' + str(e))
 
 				# Setup context for Mako template
 				context = {
@@ -578,11 +579,12 @@ class site:
 
 				p.html = render_template(self.theme_template_dir, p.headers['template'], context)
 			else:
-				# Run any shortcodes in HTML content
-				try:
-					self.shortcodes.run(p)
-				except Exception as e:
-					report_error(1, 'Failed to run shortcodes: ' + p.source_path + ': ' + str(e))
+				if p.headers['disable shortcodes'] == False:
+					# Run any shortcodes in HTML content
+					try:
+						self.shortcodes.run(p)
+					except Exception as e:
+						report_error(1, 'Failed to run shortcodes: ' + p.source_path + ': ' + str(e))
 
 
 			# If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated

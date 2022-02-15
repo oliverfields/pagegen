@@ -56,6 +56,7 @@ class virtualpage:
 			'markup': None,
 			'number headings': False,
 			'toc': False,
+			'disable shortcodes': False,
 		}
 
 
