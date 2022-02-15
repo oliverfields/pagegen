@@ -30,7 +30,7 @@ class page(virtualpage):
 				'PAGEGEN_SITE_DIR': self.site_dir,
 				'PAGEGEN_SOURCE_DIR': self.source_path,
 				'PAGEGEN_TARGET_DIR': self.site_dir + '/' + TARGETDIR + '/' + self.environment + '/FIXME', # TODO: This needs to be fixed
-				'PAGEGEN_ENVIRONMENT': environment,
+				'PAGEGEN_ENVIRONMENT': self.environment,
 				'PAGEGEN_BASE_URL': self.base_url,
 				'PAGEGEN_DEFAULT_EXTENSION': self.default_extension
 			}
@@ -38,12 +38,12 @@ class page(virtualpage):
 			setup_environment_variables(page_environment)
 
 			try:
-				content=check_output(self.source_path, text=True)
+				content = check_output(self.source_path, text=True)
 
 			except Exception as e:
 				report_error(1,"File '%s' execution failed: %s" % (self.source_path, e))
 		else:
-			content=load_file(self.source_path)
+			content = load_file(self.source_path)
 
 		self.load_page_content(self.source_path, content, self.site_dir, self.default_extension, absolute_urls)
 

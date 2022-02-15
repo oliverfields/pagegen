@@ -43,14 +43,11 @@ class shortcodes:
 				spec.loader.exec_module(m)
 			except Exception as e:
 				raise Exception('Unable to load ' + SHORTCODECUSTOM + '.py: ' + str(e))
-			# Check no naming conflicts
 			custom_functions = getmembers(m, isfunction)
 
+			# Add custom shortcodes, will overwrite built-in ones
 			for custom_name, custom_function in custom_functions:
-				if custom_name in self.shortcodes.keys():
-					report_warning(SHORTCODECUSTOM + '.py contains function ' + custom_name + ' that is also a built in shortcode, not loading the custom one')
-				else:
-					self.shortcodes[custom_name] = custom_function
+				self.shortcodes[custom_name] = custom_function
 
 
 	def get_required_args(self, func):

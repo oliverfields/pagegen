@@ -28,26 +28,27 @@ class site:
 	""" Master object """
 
 	def __init__(self, site_dir, config_file, environment, serve_mode):
-		self.pages=[]
-		self.site_dir=''
-		self.base_url=''
-		self.theme=''
-		self.theme_template_dir=''
-		self.theme_asset_dir=''
-		self.ignore=[]
-		self.sitemap=''
-		self.sitemaptxt=''
-		self.link_sequence=[]
-		self.rss_sequence=[]
-		self.rss=''
-		self.tags={}
-		self.categories={}
-		self.search_index=searchindex(join(site_dir, STOPWORDSFILE))
-		self.search_xpaths=[]
-		self.environment=environment
-		self.serve_mode=serve_mode
-		self.default_markup='rst'
+		self.pages = []
+		self.site_dir = ''
+		self.base_url = ''
+		self.theme = ''
+		self.theme_template_dir = ''
+		self.theme_asset_dir = ''
+		self.ignore = []
+		self.sitemap = ''
+		self.sitemaptxt = ''
+		self.link_sequence = []
+		self.rss_sequence = []
+		self.rss = ''
+		self.tags = {}
+		self.categories = {}
+		self.search_index = searchindex(join(site_dir, STOPWORDSFILE))
+		self.search_xpaths = []
+		self.environment = environment
+		self.serve_mode = serve_mode
+		self.default_markup = 'rst'
 		self.default_templates = {}
+		self.page_list = []
 
 		if isdir(site_dir):
 			self.site_dir = site_dir
@@ -248,6 +249,7 @@ class site:
 
 			if self.publish_page(home_page):
 				self.pages.append(home_page)
+				self.page_list.append(home_page)
 			else:
 				report_error(1, "Home page not publishable because publish date not reached yet '%s': %s" % (home_page.headers['publish'], relative_path(home_page.source_path)))
 		except Exception as e:
@@ -337,7 +339,7 @@ class site:
 		o.menu_title = title
 		v_path = self.site_dir + '/' + CONTENTDIR + '/' + d + '/' + DIRDEFAULTFILE + self.default_extension
 		o.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
-
+		self.page_list.append(o)
 
 		# Create each list page (l) for tags and categories
 		for name, items  in item_list.items():
@@ -350,6 +352,7 @@ class site:
 			v_path = self.site_dir + '/' + CONTENTDIR + '/' + d + '/' + name + self.default_extension
 			l.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
 			l.parent = o
+			self.page_list.append(l)
 
 			if list_type == 'tag':
 				if self.default_templates['tag']:
@@ -587,6 +590,8 @@ class site:
 					except Exception as e:
 						report_error(1, 'Failed to run shortcodes: ' + p.source_path + ': ' + str(e))
 
+				p.html = p.content 
+
 
 			# If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated
 			if self.serve_mode:
@@ -686,6 +691,7 @@ class site:
 
 				if self.publish_page(p):
 					siblings.append(p)
+					self.page_list.append(p)
 
 					try:
 						self.load_pages(f_path, p.children, p, self.default_extension)
@@ -709,6 +715,7 @@ class site:
 
 				if self.publish_page(p):
 					siblings.append(p)
+					self.page_list.append(p)
 
 			else:
 				raise Exception("Unknown object '%s'" % f_path)

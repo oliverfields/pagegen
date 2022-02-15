@@ -162,4 +162,3 @@ class virtualpage:
 		if self.page_file_name == '':
 			self.page_file_name = DIRDEFAULTFILE + self.default_extension
 
-		#print('')
