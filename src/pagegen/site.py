@@ -509,6 +509,7 @@ class site:
 				context = {
 					'base_url': self.base_url,
 					'page': p,
+					'site': self,
 					'page_titles': self.page_titles,
 					'site_dir': self.site_dir,
 					'asset_dir': self.asset_dir,

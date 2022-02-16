@@ -203,3 +203,15 @@ def exec_script(script, env=None):
 	except Exception as e:
 		report_error(1,"Script '%s' execution failed: %s" % (script, e))
 
+
+def appropriate_markup(page, html):
+	''' If page uses rst make html appropriate '''
+
+	if page.markup == 'rst':
+		rst_html = '.. raw:: html\n\n\t'
+		for l in html.splitlines():
+			rst_html += '\t' + l
+
+		return rst_html
+
+	return html

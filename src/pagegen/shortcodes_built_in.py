@@ -1,23 +1,23 @@
-from pagegen.utility import DIRDEFAULTFILE
+from pagegen.utility import DIRDEFAULTFILE, appropriate_markup
 import hashlib
- 
+
+
+def youtube(page, video_id, width=420, height=315):
+
+	html = '<iframe width="420" height="315" src="https://www.youtube.com/embed/' + video_id + '"></iframe>'
+
+	return appropriate_markup(page, html)
+
 
 def figure(page, caption, alternative_text, src_path):
 	''' Make html figure '''
 
-	if page.markup == 'rst':
-		html_prefix = '.. raw:: html\n\n\t'
-		indent = '\t'
-	else: # Markdown
-		html_prefix = ''
-		indent = ''
+	html = '<figure>\n'
+	html += '<img src="' + src_path + '" alt="' + alternative_text + '">\n'
+	html += '<figcaption>' + caption + '</figcaption>\n'
+	html += '</figure>\n'
 
-	html = html_prefix + '<figure>\n'
-	html += indent + '<img src="' + src_path + '" alt="' + alternative_text + '">\n'
-	html += indent + '<figcaption>' + caption + '</figcaption>\n'
-	html += indent + '</figure>\n'
-
-	return html
+	return appropriate_markup(html)
 
 
 def page_url(site, page_path):
