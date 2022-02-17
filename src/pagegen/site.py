@@ -1,4 +1,4 @@
-from pagegen.utility import ASSETDIR, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, urlify, write_file
+from pagegen.utility import ASSETDIR, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, urlify, write_file, generate_menu
 import sass
 from configparser import ConfigParser
 from os.path import isdir, join, isfile, exists, islink
@@ -274,22 +274,6 @@ class site:
 		self.set_next_previous_links()
 
 
-	def html_sub_menu(self, page):
-		''' Return list of page child elements '''
-
-		if not page.children:
-			return ''
-		else:
-			html='<ol class="sub_menu">'
-
-			for p in page.children:
-				html+='<li><a href="%s">%s</a></li>' % (p.url_path, p.menu_title)
-
-			html += '</ol>'
-
-			return html
-
-
 	def generate_page_indexes(self, pages):
 		''' Index all pages with header Search index exclude: True '''
 		for p in pages:
@@ -518,7 +502,6 @@ class site:
 					'default_extension': self.default_extension,
 					'tags': self.tags,
 					'categories': self.categories,
-					'sub_menu': self.html_sub_menu(p),
 					'environment': self.environment,
 					'shortcodes': self.shortcodes,
 				}
@@ -568,7 +551,7 @@ class site:
 				if p.headers['toc']:
 					p.add_toc()
 
-				self.generate_menu(self.pages, p)
+				#generate_menu(self, p)
 				self.generate_crumb_trail(p, p)
 
 				# Replace time variables year, month and day
@@ -866,37 +849,6 @@ class site:
 		# Add current page
 		if page==crumb_trail_page:
 			crumb_trail_page.crumb_trail.append(page)
-
-
-	def generate_menu(self, pages, page, level=1):
-
-		if page.menu == '':
-			page.menu='<ol>'
-
-		for p in pages:
-
-			if p.headers['menu exclude']:
-				continue
-
-			if p == page:
-				css_id=' id="pagegen-current-page"'
-			else:
-				css_id=''
-
-			if p.children:
-				page.menu+='<li><a href="%s"%s>%s</a>' % (p.url_path, css_id, p.menu_title)
-				page.menu+='<ol>'
-				self.generate_menu(p.children, page, level=level+1)
-				page.menu+='</ol>'
-				page.menu+='</li>'
-			else:
-				page.menu+='<li><a href="%s"%s>%s</a></li>' % (p.url_path, css_id, p.menu_title)
-
-		if level==1:
-			if page.menu=='<ol>':
-				page.menu=''
-			else:
-				page.menu+='</ol>'
 
 
 	def sitemap_url(self, page):

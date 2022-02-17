@@ -1,4 +1,4 @@
-from pagegen.utility import DIRDEFAULTFILE, appropriate_markup
+from pagegen.utility import DIRDEFAULTFILE, appropriate_markup, generate_menu
 import hashlib
 
 
@@ -45,3 +45,9 @@ def integrity_hash(file_path):
 		raise Exception('Unable to generate hash for "' + file_path + '"')
 
 	return file_hash
+
+
+def menu(pages, page):
+	''' Generate fully recursive site menu '''
+	generate_menu(pages, page)
+	return page.menu

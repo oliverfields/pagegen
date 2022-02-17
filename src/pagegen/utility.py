@@ -215,3 +215,34 @@ def appropriate_markup(page, html):
 		return rst_html
 
 	return html
+
+def generate_menu(pages, page, level=1):
+
+	if page.menu == '':
+		page.menu='<ol>'
+
+	for p in pages:
+
+		if p.headers['menu exclude']:
+			continue
+
+		if p == page:
+			css_id=' id="pagegen-current-page"'
+		else:
+			css_id=''
+
+		if p.children:
+			page.menu+='<li><a href="%s"%s>%s</a>' % (p.url_path, css_id, p.menu_title)
+			page.menu+='<ol>'
+			generate_menu(p.children, page, level=level+1)
+			page.menu+='</ol>'
+			page.menu+='</li>'
+		else:
+			page.menu+='<li><a href="%s"%s>%s</a></li>' % (p.url_path, css_id, p.menu_title)
+
+	if level==1:
+		if page.menu=='<ol>':
+			page.menu=''
+		else:
+			page.menu+='</ol>'
+
