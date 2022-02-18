@@ -4,7 +4,7 @@
 
 ## Added
 
-- Shortcodes, define regular python functions that must reutrn a string in shortcodes.py and use "<sc>shortcode_name(arg1, .. argN)</sc>" in content where you want them, or <% shortcodes['name'](arg1, .. argN) %> in templates. Disable shortcodes with page header "disable shortcodes: True"
+- Shortcodes, define regular python functions that must reutrn a string in shortcodes.py and use "<sc>shortcode_name(arg1, .. argN)</sc>" in content where you want them, or <% n = shortcodes['name'](site, page, arg1, .. argN) %>${n}" in templates. Disable shortcodes with page header "disable shortcodes: True". See https://pagegen.phnd.net/user-manual/design-and-layout/shortcodes
 
 
 ## v3.6.0 - 2022-01-30
