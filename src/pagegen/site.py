@@ -49,6 +49,7 @@ class site:
 		self.default_markup = 'rst'
 		self.default_templates = {}
 		self.page_list = []
+		self.image_classes = {}
 
 		if isdir(site_dir):
 			self.site_dir = site_dir
@@ -224,7 +225,34 @@ class site:
 		except:
 			self.search_index.index_xpaths.append('/html/body')
 
-		
+		try:
+			self.load_image_classes(config.get(self.environment, 'image_classes'))
+		except Exception as e:
+			report_error(1, 'Unable to parse image_classes setting: ' + str(e))
+
+
+	def load_image_classes(self, classes):
+		''' Parse setting string, format <name> <size WidthxHeight>[, <nameN> <WxH>]'''
+
+		classes = sub(r'\s+', ' ', classes) # Replace whitespaces with single space
+		classes = classes.split(',')
+
+		for c in classes:
+			c = c.strip()
+
+			# Check it looks reasonable
+			if not search(r'^\w*\ [0-9]*x[0-9]*$', c):
+				report_error(1,'Unable to parse image_class: ' + c)
+
+			c_s = c.split(' ')
+			dims = c_s[1].split('x')
+
+			c_name = c_s[0].strip()
+			self.image_classes[c_name] = {
+				'name': c_name,
+				'width': int(dims[0].strip()),
+				'height': int(dims[1].strip()),
+			}
 
 
 	def ensure_bool(self, setting_name, data):
@@ -485,7 +513,7 @@ class site:
 				if p.headers['disable shortcodes'] == False:
 					# Run any shortcodes in content
 					try:
-						self.shortcodes.run(p)
+						self.shortcodes.run(self, p)
 					except Exception as e:
 						report_error(1, 'Failed to run shortcodes: ' + p.source_path + ': ' + str(e))
 
@@ -570,7 +598,7 @@ class site:
 				if p.headers['disable shortcodes'] == False:
 					# Run any shortcodes in HTML content
 					try:
-						self.shortcodes.run(p)
+						self.shortcodes.run(self, p)
 					except Exception as e:
 						report_error(1, 'Failed to run shortcodes: ' + p.source_path + ': ' + str(e))
 

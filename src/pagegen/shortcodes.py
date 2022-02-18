@@ -34,7 +34,9 @@ class shortcodes:
 		built_in_functions = getmembers(built_in_shortcodes, isfunction)
 
 		for built_in_name, built_in_function in built_in_functions:
-			self.shortcodes[built_in_name] = built_in_function
+			if built_in_name.startswith('built_in_'):
+				sc_name = built_in_name[9:]
+				self.shortcodes[sc_name] = built_in_function
 
 		if isfile(file_path):
 			try:
@@ -65,15 +67,16 @@ class shortcodes:
 		for n, f in sorted(self.shortcodes.items()):
 			args = self.get_required_args(f)
 			args = ', '.join(args)
-			shortcodes += '<sc>' + n + '(' + args + ')</sc>\n'
+			shortcodes += n + '(' + args + ')\n'
 
 		return shortcodes.rstrip('\n')
 
 
-	def run(self, page):
+	def run(self, site, page):
 		''' Replace return value for any shortcode tags (<sc>...</sc>) fund in content '''
 
-		self.page = page # Use this just to make references from sc tags same for page and site, ie. self.page or self.site in shortcall argument list
+		# Use this just to make references from sc tags same for page and site, ie. self.page or self.site in shortcall argument list. Self.site is set in __init__
+		self.page = page
 
 		for function in re.findall(self.sc_regexp, page.content):
 
@@ -84,9 +87,9 @@ class shortcodes:
 
 			# Shortcodes may be just "name" or "name()" or "name(arguments)", need get arguments for shortcode function..
 			if len(sc_tmp) == 1: # only "name", always add site as argument
-				shortcode_arguments = '()'
+				shortcode_arguments = '(self.site, self.page)'
 			else:
-				shortcode_arguments = '(' + sc_tmp[1] # Need to add back the ( split char
+				shortcode_arguments = '(self.site, self.page, ' + sc_tmp[1] # Need to add back the ( split char
 
 			# Try to run shortcode
 			if shortcode_name in self.shortcodes.keys():

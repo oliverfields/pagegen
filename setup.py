@@ -31,6 +31,7 @@ setup(name = 'pagegen',
 		'markdown',
 		'libsass',
 		'python-docutils-graphviz',
+		'pillow',
 	],
 	entry_points={
 		'console_scripts': ['pagegen=pagegen.pagegen:main'],
