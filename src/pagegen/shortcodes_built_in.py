@@ -17,7 +17,7 @@ def figure(page, caption, alternative_text, src_path):
 	html += '<figcaption>' + caption + '</figcaption>\n'
 	html += '</figure>\n'
 
-	return appropriate_markup(html)
+	return appropriate_markup(page, html)
 
 
 def page_url(site, page_path):
