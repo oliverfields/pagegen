@@ -1,6 +1,6 @@
 from pagegen.utility import ASSETDIR, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, urlify, write_file, generate_menu
 import sass
-from configparser import ConfigParser
+from configparser import ConfigParser, NoOptionError
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, sep, makedirs, remove, unlink, X_OK, access
 from shutil import rmtree, copytree
@@ -227,6 +227,8 @@ class site:
 
 		try:
 			self.load_image_classes(config.get(self.environment, 'image_classes'))
+		except NoOptionError:
+			pass # Option was not defined
 		except Exception as e:
 			report_error(1, 'Unable to parse image_classes setting: ' + str(e))
 
