@@ -519,19 +519,11 @@ class site:
 
 				# Setup context for Mako template
 				context = {
-					'base_url': self.base_url,
 					'page': p,
 					'site': self,
-					'page_titles': self.page_titles,
-					'site_dir': self.site_dir,
-					'asset_dir': self.asset_dir,
-					'source_dir': self.site_dir + '/' + CONTENTDIR,
-					'target_dir': self.target_dir,
-					'default_extension': self.default_extension,
-					'tags': self.tags,
-					'categories': self.categories,
-					'environment': self.environment,
-					'shortcodes': self.shortcodes,
+					'year': date.today().strftime('%Y'),
+					'month': date.today().strftime('%m'),
+					'day': date.today().strftime('%d'),
 				}
 
 				# If defined use markdown, else use rst
@@ -579,19 +571,7 @@ class site:
 				if p.headers['toc']:
 					p.add_toc()
 
-				#generate_menu(self, p)
 				self.generate_crumb_trail(p, p)
-
-				# Replace time variables year, month and day
-				Y = date.today().strftime('%Y')
-				M = date.today().strftime('%m')
-				D = date.today().strftime('%d')
-
-				context['year'] = Y
-				context['month'] = M
-				context['day'] = D
-
-				context['absolute_url'] = self.base_url + p.url_path
 
 				p.html = render_template(self.theme_template_dir, p.headers['template'], context)
 			else:

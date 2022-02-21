@@ -1,5 +1,4 @@
 from pagegen.utility import DIRDEFAULTFILE, appropriate_markup, generate_menu, CONTENTDIR, ASSETDIR
-import hashlib
 from os.path import isfile, getctime
 from PIL import Image, ImageOps
 
@@ -35,18 +34,6 @@ def built_in_page_url(site, page, page_path):
 			return url_path
 
 	raise Exception('No page matches "' + page_path + '"')
-
-
-def built_in_integrity_hash(site, page, file_path):
-
-	try:
-		with open(file_path,"rb") as f:
-			bytes = f.read() # read entire file as bytes
-			file_hash = 'sha256-' + hashlib.sha256(bytes).hexdigest();
-	except:
-		raise Exception('Unable to generate hash for "' + file_path + '"')
-
-	return file_hash
 
 
 def built_in_menu(site, page):
