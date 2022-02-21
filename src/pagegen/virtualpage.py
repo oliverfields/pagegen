@@ -65,18 +65,17 @@ class virtualpage:
 
 
 	def __repr__(self):
-
 		r = '{\n'
 
 		for attribute in sorted(self.__dict__):
 			value = self.__dict__[attribute]
 			if isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
-				r += "\t'" + attribute + "': " + repr(value) + ",\n"
+				r += "\t'" + attribute + "': " + str(value) + ",\n"
 			elif isinstance(value, list):
 				if len(value) > 0:
 					r += "\t'" + attribute + "': [\n"
 					for i in value:
-						r += "\t\t" + repr(i) + ",\n"
+						r += "\t\t" + str(i) + ",\n"
 					r = r.rstrip(",\n")
 					r += "\n\t]\n"
 				else:
@@ -85,7 +84,7 @@ class virtualpage:
 				if len(value.keys()):
 					r += "\t'" + attribute + "': {\n"
 					for k, v in value.items():
-						r += "\t\t'" + k + "': " + repr(v) + ",\n"
+						r += "\t\t'" + k + "': " + str(v) + ",\n"
 					r = r.rstrip("\n,")
 					r += "\n\t},\n"
 				else:
@@ -94,6 +93,7 @@ class virtualpage:
 		r = r.rstrip("\n,")
 		r += "\n}"
 
+		return ''
 		return r
 
 

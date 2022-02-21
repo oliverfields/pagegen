@@ -34,7 +34,6 @@ class site:
 		self.theme = ''
 		self.theme_template_dir = ''
 		self.theme_asset_dir = ''
-		self.ignore = []
 		self.sitemap = ''
 		self.sitemaptxt = ''
 		self.link_sequence = []
@@ -84,7 +83,7 @@ class site:
 		try:
 			self.theme = config.get(self.environment,'theme')
 			self.theme_template_dir = site_dir + '/' + THEMEDIR + '/' + self.theme + '/' + TEMPLATEDIR
-			self.theme_assets_dir = site_dir + '/' + THEMEDIR + '/' + self.theme + '/' + ASSETDIR
+			self.theme_asset_dir = site_dir + '/' + THEMEDIR + '/' + self.theme + '/' + ASSETDIR
 		except:
 			raise Exception('%s must contain theme setting' % SITECONF)
 
@@ -765,13 +764,13 @@ class site:
 				copytree(self.asset_dir, target_assets_dir)
 
 		# Copy theme assets
-		target_theme_assets_dir = target_assets_dir + '/theme'
-		if exists(target_theme_assets_dir):
-			report_error(1, target_theme_assets_dir + ' already exists, aborting')
+		target_theme_asset_dir = target_assets_dir + '/theme'
+		if exists(target_theme_asset_dir):
+			report_error(1, target_theme_asset_dir + ' already exists, aborting')
 		else:
-			copytree(self.theme_assets_dir, target_theme_assets_dir)
+			copytree(self.theme_asset_dir, target_theme_asset_dir)
 
-		self.process_sass(target_theme_assets_dir)
+		self.process_sass(target_theme_asset_dir)
 
 		# Create sitemap
 		if self.exclude_sitemap == False:
@@ -965,4 +964,46 @@ class site:
 				self.rss_sequence.append(p)
 				if p.children or p.url_path == '/':
 					self.create_rss_sequence(p.children)
+
+
+	def __repr__(self):
+		r = '{\n'
+
+		for attribute in sorted(self.__dict__):
+			value = self.__dict__[attribute]
+
+			if attribute == 'rss':
+				r += "\t'rss': <rss xml>,\n"
+
+			elif attribute == 'sitemap':
+				r += "\t'sitemap': <sitemap xml>,\n"
+
+			elif attribute == 'sitemaptxt':
+				r += "\t'sitemaptxt': <sitemap txt>,\n"
+
+			elif isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
+				r += "\t'" + attribute + "': " + str(value) + ",\n"
+			elif isinstance(value, list):
+				if len(value) > 0:
+					r += "\t'" + attribute + "': [\n"
+					for i in value:
+						r += "\t\t" + str(i) + ",\n"
+					r = r.rstrip(",\n")
+					r += "\n\t],\n"
+				else:
+					r += "\t'" + attribute + "': [],\n"
+			elif isinstance(value, dict):
+				if len(value.keys()):
+					r += "\t'" + attribute + "': {\n"
+					for k, v in value.items():
+						r += "\t\t'" + k + "': " + str(v) + ",\n"
+					r = r.rstrip("\n,")
+					r += "\n\t},\n"
+				else:
+					r += "\t'" + attribute + "': {},\n"
+
+		r = r.rstrip("\n,")
+		r += "\n}"
+
+		return r
 

@@ -39,6 +39,9 @@ def auto_build_serve(site_conf_path, environment, watch_elements, serve_dir, exc
 		for we in watch_elements:
 			print('           ' + we)
 
+		# Write hash file so there is something to poll
+		write_file(serve_dir + '/' + SEARCHMODESITEUPDATEDFILE, '')
+
 		while True:
 			names_and_modified_times = '' # Create string of file and directories with timestamps, create hash of this and compare to previous hash to detect changes
 
