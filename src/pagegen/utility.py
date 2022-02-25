@@ -39,8 +39,10 @@ TAGSTEMPLATE='tags.mako'
 TAGTEMPLATE='tag.mako'
 CATEGORIESTEMPLATE='categories.mako'
 CATEGORYTEMPLATE='category.mako'
+AUTHORTEMPLATE='author.mako'
+AUTHORSTEMPLATE='authors.mako'
 SHORTCODECUSTOM='shortcodes'
-
+AUTHORSCONF='authors.conf'
 
 def get_first_words(string, x):
 	if len(string) > x:
@@ -91,25 +93,15 @@ def report_notice(message):
 	print('Notice:  %s' % message)
 
 
-def load_config(files, add_dummy_section=True):
-	''' Load pagegen config according to list of possible config file locations '''
-
-	conf_path=False
-
-	for f in files:
-		if isfile(f):
-			conf_path=f
-			break
-
-	if not conf_path:
-		report_error(1, "pagegen.conf, not found in current, ~/.config/ or /etc/ directories")
+def load_config(conf_path, add_dummy_section=True):
+	''' Load config '''
 
 	try:
-		c=RawConfigParser()
+		c = RawConfigParser()
 		if add_dummy_section:
 			# Don't need section headers so just add a dummy root section before passing to confpars
-			ini_str=u'['+CONFROOT+']\n' + open(conf_path, 'r').read()
-			ini_fp=StringIO(ini_str)
+			ini_str = u'['+CONFROOT+']\n' + open(conf_path, 'r').read()
+			ini_fp = StringIO(ini_str)
 			c.readfp(ini_fp)
 		else:
 			# Config has sections, so open as normal

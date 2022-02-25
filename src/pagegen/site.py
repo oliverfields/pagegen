@@ -1,4 +1,4 @@
-from pagegen.utility import ASSETDIR, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, urlify, write_file, generate_menu
+from pagegen.utility import ASSETDIR, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, urlify, write_file, generate_menu, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF
 import sass
 from configparser import ConfigParser, NoOptionError
 from os.path import isdir, join, isfile, exists, islink
@@ -49,6 +49,7 @@ class site:
 		self.default_templates = {}
 		self.page_list = []
 		self.image_classes = {}
+		self.authors = None
 
 		if isdir(site_dir):
 			self.site_dir = site_dir
@@ -63,7 +64,7 @@ class site:
 			self.serve_mode_js_script = load_file(pkg_resources.resource_filename('pagegen', SEARCHMODEJSFILE))
 
 		try:
-			config=load_config([config_file], add_dummy_section=False)
+			config=load_config(config_file, add_dummy_section=False)
 			self.raw_config=config
 		except Exception as e:
 			raise Exception("Unable to load site config '%s': %s" % e)
@@ -84,6 +85,7 @@ class site:
 			self.theme = config.get(self.environment,'theme')
 			self.theme_template_dir = site_dir + '/' + THEMEDIR + '/' + self.theme + '/' + TEMPLATEDIR
 			self.theme_asset_dir = site_dir + '/' + THEMEDIR + '/' + self.theme + '/' + ASSETDIR
+			self.authors_conf = site_dir + '/' + AUTHORSCONF
 		except:
 			raise Exception('%s must contain theme setting' % SITECONF)
 
@@ -93,7 +95,9 @@ class site:
 			'tags': TAGSTEMPLATE,
 			'tag': TAGTEMPLATE,
 			'categories': CATEGORIESTEMPLATE,
-			'category': CATEGORYTEMPLATE
+			'category': CATEGORYTEMPLATE,
+			'authors': AUTHORSTEMPLATE,
+			'author': AUTHORTEMPLATE
 		}
 
 		for name, template in default_templates.items():
@@ -126,6 +130,27 @@ class site:
 			self.category_title = config.get(self.environment,'category_title')
 		except:
 			self.category_title = 'Categories'
+
+		try:
+			self.authors_title = config.get(self.environment,'authors_title')
+		except:
+			self.authors_title = 'Authors'
+
+		try:
+			self.authors_dir = config.get(self.environment,'author_dir')
+		except:
+			self.authors_dir = 'author'
+
+		try:
+			authors_config = load_config(self.authors_conf)
+			self.authors = {}
+			for s in authors_config.sections():
+				if s != 'root':
+					self.authors[s] = {}
+					for setting, value in authors_config.items(s):
+						self.authors[s][setting] = value
+		except:
+			pass
 
 		try:
 			self.include_rss=self.ensure_bool('include_rss', config.get(self.environment,'include_rss'))
@@ -297,6 +322,9 @@ class site:
 		if self.categories:
 			self.load_list_pages('category', home_page)
 
+		if self.authors:
+			self.load_author_pages(home_page)
+
 		self.check_pages(self.pages)
 
 		self.set_link_sequence(self.pages)
@@ -321,6 +349,61 @@ class site:
 		''' For all indexable files get their terms and create json index file for site search use (requires javascript '''
 		self.generate_page_indexes(self.pages)
 		write_file(join(self.target_dir, SEARCHINDEXFILE), self.search_index.build_json_index())
+
+
+	def load_author_pages(self, parent_page):
+		''' If authors.conf then create an overview page, and a page for each author '''
+
+		# Overview page
+		o = virtualpage()
+
+		title = self.tag_title
+		d = self.tag_dir
+		item_list = self.tags
+
+		if self.default_templates['authors']:
+			o.headers['template'] = self.default_templates['authors']
+
+		o.headers['menu exclude'] = True
+		o.headers['link chain exclude'] = True
+		o.parent = parent_page
+		o.title = self.authors_title
+		o.menu_title = self.authors_title
+
+		v_path = self.site_dir + '/' + CONTENTDIR + '/' + self.authors_dir + '/' + DIRDEFAULTFILE + self.default_extension
+		o.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
+		self.page_list.append(o)
+
+		# Create page (l) for each author
+		for a, a_settings in self.authors.items():
+			if a != 'root':
+
+				l = virtualpage()
+				l.headers['sitemap exclude'] = True
+				l.headers['menu exclude'] = True
+				l.headers['link chain exclude'] = True
+				l.headers['author'] = a
+				l.title = a_settings['name']
+				l.menu_title = l.title
+				v_path = self.site_dir + '/' + CONTENTDIR + '/' + self.authors_dir + '/' + a + self.default_extension
+				l.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
+				l.parent = o
+
+				self.page_list.append(l)
+
+				# Add url to authors, overwrites setting from conf file
+				self.authors[a]['author_page'] = l.url_path
+
+				if self.default_templates['author']:
+					l.headers['template'] = self.default_templates['author']
+
+				o.children.append(l)
+
+		# Create author overview content
+		for p in o.children:
+			o.content += '* `%s <%s>`_%s' % (p.menu_title, p.url_path, NEWLINE)
+
+		self.pages.append(o)
 
 
 	def load_list_pages(self, list_type, parent_page):
@@ -469,7 +552,8 @@ class site:
 			default_extension=self.default_extension,
 			environment=self.environment,
 			absolute_urls=self.absolute_urls,
-			default_markup=self.default_markup
+			default_markup=self.default_markup,
+			authors=self.authors,
 		)
 
 		return p
@@ -703,7 +787,8 @@ class site:
 					default_extension=self.default_extension,
 					environment=self.environment,
 					absolute_urls=self.absolute_urls,
-					default_markup=self.default_markup
+					default_markup=self.default_markup,
+					authors=self.authors,
 				)
 
 				if self.publish_page(p):

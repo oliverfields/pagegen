@@ -33,6 +33,7 @@ class virtualpage:
 		self.custom_headers={}
 		self.markup='rst'
 		self.toc=False
+		self.authors = []
 		self.headers={
 			'sitemap exclude': False, 
 			'menu exclude': False,
@@ -57,6 +58,7 @@ class virtualpage:
 			'number headings': False,
 			'toc': False,
 			'disable shortcodes': False,
+			'authors': None,
 		}
 
 
@@ -161,4 +163,3 @@ class virtualpage:
 		self.page_file_name = path_part
 		if self.page_file_name == '':
 			self.page_file_name = DIRDEFAULTFILE + self.default_extension
-

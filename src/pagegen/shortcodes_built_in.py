@@ -2,6 +2,7 @@ from pagegen.utility import DIRDEFAULTFILE, appropriate_markup, generate_menu, C
 from os.path import isfile, getctime
 from os import makedirs
 from PIL import Image, ImageOps
+from hashlib import md5
 
 
 def built_in_youtube(site, page, video_id, width=420, height=315):
@@ -41,6 +42,17 @@ def built_in_menu(site, page):
 	''' Generate fully recursive site menu '''
 	generate_menu(site.pages, page)
 	return page.menu
+
+
+def built_in_gravatar(site, page, email, name, size):
+	''' Return gravatar img tag '''
+
+	email_hash = md5(email.encode())
+	email_hash = email_hash.hexdigest()
+
+	html = '<img src="https://www.gravatar.com/avatar/' + email_hash + '" alt="' + name + '" width="' + size + '" height="' + size + '" />'
+
+	return html
 
 
 def built_in_image(site, page, image_source, alt_attribute, target_dir=None, image_class=None, image_size=None):
