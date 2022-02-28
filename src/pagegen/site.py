@@ -228,11 +228,6 @@ class site:
 			self.url_include_index=True
 
 		try:
-			self.page_titles=self.ensure_bool('page_title', config.get(self.environment,'page_titles'))
-		except:
-			self.page_titles=False
-
-		try:
 			self.default_markup=config.get(self.environment,'default_markup')
 		except:
 			self.default_markup='rst'
@@ -628,11 +623,6 @@ class site:
 						raise(Exception(p.source_path + ': Markdown conversion failed'))
 				else:
 					try:
-						if self.page_titles:
-							initial_header_level = 2
-						else:
-							initial_header_level = 1
-
 						# Enable graphviz support, if Graphviz is not installed, do nothing, in the event a dot directive has been created docutils will itself report the error to the user
 						try:
 							directives.register_directive('dot', docutils_graphviz.Graphviz)
@@ -641,7 +631,6 @@ class site:
 
 						overrides = {
 							'doctitle_xform': False,
-							'initial_header_level': initial_header_level
 						}
 						parts = publish_parts(p.content, writer_name='html', settings_overrides=overrides)
 						p.html = parts['body']
