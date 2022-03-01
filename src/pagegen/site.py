@@ -141,18 +141,18 @@ class site:
 		except:
 			self.authors_dir = 'author'
 
-		try:
-			authors_config = load_config(self.authors_conf)
-			self.authors = {}
-			for s in authors_config.sections():
-				if s != 'root':
+		if isfile(self.authors_conf):
+			try:
+				authors_config = load_config(self.authors_conf, add_dummy_sections=False)
+				self.authors = {}
+				for s in authors_config.sections():
 					self.authors[s] = {
 						'id': s
 					}
 					for setting, value in authors_config.items(s):
 						self.authors[s][setting] = value
-		except:
-			pass
+			except:
+				pass
 
 		try:
 			self.include_rss=self.ensure_bool('include_rss', config.get(self.environment,'include_rss'))

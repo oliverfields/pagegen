@@ -278,25 +278,26 @@ class page(virtualpage):
 	def load_page_authors(self, author_list, authors):
 		''' Add authors to page '''
 
-		# If CSV then split, else if just one assign
-		if ',' in author_list:
-			author_list = author_list.split(',')
-		else:
-			author_list = [ author_list ]
-
-		# Tidy any whitespace
-		for a in author_list:
-			a = a.strip()
-
-			# Make reference to site.authors (authors argument) if match
-			if a in authors.keys():
-				self.authors.append(authors[a])
-
-				if not 'pages' in authors[a].keys():
-					authors[a]['pages'] = []
-
-				authors[a]['pages'].append(self)
+		if authors != None:
+			# If CSV then split, else if just one assign
+			if ',' in author_list:
+				author_list = author_list.split(',')
 			else:
-				report_error(1, 'Author "' + a + '" defined in ' + self.source_path + ' not defined in ' + AUTHORSCONF)
+				author_list = [ author_list ]
+
+			# Tidy any whitespace
+			for a in author_list:
+				a = a.strip()
+
+				# Make reference to site.authors (authors argument) if match
+				if a in authors.keys():
+					self.authors.append(authors[a])
+
+					if not 'pages' in authors[a].keys():
+						authors[a]['pages'] = []
+
+					authors[a]['pages'].append(self)
+				else:
+					report_error(1, 'Author "' + a + '" defined in ' + self.source_path + ' not defined in ' + AUTHORSCONF)
 
 
