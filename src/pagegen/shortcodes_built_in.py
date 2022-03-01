@@ -134,5 +134,20 @@ def built_in_image(site, page, image_source, alt_attribute, target_dir=None, ima
 
 	html = '<img src="' + img_src + '" alt="' + alt_attribute + '" width="' + str(width) + '" height="' + str(height) + '" />'
 
-	return html
+	return appropriate_markup(page, html)
 
+
+def built_in_list_authors(site, page):
+	''' List authors '''
+
+	for author in page.authors:
+		if 'name' in author.keys():
+			name = author['name']
+		else:
+			name = author['id']
+
+		html = '<li><a href="' + author['author_page'] + '">' + name + '</a></li>'
+
+	html = '<ol>' + html + '</ol>'
+
+	return appropriate_markup(page, html)

@@ -146,7 +146,9 @@ class site:
 			self.authors = {}
 			for s in authors_config.sections():
 				if s != 'root':
-					self.authors[s] = {}
+					self.authors[s] = {
+						'id': s
+					}
 					for setting, value in authors_config.items(s):
 						self.authors[s][setting] = value
 		except:

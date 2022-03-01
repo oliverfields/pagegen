@@ -268,3 +268,13 @@ margin-left: 4em;
 .toc-h6 {
 margin-left: 5em;
 }
+.author-full img {
+display: block;
+float: left;
+margin-right: 1em;
+}
+.author-full li {
+display: inline-block;
+margin-right: 2em;
+font-size: .8em;
+}
