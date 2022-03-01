@@ -649,6 +649,8 @@ class site:
 
 				self.generate_crumb_trail(p, p)
 
+				p.set_excerpt()
+
 				p.html = render_template(self.theme_template_dir, p.headers['template'], context)
 			else:
 				if p.headers['disable shortcodes'] == False:

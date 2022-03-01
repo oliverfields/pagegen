@@ -151,3 +151,9 @@ def built_in_list_authors(site, page):
 	html = '<ol>' + html + '</ol>'
 
 	return appropriate_markup(page, html)
+
+
+def built_in_more(site, page):
+	''' Adds <!-- more --> comment to html output, for use with excerpts '''
+	return appropriate_markup(page, '<!-- more -->')
+

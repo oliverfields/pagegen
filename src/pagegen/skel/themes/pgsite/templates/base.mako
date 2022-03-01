@@ -24,6 +24,7 @@
             <input type="submit" id="search-submit" value="Search" />
           </form>
         </div>
+        <% menu = site.shortcodes['menu'](site, page) %>
         <div id="menu">${page.menu}</div>
       </div><!-- /sidebar -->
       <article id="content">

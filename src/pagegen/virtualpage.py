@@ -34,6 +34,7 @@ class virtualpage:
 		self.markup='rst'
 		self.toc=False
 		self.authors = []
+		self.excerpt = False
 		self.headers={
 			'sitemap exclude': False, 
 			'menu exclude': False,
@@ -95,8 +96,14 @@ class virtualpage:
 		r = r.rstrip("\n,")
 		r += "\n}"
 
-		return ''
 		return r
+
+
+	def set_excerpt(self):
+		''' Add everything preceeding <!-- more --> to self.excerpt '''
+		maybe_excerpt = self.html.split('<!-- more -->', 1)
+		if len(maybe_excerpt) == 2:
+			self.excerpt = maybe_excerpt[0]
 
 
 	def generate_crumb_trail(self):
