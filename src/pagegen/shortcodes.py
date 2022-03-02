@@ -99,6 +99,9 @@ class shortcodes:
 				except Exception as e:
 					raise Exception('Unable to run shortcode ' + shortcode_name + shortcode_arguments + ': ' + sc_function_call + ': ' + str(e))
 
+				if not isinstance(shortcode_result, str):
+					raise Exception('Shortcode ' + shortcode_name + ' did not return a string, it returned a ' + str(type(shortcode_result)))
+
 			else:
 				raise Exception('Shortcode "' + shortcode_name + '" is not defined')
 
