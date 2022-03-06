@@ -6,7 +6,8 @@
 
 - Shortcodes, define regular python functions that must reutrn a string in shortcodes.py and use "<sc>shortcode_name(arg1, .. argN)</sc>" in content where you want them, or <% n = shortcodes['name'](site, page, arg1, .. argN) %>${n}" in templates. Disable shortcodes with page header "disable shortcodes: True". See https://pagegen.phnd.net/user-manual/shortcodes
 - Authors - add authors csv header to pages and authors.conf to generate author pages
-- Excerpts. Use shortcode <sc>more</sc> anywhere in content and everything until then will become page.excerpt.
+- Excerpts. Use  <!-- more --> anywhere in content and everything until then will become page.excerpt.
+- Shortcode list_posts
 
 
 ## Removed
