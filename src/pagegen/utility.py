@@ -10,6 +10,11 @@ from mako.template import Template
 from mako.lookup import TemplateLookup
 from mako.exceptions import RichTraceback
 from mako.runtime import Context
+import markdown
+import pagegen.markdown_inline_graphviz
+import docutils_graphviz
+from docutils.parsers.rst import directives
+from docutils.core import publish_parts
 
 
 # Constants
@@ -200,11 +205,11 @@ def appropriate_markup(page, html):
 	''' If page uses rst make html appropriate '''
 
 	if page.markup == 'rst':
-		rst_html = '.. raw:: html\n\n\t'
+		rst_html = '.. raw:: html\n\n'
 		for l in html.splitlines():
 			rst_html += '\t' + l
 
-		return rst_html
+		return '\n' + rst_html + '\n'
 
 	return html
 
@@ -237,4 +242,37 @@ def generate_menu(pages, page, level=1):
 			page.menu=''
 		else:
 			page.menu+='</ol>'
+
+
+def markdown_to_html(markdown_string):
+	''' Convert markdown to html '''
+
+	md = markdown.Markdown(
+		extensions = [
+			'tables',
+			'admonition',
+			pagegen.markdown_inline_graphviz.makeExtension()
+		]
+	)
+
+	return md.convert(markdown_string)
+
+
+def rst_to_html(rst_string):
+	''' Concert rst to html '''
+
+	# Enable graphviz support, if Graphviz is not installed, do nothing, in the event a dot directive has been created docutils will itself report the error to the user
+	try:
+		directives.register_directive('dot', docutils_graphviz.Graphviz)
+	except:
+		pass
+
+	overrides = {
+		'doctitle_xform': False,
+	}
+
+	parts = publish_parts(rst_string, writer_name='html', settings_overrides=overrides)
+
+	return parts['body']
+
 

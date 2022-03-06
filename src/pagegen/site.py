@@ -1,4 +1,4 @@
-from pagegen.utility import ASSETDIR, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, urlify, write_file, generate_menu, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF
+from pagegen.utility import ASSETDIR, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, urlify, write_file, generate_menu, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF, rst_to_html, markdown_to_html
 import sass
 from configparser import ConfigParser, NoOptionError
 from os.path import isdir, join, isfile, exists, islink
@@ -6,7 +6,6 @@ from os import listdir, sep, makedirs, remove, unlink, X_OK, access
 from shutil import rmtree, copytree
 from pagegen.page import page
 from pagegen.virtualpage import virtualpage
-import markdown
 from re import sub, search
 from datetime import date
 from datetime import datetime
@@ -17,10 +16,6 @@ from glob import glob
 from rcssmin import cssmin
 from jsmin import jsmin
 import pkg_resources
-import pagegen.markdown_inline_graphviz
-import docutils_graphviz
-from docutils.parsers.rst import directives
-from docutils.core import publish_parts
 from pagegen.shortcodes import shortcodes
 
 
@@ -611,33 +606,16 @@ class site:
 				# If defined use markdown, else use rst
 				if p.markup == 'md':
 					try:
-						md = markdown.Markdown(
-							extensions = [
-								'tables',
-								'admonition',
-								pagegen.markdown_inline_graphviz.makeExtension()
-							]
-						)
-						p.html = md.convert(p.content)
+						p.html = markdown_to_html(p.content)
 					except RuntimeError as e:
 						report_error(1, p.source_path + ': ' + str(e))
 					except Exception as e:
-						raise(Exception(p.source_path + ': Markdown conversion failed'))
+						raise(Exception(p.source_path + ': Content Markdown conversion failed'))
 				else:
 					try:
-						# Enable graphviz support, if Graphviz is not installed, do nothing, in the event a dot directive has been created docutils will itself report the error to the user
-						try:
-							directives.register_directive('dot', docutils_graphviz.Graphviz)
-						except:
-							pass
-
-						overrides = {
-							'doctitle_xform': False,
-						}
-						parts = publish_parts(p.content, writer_name='html', settings_overrides=overrides)
-						p.html = parts['body']
+						p.html = rst_to_html(p.content)
 					except:
-						raise(Exception(p.source_path + ': reStructruedText conversion failed'))
+						raise(Exception(p.source_path + ': Content reStructruedText conversion failed'))
 
 				# Needs to happen to html content, i.e. after markup conversion
 				if p.headers['number headings']:
@@ -648,8 +626,6 @@ class site:
 					p.add_toc()
 
 				self.generate_crumb_trail(p, p)
-
-				p.set_excerpt()
 
 				p.html = render_template(self.theme_template_dir, p.headers['template'], context)
 			else:
@@ -1084,4 +1060,24 @@ class site:
 		r += "\n}"
 
 		return r
+
+
+	def set_excerpts(self):
+		for p in self.page_list:
+			p.set_excerpt()
+
+			if p.excerpt:
+				if p.markup == 'md':
+					try:
+						p.excerpt = markdown_to_html(p.excerpt)
+					except RuntimeError as e:
+						report_error(1, p.source_path + ': ' + str(e))
+					except Exception as e:
+						raise(Exception(p.source_path + ': Excerpt Markdown conversion failed'))
+				else:
+					try:
+						p.excerpt = rst_to_html(p.excerpt)
+					except:
+						raise(Exception(p.source_path + ': Excerpt reStructruedText conversion failed'))
+
 

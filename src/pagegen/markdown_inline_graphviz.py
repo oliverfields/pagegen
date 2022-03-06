@@ -27,7 +27,6 @@ import markdown
 import subprocess
 import base64
 import shutil
-from pagegen.utility import report_warning
 
 
 BLOCK_RE_GRAPHVIZ_TAG = re.compile(

@@ -101,7 +101,7 @@ class virtualpage:
 
 	def set_excerpt(self):
 		''' Add everything preceeding <!-- more --> to self.excerpt '''
-		maybe_excerpt = self.html.split('<!-- more -->', 1)
+		maybe_excerpt = self.content.split('<!-- more -->', 1)
 		if len(maybe_excerpt) == 2:
 			self.excerpt = maybe_excerpt[0]
 

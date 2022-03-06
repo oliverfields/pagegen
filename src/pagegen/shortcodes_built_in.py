@@ -153,17 +153,15 @@ def built_in_list_authors(site, page):
 	return appropriate_markup(page, html)
 
 
-def built_in_more(site, page):
-	''' Adds <!-- more --> comment to html output, for use with excerpts '''
-	return appropriate_markup(page, '<!-- more -->')
-
-
-def built_in_list_posts(site, page, posts_dir, post_limit):
+def built_in_list_posts(site, page, posts_dir, max_posts_limit):
 	''' List posts found in posts_dir '''
 
 	html = ''
 	posts = []
 	counter = 0
+
+	if not isinstance(max_posts_limit, int):
+		max_posts_limit = int(max_posts_limit)
 
 	#sorted_pages = sorted(site.page_list, key=lambda d: d.headers['publish'], reverse=True)
 
@@ -183,10 +181,9 @@ def built_in_list_posts(site, page, posts_dir, post_limit):
 	for p in sorted_posts:
 		counter += 1
 
-		if counter == int(post_limit):
+		if counter == max_posts_limit:
 			break
 
-		# TODO: Excerpt must be gotten before any scs are run, how to handle sc:more?
 		if p.excerpt:
 			excerpt = '<br />' + p.excerpt
 		else:
@@ -194,4 +191,4 @@ def built_in_list_posts(site, page, posts_dir, post_limit):
 
 		html += '<li>' + p.headers['publish'] + ' <a href="' + p.url_path + '">' + p.title + '</a>' + excerpt + '</li>'
 
-	return '<ol>' + html + '</ol>'
+	return appropriate_markup(page, '<ol>' + html + '</ol>')
