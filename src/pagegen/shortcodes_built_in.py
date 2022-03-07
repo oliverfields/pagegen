@@ -192,3 +192,25 @@ def built_in_list_posts(site, page, posts_dir, max_posts_limit):
 		html += '<li>' + p.headers['publish'] + ' <a href="' + p.url_path + '">' + p.title + '</a>' + excerpt + '</li>'
 
 	return appropriate_markup(page, '<ol>' + html + '</ol>')
+
+
+def built_in_categories(site, page):
+	''' List page categories '''
+
+	html = ''
+	if 'categories' in page.headers.keys():
+		for c in page.headers['categories']:
+			html += '<li><a href="' + site.categories[c]['url'] + '">' + c + '</a></li>'
+
+	return appropriate_markup(page, '<ol>' + html + '</ol>')
+
+
+def built_in_tags(site, page):
+	''' List page tags '''
+
+	html = ''
+	if 'tags' in page.headers.keys():
+		for t in page.headers['tags']:
+			html += '<li><a href="' + site.tags[t]['url'] + '">' + t + '</a></li>'
+
+	return appropriate_markup(page, '<ol>' + html + '</ol>')
