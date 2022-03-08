@@ -12,6 +12,7 @@ class shortcodes:
 	def __init__(self, site):
 
 		self.site = site
+		self.cache = {} # For shortcodes use
 		self.shortcodes = {}
 
 		self.sc_built_in = pagegen.shortcodes_built_in

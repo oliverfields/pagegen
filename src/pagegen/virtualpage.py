@@ -60,6 +60,7 @@ class virtualpage:
 			'toc': False,
 			'disable shortcodes': False,
 			'authors': None,
+			'series': False,
 		}
 
 

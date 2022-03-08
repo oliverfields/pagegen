@@ -118,8 +118,6 @@ def built_in_list_posts(site, page, posts_dir, max_posts_limit):
 	if not isinstance(max_posts_limit, int):
 		max_posts_limit = int(max_posts_limit)
 
-	#sorted_pages = sorted(site.page_list, key=lambda d: d.headers['publish'], reverse=True)
-
 	# Strip leading / if present
 	if posts_dir.startswith('/'):
 		posts_dir = posts_dir[1:]

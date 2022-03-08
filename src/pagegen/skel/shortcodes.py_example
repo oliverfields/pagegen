@@ -30,3 +30,36 @@ def gravatar(site, page, email, name, size):
 	return html
 
 
+def series_navigation(site, page):
+	''' Navigation for series (related pages/blog posts). For pages in series add publish and series headers to all pages in the series, publish may ofcourse vary per page:
+
+		Series: python_tutorial
+		Publish: yyyy-mm-dd
+    '''
+
+	if not page.headers['series']:
+		return ''
+
+	series_id = page.headers['series']
+
+	# Check if we have series html cached
+	if 'series' in site.shortcodes.cache.keys() and series_id in site.shortcodes.cache['series'].keys():
+		html = site.shortcodes.cache['series'][series_id]
+	else:
+		html = ''
+
+		# Find other pages in series
+		sorted_posts = sorted(site.page_list, key=lambda d: d.headers['publish'])
+
+		for p in sorted_posts:
+			if p.headers['series'] == series_id:
+				html += '<li><a href="' + p.url_path + '">' + p.title + '</a></li>'
+
+		html = '<ol>' + html + '</ol>'
+
+		# Cache html for use by other pages in series
+		site.shortcodes.cache['series'] = { series_id: html }
+
+	return appropriate_markup(page, html)
+
+
