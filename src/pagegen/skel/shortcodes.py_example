@@ -1,0 +1,32 @@
+from pagegen.utility import appropriate_markup
+
+
+def youtube(site, page, video_id, width=420, height=315):
+
+	html = '<iframe width="420" height="315" src="https://www.youtube.com/embed/' + video_id + '"></iframe>'
+
+	return appropriate_markup(page, html)
+
+
+def figure(site, page, caption, alternative_text, src_path):
+	''' Make html figure '''
+
+	html = '<figure>\n'
+	html += '<img src="' + src_path + '" alt="' + alternative_text + '">\n'
+	html += '<figcaption>' + caption + '</figcaption>\n'
+	html += '</figure>\n'
+
+	return appropriate_markup(page, html)
+
+
+def gravatar(site, page, email, name, size):
+	''' Return gravatar img tag '''
+
+	email_hash = md5(email.encode())
+	email_hash = email_hash.hexdigest()
+
+	html = '<img src="https://www.gravatar.com/avatar/' + email_hash + '" alt="' + name + '" width="' + size + '" height="' + size + '" />'
+
+	return html
+
+

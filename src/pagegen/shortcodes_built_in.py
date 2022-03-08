@@ -5,24 +5,6 @@ from PIL import Image, ImageOps
 from hashlib import md5
 
 
-def built_in_youtube(site, page, video_id, width=420, height=315):
-
-	html = '<iframe width="420" height="315" src="https://www.youtube.com/embed/' + video_id + '"></iframe>'
-
-	return appropriate_markup(page, html)
-
-
-def built_in_figure(site, page, caption, alternative_text, src_path):
-	''' Make html figure '''
-
-	html = '<figure>\n'
-	html += '<img src="' + src_path + '" alt="' + alternative_text + '">\n'
-	html += '<figcaption>' + caption + '</figcaption>\n'
-	html += '</figure>\n'
-
-	return appropriate_markup(page, html)
-
-
 def built_in_page_url(site, page, page_path):
 	''' Return url to page, taking into account if default extension '''
 
@@ -42,17 +24,6 @@ def built_in_menu(site, page):
 	''' Generate fully recursive site menu '''
 	generate_menu(site.pages, page)
 	return page.menu
-
-
-def built_in_gravatar(site, page, email, name, size):
-	''' Return gravatar img tag '''
-
-	email_hash = md5(email.encode())
-	email_hash = email_hash.hexdigest()
-
-	html = '<img src="https://www.gravatar.com/avatar/' + email_hash + '" alt="' + name + '" width="' + size + '" height="' + size + '" />'
-
-	return html
 
 
 def built_in_image(site, page, image_source, alt_attribute, target_dir=None, image_class=None, image_size=None):
@@ -137,22 +108,6 @@ def built_in_image(site, page, image_source, alt_attribute, target_dir=None, ima
 	return appropriate_markup(page, html)
 
 
-def built_in_list_authors(site, page):
-	''' List authors '''
-
-	for author in page.authors:
-		if 'name' in author.keys():
-			name = author['name']
-		else:
-			name = author['id']
-
-		html = '<li><a href="' + author['author_page'] + '">' + name + '</a></li>'
-
-	html = '<ol>' + html + '</ol>'
-
-	return appropriate_markup(page, html)
-
-
 def built_in_list_posts(site, page, posts_dir, max_posts_limit):
 	''' List posts found in posts_dir '''
 
@@ -214,3 +169,21 @@ def built_in_tags(site, page):
 			html += '<li><a href="' + site.tags[t]['url'] + '">' + t + '</a></li>'
 
 	return appropriate_markup(page, '<ol>' + html + '</ol>')
+
+
+def built_in_list_authors(site, page):
+	''' List authors '''
+
+	for author in page.authors:
+		if 'name' in author.keys():
+			name = author['name']
+		else:
+			name = author['id']
+
+		html = '<li><a href="' + author['author_page'] + '">' + name + '</a></li>'
+
+	html = '<ol>' + html + '</ol>'
+
+	return appropriate_markup(page, html)
+
+
