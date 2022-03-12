@@ -6,7 +6,7 @@ from hashlib import md5
 
 
 def built_in_page_url(site, page, page_path):
-	''' Return url to page, taking into account if default extension '''
+	"""Return url to page, taking into account if default extension."""
 
 	for p in site.page_list:
 		if p.url_path.endswith('/'):
@@ -21,13 +21,13 @@ def built_in_page_url(site, page, page_path):
 
 
 def built_in_menu(site, page):
-	''' Generate fully recursive site menu '''
+	"""Generate fully recursive site menu"""
 	generate_menu(site.pages, page)
 	return page.menu
 
 
 def built_in_image(site, page, image_source, alt_attribute, target_dir=None, image_class=None, image_size=None):
-	''' Return img tag and optionally resize image using image_class settings from site.conf or image_size(XxY) argument. Maintains aspect ration by cropping with center gravity and resize to dimensions '''
+	"""Return img tag and optionally resize image using image_class settings from site.conf or image_size(XxY) argument. Maintains aspect ration by cropping with center gravity and resize to dimensions"""
 
 	resize = False
 
@@ -109,7 +109,7 @@ def built_in_image(site, page, image_source, alt_attribute, target_dir=None, ima
 
 
 def built_in_list_posts(site, page, posts_dir, max_posts_limit):
-	''' List posts found in posts_dir '''
+	"""List posts found in posts_dir"""
 
 	html = ''
 	posts = []
@@ -148,7 +148,7 @@ def built_in_list_posts(site, page, posts_dir, max_posts_limit):
 
 
 def built_in_categories(site, page):
-	''' List page categories '''
+	"""List page categories"""
 
 	html = ''
 	if 'categories' in page.headers.keys():
@@ -159,7 +159,7 @@ def built_in_categories(site, page):
 
 
 def built_in_tags(site, page):
-	''' List page tags '''
+	"""List page tags"""
 
 	html = ''
 	if 'tags' in page.headers.keys():
@@ -170,7 +170,7 @@ def built_in_tags(site, page):
 
 
 def built_in_list_authors(site, page):
-	''' List authors '''
+	"""List authors"""
 
 	for author in page.authors:
 		if 'name' in author.keys():
