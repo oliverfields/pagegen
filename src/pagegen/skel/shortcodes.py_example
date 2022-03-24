@@ -1,4 +1,5 @@
 from pagegen.utility import appropriate_markup
+from urllib.parse import urlparse
 
 
 def youtube(site, page, video_id, width=420, height=315):
@@ -63,3 +64,37 @@ def series_navigation(site, page):
 	return appropriate_markup(page, html)
 
 
+def social_links(site, page, **links):
+	'''List social links, try to guess font awesome icon to use with each link.
+		Example:
+			<sc>social_links(Facebook='https://www.facebook.com/oliverjfields', Github='https://github.com/olvfie')</sc>
+
+		Requires font-awesome link in html, e.g. 
+    		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/brands.min.css" integrity="sha512-OivR4OdSsE1onDm/i3J3Hpsm5GmOVvr9r49K3jJ0dnsxVzZgaOJ5MfxEAxCyGrzWozL9uJGKz6un3A7L+redIQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	'''
+
+	html = '<ul>'
+
+	domain_icon_map = {
+		'facebook.com': 'fa-facebook-f',
+		'twitter.com': 'fa-twitter',
+		#'linkedin.com': 'fa-linkedin-in',
+		'github.com': 'fa-github',
+		'instagram.com': 'fa-instagram',
+	}
+
+	for name, link in links.items():
+		try:
+			pl = urlparse(link)
+			domain = pl.hostname.lower()
+			domain = domain.replace('www.', '')
+			if domain in domain_icon_map.keys():
+				icon = '<i class="fa-brands ' + domain_icon_map[domain] + '"></i> '
+			else:
+				icon = ''
+		except:
+			icon = ''
+
+		html += '<li><a href="' + link + '">' + icon + name + '</a></li>' 
+
+	return appropriate_markup(page, html + '</ul>')

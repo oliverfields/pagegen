@@ -187,6 +187,7 @@ margin: .6em 1em;
 padding: .6em 1em;
 background-color: #EEE;
 font-family: 'Courier New', monospace;
+border-radius: 3px;
 }
 blockquote {
 line-height: 1.4em;
@@ -282,9 +283,11 @@ tt, tt span.pre, code {
 background-color: #eee;
 padding: .2em;
 font-family: monospace;
-font-size: 1em;
-color: #222;
+font-size: .9em;
+color: #3E4349;
+border-radius: 1px;
 }
 .admonition tt, .admonition span.pre, .admonition code {
-	background-color: #ddd; 
+background-color: #ddd;
+border-radius: 1px;
 }
