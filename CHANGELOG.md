@@ -1,4 +1,13 @@
-# Changelog
+# v3.7.1
+
+## Fixed
+
+- Custom headers where being converted in hook/script environments, now they are just strings
+- Shortcodes __repr__ now uses inspect.signature, supports auto documenting shortcodes with \*args and \*\*kwargs
+
+
+
+# OLD STYLE LOG:
 
 
 ## v3.7.0 - 2022-03-24

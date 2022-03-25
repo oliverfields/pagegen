@@ -575,8 +575,8 @@ class site:
 				env_name = 'PAGEGEN_PAGE_HEADER_' + header_name.upper().replace(' ', '_')
 				p.environment[env_name] = header_value
 
+			# Custom headers are always string values
 			for custom_header_name, custom_header_value in p.custom_headers.items():
-				custom_header_value = str(header_value)
 				env_name = 'PAGEGEN_PAGE_CUSTOM_HEADER_' + custom_header_name.upper().replace(' ', '_')
 				p.environment[env_name] = custom_header_value
 

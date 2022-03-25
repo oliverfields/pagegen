@@ -4,7 +4,7 @@ import importlib.util
 from inspect import getmembers, isfunction
 import pagegen.shortcodes_built_in
 import re
-from inspect import getargspec
+from inspect import getargspec, signature
 
 
 class shortcodes:
@@ -53,22 +53,13 @@ class shortcodes:
 				self.shortcodes[custom_name] = custom_function
 
 
-	def get_required_args(self, func):
-		''' Get functions arguments '''
-		args, varargs, varkw, defaults = getargspec(func)
-		if defaults:
-			args = args[:-len(defaults)]
-		return args
-
-
 	def __repr__(self):
 
 		shortcodes = ''
 
 		for n, f in sorted(self.shortcodes.items()):
-			args = self.get_required_args(f)
-			args = ', '.join(args)
-			shortcodes += n + '(' + args + ')\n'
+			s = signature(f)
+			shortcodes += n + str(s) + '\n'
 
 		return shortcodes.rstrip('\n')
 
@@ -87,7 +78,7 @@ class shortcodes:
 			shortcode_name = sc_tmp[0]
 
 			# Shortcodes may be just "name" or "name()" or "name(arguments)", need get arguments for shortcode function..
-			if len(sc_tmp) == 1: # only "name", always add site as argument
+			if sc_tmp[1] == ')': # only "name", always add site as argument
 				shortcode_arguments = '(self.site, self.page)'
 			else:
 				shortcode_arguments = '(self.site, self.page, ' + sc_tmp[1] # Need to add back the ( split char
