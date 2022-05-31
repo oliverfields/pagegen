@@ -153,9 +153,9 @@ class page(virtualpage):
 		''' Try to set header value, return false if fail '''
 
 		if ':' in line:
-			potential_header=line.split(':')
+			potential_header = line.partition(':')
 			potential_name=potential_header[0].lower().strip()
-			potential_value=potential_header[1]
+			potential_value=potential_header[2]
 
 			if potential_name == 'categories':
 				categories = potential_value.split(',')
@@ -183,9 +183,9 @@ class page(virtualpage):
 
 	def is_header(self, line):
 		if ':' in line:
-			potential_header=line.split(':')
+			potential_header=line.partition(':')
 			potential_name=potential_header[0].lower().strip()
-			potential_value=potential_header[1]
+			potential_value=potential_header[2]
 
 			if isinstance(potential_name, str) and isinstance(potential_value, str):
 				return True
