@@ -1,3 +1,9 @@
+# v3.8.1
+
+## Fixed
+
+- pagegen command line argument --production <version> now works, fixes https://github.com/oliverfields/pagegen/issues/14
+
 # v3.8.0
 
 ## Removed

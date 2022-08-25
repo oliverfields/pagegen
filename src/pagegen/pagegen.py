@@ -150,7 +150,7 @@ def main():
 	environment=None
 
 	try:
-		opts, args=getopt(argv[1:],"ig:vs:h", ["init", "generate", "version", "serve=", "help"])
+		opts, args=getopt(argv[1:],"ig:vs:h", ["init", "generate=", "version", "serve=", "help"])
 	except GetoptError as e:
 		usage(exit_after=False)
 		report_error(1, "Invalid arguments: %s" % e)
