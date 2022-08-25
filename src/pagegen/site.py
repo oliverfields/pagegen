@@ -1,4 +1,4 @@
-from pagegen.utility import ASSETDIR, CATEGORIESTEMPLATE, CATEGORYTEMPLATE, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, urlify, write_file, generate_menu, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF, rst_to_html, markdown_to_html
+from pagegen.utility import ASSETDIR, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, urlify, write_file, generate_menu, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF, rst_to_html, markdown_to_html
 import sass
 from configparser import ConfigParser, NoOptionError
 from os.path import isdir, join, isfile, exists, islink
@@ -35,7 +35,6 @@ class site:
 		self.rss_sequence = []
 		self.rss = ''
 		self.tags = {}
-		self.categories = {}
 		self.search_index = searchindex(join(site_dir, STOPWORDSFILE))
 		self.search_xpaths = []
 		self.environment = environment
@@ -89,8 +88,6 @@ class site:
 			'directories': DIRECTORIESTEMPLATE,
 			'tags': TAGSTEMPLATE,
 			'tag': TAGTEMPLATE,
-			'categories': CATEGORIESTEMPLATE,
-			'category': CATEGORYTEMPLATE,
 			'authors': AUTHORSTEMPLATE,
 			'author': AUTHORTEMPLATE
 		}
@@ -115,16 +112,6 @@ class site:
 			self.tag_title = config.get(self.environment,'tag_title')
 		except:
 			self.tag_title = 'Tags'
-
-		try:
-			self.category_dir = config.get(self.environment,'category_url')
-		except:
-			self.category_dir = 'category'
-
-		try:
-			self.category_title = config.get(self.environment,'category_title')
-		except:
-			self.category_title = 'Categories'
 
 		try:
 			self.authors_title = config.get(self.environment,'authors_title')
@@ -310,9 +297,7 @@ class site:
 		self.set_list_items(self.base_url, self.pages)
 
 		if self.tags:
-			self.load_list_pages('tag', home_page)
-		if self.categories:
-			self.load_list_pages('category', home_page)
+			self.load_list_pages(home_page)
 
 		if self.authors:
 			self.load_author_pages(home_page)
@@ -398,26 +383,18 @@ class site:
 		self.pages.append(o)
 
 
-	def load_list_pages(self, list_type, parent_page):
-		''' For each tag, create page objects and replace their content with list of tagged pages. and index page, which is list of tags. Type can be tag or category '''
+	def load_list_pages(self, parent_page):
+		''' For each tag, create page objects and replace their content with list of tagged pages. and index page, which is list of tags '''
 
 		# Create top level overview page (o)
 		o = virtualpage()
 
-		if list_type == 'tag':
-			title = self.tag_title
-			d = self.tag_dir
-			item_list = self.tags
+		title = self.tag_title
+		d = self.tag_dir
+		item_list = self.tags
 
-			if self.default_templates['tags']:
-				o.headers['template'] = self.default_templates['tags']
-		else:
-			title = self.category_title
-			d = self.category_dir
-			item_list = self.categories
-
-			if self.default_templates['categories']:
-				o.headers['template'] = self.default_templates['categories']
+		if self.default_templates['tags']:
+			o.headers['template'] = self.default_templates['tags']
 
 		o.headers['sitemap exclude'] = True
 		o.headers['menu exclude'] = True
@@ -429,7 +406,7 @@ class site:
 		o.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
 		self.page_list.append(o)
 
-		# Create each list page (l) for tags and categories
+		# Create each list page (l) for tags
 		for name, items  in item_list.items():
 			l = virtualpage()
 			l.headers['sitemap exclude'] = True
@@ -442,14 +419,9 @@ class site:
 			l.parent = o
 			self.page_list.append(l)
 
-			if list_type == 'tag':
-				if self.default_templates['tag']:
-					l.headers['template'] = self.default_templates['tag']
-				l.tag_pages = items['pages']
-			else:
-				if self.default_templates['category']:
-					l.headers['template'] = self.default_templates['category']
-				l.category_pages = items['pages']
+			if self.default_templates['tag']:
+				l.headers['template'] = self.default_templates['tag']
+			l.tag_pages = items['pages']
 
 			for page in items['pages']:
 				l.content += '* %s `%s <%s>`_ %s' % (page.headers['publish'], page.menu_title, page.url_path, NEWLINE)
@@ -464,7 +436,7 @@ class site:
 
 
 	def set_list_items(self, url_prefix, pages):
-		''' Get all tags and categories that are defined in page headers '''
+		''' Get all tags that are defined in page headers '''
 
 		for p in pages:
 
@@ -480,19 +452,6 @@ class site:
 						}
 
 					self.tags[t]['pages'].append(p)
-
-			# Categories
-			if 'categories' in p.headers.keys():
-				for c in p.headers['categories']:
-					# If not existing, create new list
-					if not c in self.categories.keys():
-						self.categories[c] = {
-							'name': c,
-							'url': url_prefix + '/' + self.category_dir + '/' + urlify(c) + self.default_extension,
-							'pages': []
-						}
-
-					self.categories[c]['pages'].append(p)
 
 			if p.children or p.url_path == '/':
 				self.set_list_items(url_prefix, p.children)

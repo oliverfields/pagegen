@@ -157,13 +157,7 @@ class page(virtualpage):
 			potential_name=potential_header[0].lower().strip()
 			potential_value=potential_header[2]
 
-			if potential_name == 'categories':
-				categories = potential_value.split(',')
-				for c in categories:
-					self.headers['categories'].append(c.strip())
-				return self.headers['categories']
-
-			elif potential_name == 'tags':
+			if potential_name == 'tags':
 				tags=potential_value.split(',')
 				for t in tags:
 					self.headers['tags'].append(t.strip())

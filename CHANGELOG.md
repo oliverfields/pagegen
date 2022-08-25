@@ -1,3 +1,13 @@
+# v3.8.0
+
+## Removed
+
+- Page Category functionality, it was basically same as tags, so removed duplicate code
+
+## Fixed
+
+- Incompatibility with markdown version after 3.3.6, so locked pip package to last known working version
+
 # v3.7.1
 
 ## Fixed

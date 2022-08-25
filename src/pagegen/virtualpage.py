@@ -48,7 +48,6 @@ class virtualpage:
 			'publish': date.today().strftime(DATEFORMAT),
 			'rss include': False,
 			'tags': [],
-			'categories': [],
 			'search index exclude': False,
 			'preserve file name': False,
 			'sitemap lastmod': None,
