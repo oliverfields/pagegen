@@ -44,6 +44,7 @@ class site:
 		self.page_list = []
 		self.image_classes = {}
 		self.authors = None
+		self.strip_extensions = None
 
 		if isdir(site_dir):
 			self.site_dir = site_dir
@@ -122,6 +123,12 @@ class site:
 			self.authors_dir = config.get(self.environment,'author_dir')
 		except:
 			self.authors_dir = 'author'
+
+		try:
+			strip_extensions = config.get(self.environment,'strip_extensions')
+			self.strip_extensions = strip_extensions.split(',')
+		except:
+			self.strip_extensions = None
 
 		if isfile(self.authors_conf):
 			try:
@@ -348,7 +355,7 @@ class site:
 		o.menu_title = self.authors_title
 
 		v_path = self.site_dir + '/' + CONTENTDIR + '/' + self.authors_dir + '/' + DIRDEFAULTFILE + self.default_extension
-		o.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
+		o.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url, self.strip_extensions)
 		self.page_list.append(o)
 
 		# Create page (l) for each author
@@ -363,7 +370,7 @@ class site:
 				l.title = a_settings['name']
 				l.menu_title = l.title
 				v_path = self.site_dir + '/' + CONTENTDIR + '/' + self.authors_dir + '/' + a + self.default_extension
-				l.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
+				l.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url, self.strip_extensions)
 				l.parent = o
 
 				self.page_list.append(l)
@@ -403,7 +410,7 @@ class site:
 		o.title = title
 		o.menu_title = title
 		v_path = self.site_dir + '/' + CONTENTDIR + '/' + d + '/' + DIRDEFAULTFILE + self.default_extension
-		o.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
+		o.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url, self.strip_extensions)
 		self.page_list.append(o)
 
 		# Create each list page (l) for tags
@@ -415,7 +422,7 @@ class site:
 			l.title = name.capitalize()
 			l.menu_title = name.capitalize()
 			v_path = self.site_dir + '/' + CONTENTDIR + '/' + d + '/' + name + self.default_extension
-			l.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
+			l.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url, self.strip_extensions)
 			l.parent = o
 			self.page_list.append(l)
 
@@ -505,6 +512,7 @@ class site:
 			absolute_urls=self.absolute_urls,
 			default_markup=self.default_markup,
 			authors=self.authors,
+			strip_extensions = self.strip_extensions
 		)
 
 		return p
@@ -689,7 +697,7 @@ class site:
 					p.parent = parent
 					p.title = p.set_title_from_path(v_path)
 					p.menu_title = p.title
-					p.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url)
+					p.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url, self.strip_extensions)
 
 					if self.default_templates['directories']:
 						p.headers['template'] = self.default_templates['directories']
@@ -717,6 +725,7 @@ class site:
 					absolute_urls=self.absolute_urls,
 					default_markup=self.default_markup,
 					authors=self.authors,
+					strip_extensions = self.strip_extensions
 				)
 
 				if self.publish_page(p):

@@ -1,8 +1,13 @@
-# v3.8.1
+# v3.?.?
+
+## Added
+
+- strip_extensions site.conf setting removes defined file extensions in generated output. Extensions may be comma separated
 
 ## Fixed
 
 - pagegen command line argument --production <version> now works, fixes https://github.com/oliverfields/pagegen/issues/14
+
 
 # v3.8.0
 

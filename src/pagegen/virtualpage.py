@@ -135,10 +135,27 @@ class virtualpage:
 		return title
 
 
-	def set_paths(self, source_path, site_path, absolute_urls, environment_dir_name, base_url):
+	def strip_extensions(self, path, extensions_list):
+		'''
+		Replace file extensions given in list
+		'''
+
+		for ext in extensions_list:
+			if path.endswith(ext):
+				return path[:-len(ext)]
+
+		return path
+
+
+
+	def set_paths(self, source_path, site_path, absolute_urls, environment_dir_name, base_url, strip_extensions):
 		''' Create url'ed and target version of path '''
+
 		# Remove non site path
 		path_part = source_path.replace(site_path + '/' + CONTENTDIR, '')
+
+		if strip_extensions:
+			path_part = self.strip_extensions(path_part, strip_extensions)
 
 		self.target_dir = site_path + '/' + environment_dir_name
 

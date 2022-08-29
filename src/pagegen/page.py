@@ -13,7 +13,7 @@ class page(virtualpage):
 	def __init__(self):
 		virtualpage.__init__(self)
 
-	def load(self, path, site_dir, parent=False, base_url='', url_include_index=True, default_extension='', environment='', absolute_urls=False, default_markup='rst', authors=None):
+	def load(self, path, site_dir, parent=False, base_url='', url_include_index=True, default_extension='', environment='', absolute_urls=False, default_markup='rst', authors=None, strip_extensions=None):
 
 		self.source_path=path
 		self.site_dir=site_dir
@@ -45,7 +45,7 @@ class page(virtualpage):
 		else:
 			content = load_file(self.source_path)
 
-		self.load_page_content(self.source_path, content, self.site_dir, self.default_extension, absolute_urls, authors)
+		self.load_page_content(self.source_path, content, self.site_dir, self.default_extension, absolute_urls, authors, strip_extensions)
 
 
 	def new_toc_id(self, title):
@@ -190,7 +190,7 @@ class page(virtualpage):
 			return False
 
 
-	def load_page_content(self, path, content, site_dir, default_extension, absolute_urls, authors):
+	def load_page_content(self, path, content, site_dir, default_extension, absolute_urls, authors, strip_extensions):
 		'''
 		Parse source and save headers and content attributes
 		Format:
@@ -262,11 +262,11 @@ class page(virtualpage):
 
 		if file_extension:
 			self.extension=file_extension
-			self.set_paths(path, site_dir, absolute_urls, self.environment, self.base_url)
+			self.set_paths(path, site_dir, absolute_urls, self.environment, self.base_url, strip_extensions)
 		else:
 			if self.headers['preserve file name'] == False:
 				self.extension=default_extension
-			self.set_paths(path+self.extension, site_dir, absolute_urls, self.environment, self.base_url)
+			self.set_paths(path+self.extension, site_dir, absolute_urls, self.environment, self.base_url, self.strip_extensions)
 
 
 	def load_page_authors(self, author_list, authors):
