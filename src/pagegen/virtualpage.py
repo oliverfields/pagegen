@@ -175,11 +175,15 @@ class virtualpage:
 		else:
 			self.url_path = path_part
 
-		self.absolute_url = base_url + path_part
-
 		# If not show index in url, strip it
 		if self.url_include_index != True:
-			self.url_path = sub('%s%s$' % (DIRDEFAULTFILE, self.extension), '', self.url_path)
+			if len(self.extension) > 0 and self.url_path.endswith(self.extension):
+				self.url_path = self.url_path[:-len(self.extension)]
+			if len(DIRDEFAULTFILE) > 0 and self.url_path.endswith(DIRDEFAULTFILE):
+				self.url_path = self.url_path[:-len(DIRDEFAULTFILE)]
+
+		self.absolute_url = base_url + self.url_path
+
 
 		self.target_path="%s%s%s%s%s%s" % (site_path, '/', TARGETDIR, '/', environment_dir_name, path_part)
 
