@@ -3,6 +3,7 @@
 ## Added
 
 - strip_extensions site.conf setting removes defined file extensions in generated output. Extensions may be comma separated
+- Better error message when two or more Tags are used with differing capitalization
 
 ## Fixed
 

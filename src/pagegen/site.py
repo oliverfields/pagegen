@@ -398,7 +398,6 @@ class site:
 
 		title = self.tag_title
 		d = self.tag_dir
-		item_list = self.tags
 
 		if self.default_templates['tags']:
 			o.headers['template'] = self.default_templates['tags']
@@ -414,14 +413,14 @@ class site:
 		self.page_list.append(o)
 
 		# Create each list page (l) for tags
-		for name, items  in item_list.items():
+		for tag_name, items  in self.tags.items():
 			l = virtualpage()
 			l.headers['sitemap exclude'] = True
 			l.headers['menu exclude'] = True
 			l.headers['link chain exclude'] = True
-			l.title = name.capitalize()
-			l.menu_title = name.capitalize()
-			v_path = self.site_dir + '/' + CONTENTDIR + '/' + d + '/' + name + self.default_extension
+			l.title = tag_name
+			l.menu_title = tag_name
+			v_path = self.site_dir + '/' + CONTENTDIR + '/' + d + '/' + tag_name + self.default_extension
 			l.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url, self.strip_extensions)
 			l.parent = o
 			self.page_list.append(l)
@@ -639,7 +638,10 @@ class site:
 					report_warning("Description too long '%s' (%s), maximum lenght %s characters: '%s'" % (p.headers['description'], len(p.headers['description']), self.description_warn_max, relative_path(p.source_path)))
 
 			if p.target_path in page_target_paths:
-				report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (relative_path(p.target_path), relative_path(p.source_path), relative_path(page_target_paths[p.target_path])))
+				if page_target_paths[p.target_path] == '':
+					report_error(1,"Target path '%s' for page '%s' is already used by another virtual page, perhaps tags are used with different capitalization" % (relative_path(p.target_path), p))
+				else:
+					report_error(1,"Target path '%s' for page '%s' is already set for '%s'" % (relative_path(p.target_path), p, relative_path(page_target_paths[p.target_path])))
 			# TODO Better checking than ends with
 			elif ((p.target_path.endswith(SITEMAPFILE) or p.target_path.endswith(SITEMAPTXTFILE)) and self.exclude_sitemap == False) or p.target_path==join(self.site_dir, ASSETDIR):
 				report_error(1,"Page '%s' illegal name, cannot be either '%s' or '%s'" % (relative_path(p.source_path), SITEMAPFILE, SITEMAPTXTFILE))
@@ -649,7 +651,7 @@ class site:
 				report_error(1,"Page '%s' illegal name '%s'" % (relative_path(p.source_path), SEARCHINDEXFILE))
 
 			else:
-				page_target_paths[p.target_path]=p.source_path
+				page_target_paths[p.target_path] = p.source_path
 
 			if p.url_path in page_urls:
 				report_error(1,"URL '%s' for page '%s' already set for '%s'" % (p.url_path, p.source_path, page_urls[p.url_path]))
