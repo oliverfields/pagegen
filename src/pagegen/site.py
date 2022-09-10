@@ -301,10 +301,10 @@ class site:
 		except Exception as e:
 			raise Exception('Unable to load content: %s' % e)
 
-		self.set_list_items(self.base_url, self.pages)
+		self.set_tag_items(self.base_url, self.pages)
 
 		if self.tags:
-			self.load_list_pages(home_page)
+			self.load_tag_pages(home_page)
 
 		if self.authors:
 			self.load_author_pages(home_page)
@@ -390,7 +390,7 @@ class site:
 		self.pages.append(o)
 
 
-	def load_list_pages(self, parent_page):
+	def load_tag_pages(self, parent_page):
 		''' For each tag, create page objects and replace their content with list of tagged pages. and index page, which is list of tags '''
 
 		# Create top level overview page (o)
@@ -412,8 +412,9 @@ class site:
 		o.set_paths(v_path, self.site_dir, self.absolute_urls, self.environment, self.base_url, self.strip_extensions)
 		self.page_list.append(o)
 
+
 		# Create each list page (l) for tags
-		for tag_name, items  in self.tags.items():
+		for tag_name, tags  in self.tags.items():
 			l = virtualpage()
 			l.headers['sitemap exclude'] = True
 			l.headers['menu exclude'] = True
@@ -427,9 +428,11 @@ class site:
 
 			if self.default_templates['tag']:
 				l.headers['template'] = self.default_templates['tag']
-			l.tag_pages = items['pages']
+			l.tag_pages = tags['pages']
 
-			for page in items['pages']:
+			l.headers['tag page count'] = len(tags['pages'])
+
+			for page in tags['pages']:
 				l.content += '* %s `%s <%s>`_ %s' % (page.headers['publish'], page.menu_title, page.url_path, NEWLINE)
 
 			o.children.append(l)
@@ -441,7 +444,7 @@ class site:
 		self.pages.append(o)
 
 
-	def set_list_items(self, url_prefix, pages):
+	def set_tag_items(self, url_prefix, pages):
 		''' Get all tags that are defined in page headers '''
 
 		for p in pages:
@@ -454,13 +457,15 @@ class site:
 						self.tags[t] = {
 							'name': t,
 							'url': url_prefix + '/' + self.tag_dir + '/' + urlify(t) + self.default_extension,
-							'pages': []
+							'pages': [],
+							'page_count': 0
 						}
 
 					self.tags[t]['pages'].append(p)
+					self.tags[t]['page_count'] += 1
 
 			if p.children or p.url_path == '/':
-				self.set_list_items(url_prefix, p.children)
+				self.set_tag_items(url_prefix, p.children)
 
 
 	def set_next_previous_links(self):
