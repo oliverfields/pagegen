@@ -9,6 +9,7 @@
 ## Fixed
 
 - pagegen command line argument --production <version> now works, fixes https://github.com/oliverfields/pagegen/issues/14
+- If using strip extensions and filenames had no extensions, would fail
 
 
 # v3.8.0
