@@ -261,11 +261,12 @@ class page(virtualpage):
 			self.load_page_authors(self.headers['authors'], authors)
 
 		if file_extension:
-			self.extension=file_extension
+			self.extension = file_extension
 			self.set_paths(path, site_dir, absolute_urls, self.environment, self.base_url, strip_extensions)
 		else:
 			if self.headers['preserve file name'] == False:
-				self.extension=default_extension
+				self.extension = default_extension
+
 			self.set_paths(path+self.extension, site_dir, absolute_urls, self.environment, self.base_url, strip_extensions)
 
 

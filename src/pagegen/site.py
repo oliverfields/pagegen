@@ -130,6 +130,11 @@ class site:
 		except:
 			self.strip_extensions = None
 
+		try:
+			self.index_backlinks = self.ensure_bool('index_backlinks', config.get(self.environment, 'index_backlinks'))
+		except:
+			self.index_backlinks = False
+
 		if isfile(self.authors_conf):
 			try:
 				authors_config = load_config(self.authors_conf, add_dummy_sections=False)
@@ -522,7 +527,7 @@ class site:
 		return p
 
 
-	def generate_pages(self, pages):
+	def generate_pages_html(self, pages):
 		''' Recursively iterate over and generate html for pages '''
 
 		for p in pages:
@@ -565,15 +570,6 @@ class site:
 					except Exception as e:
 						report_error(1, 'Failed to run shortcodes: ' + p.source_path + ': ' + str(e))
 
-				# Setup context for Mako template
-				context = {
-					'page': p,
-					'site': self,
-					'year': date.today().strftime('%Y'),
-					'month': date.today().strftime('%m'),
-					'day': date.today().strftime('%d'),
-				}
-
 				# If defined use markdown, else use rst
 				if p.markup == 'md':
 					try:
@@ -597,8 +593,6 @@ class site:
 					p.add_toc()
 
 				self.generate_crumb_trail(p, p)
-
-				p.html = render_template(self.theme_template_dir, p.headers['template'], context)
 			else:
 				if p.headers['disable shortcodes'] == False:
 					# Run any shortcodes in HTML content
@@ -609,14 +603,36 @@ class site:
 
 				p.html = p.content 
 
-
 			# If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated
 			if self.serve_mode:
 				js = '<script>' + self.serve_mode_js_script + '</script>'
 				p.html = p.html.replace('</body>', js + '</body>')
 
 			if p.children:
-				self.generate_pages(p.children)
+				self.generate_pages_html(p.children)
+
+
+	def apply_templates(self, pages):
+		'''
+		Recursively iterate over pages and apply Mako templates
+		'''
+
+		for p in pages:
+			if p.headers['generate html'] == True:
+
+				# Setup context for Mako template
+				context = {
+					'page': p,
+					'site': self,
+					'year': date.today().strftime('%Y'),
+					'month': date.today().strftime('%m'),
+					'day': date.today().strftime('%d'),
+				}
+
+				p.html = render_template(self.theme_template_dir, p.headers['template'], context)
+
+			if p.children:
+				self.apply_templates(p.children)
 
 
 	def check_pages(self, pages):
@@ -721,7 +737,7 @@ class site:
 			elif is_default_file(f):
 				pass
 			elif isfile(f_path):
-				p=page()
+				p = page()
 				p.load(
 					f_path,
 					self.site_dir,
@@ -1035,6 +1051,45 @@ class site:
 		r += "\n}"
 
 		return r
+
+
+	def build_backlinks_index(self):
+		'''
+		Creates site.backlinks wich is a reverse lookup dict to find any URL's
+		that link to a given URL
+		Only links on the site are indexed, not external links
+		'''
+
+		if self.index_backlinks:
+			self.backlinks = {}
+			tag_url = '/' + self.tag_dir + '/'
+
+			for p in self.page_list:
+				# Skip links from tags
+				if p.url_path.startswith(tag_url):
+					continue
+
+				p.get_links()
+				
+				if len(p.links) > 0:
+					for l in p.links:
+						# Strip base url if set
+						if l['url'].startswith(self.base_url):
+							l['url'].lstrip(self.base_url)
+	
+						# Only index local links, that are not tags
+						if not '://' in l['url']:
+							backlink = {
+								'page_title': p.title,
+								'context': l['title'], # Source context
+								'url': p.url_path # Source url
+							}
+	
+							try:
+								self.backlinks[l['url']].append(backlink)
+							except:
+								self.backlinks[l['url']] = []
+								self.backlinks[l['url']].append(backlink)
 
 
 	def set_excerpts(self):

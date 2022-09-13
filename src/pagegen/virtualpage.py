@@ -1,4 +1,5 @@
 from pagegen.utility import DEFAULTPAGETEMPLATE, DATEFORMAT, DIRDEFAULTFILE, CONTENTDIR, urlify, TARGETDIR
+from bs4 import BeautifulSoup
 from datetime import date
 from os.path import splitext
 from re import sub
@@ -104,6 +105,20 @@ class virtualpage:
 		maybe_excerpt = self.content.split('<!-- more -->', 1)
 		if len(maybe_excerpt) == 2:
 			self.excerpt = maybe_excerpt[0]
+
+
+	def get_links(self):
+		'''
+		Extracts list of URLs from html
+		'''
+
+		self.links = []
+
+		for a in BeautifulSoup(self.html, features='lxml').find_all('a', href=True):
+			self.links.append({
+				'url': a['href'],
+				'title': a.contents[0]
+			})
 
 
 	def generate_crumb_trail(self):

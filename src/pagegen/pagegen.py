@@ -62,7 +62,9 @@ def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=Non
 		s.prepare()
 		chdir(s.site_dir)
 		s.set_excerpts()
-		s.generate_pages(s.pages)
+		s.generate_pages_html(s.pages)
+		s.build_backlinks_index()
+		s.apply_templates(s.pages)
 	except Exception as e:
 		report_error(1, "Unable to generate site: %s" % e)
 
