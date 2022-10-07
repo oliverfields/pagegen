@@ -148,18 +148,18 @@ def load_file(file):
 	return data
 
 
-def render_template(templates_dir, template_name, context):
+def render_template(templates_dir, page, context):
 	''' Apply Mako template to file content '''
 
 	lookup = TemplateLookup(templates_dir, strict_undefined=True)
 
 	try:
-		template = lookup.get_template(template_name)
+		template = lookup.get_template(page.headers['template'])
 		return template.render(**context)
 	except Exception as e:
 		traceback = RichTraceback()
 		for (filename, lineno, function, line) in traceback.traceback:
-			report_error(1,"Template '" + template_name + "' execution failed: " + function + ": " + str(traceback.error.__class__.__name__) + ": " + str(traceback.error))
+			report_error(1,"Template '" + page.headers['template'] + "' execution failed: " + page.source_path + ": " + function + ": " + str(traceback.error.__class__.__name__) + ": " + str(traceback.error))
 
 
 def write_file(file, content):

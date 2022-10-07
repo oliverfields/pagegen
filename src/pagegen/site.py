@@ -629,7 +629,7 @@ class site:
 					'day': date.today().strftime('%d'),
 				}
 
-				p.html = render_template(self.theme_template_dir, p.headers['template'], context)
+				p.html = render_template(self.theme_template_dir, p, context)
 
 			if p.children:
 				self.apply_templates(p.children)
@@ -1084,7 +1084,7 @@ class site:
 								'context': l['title'], # Source context
 								'url': p.url_path # Source url
 							}
-	
+
 							try:
 								self.backlinks[l['url']].append(backlink)
 							except:

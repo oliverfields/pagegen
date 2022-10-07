@@ -6,6 +6,7 @@
 - Better error message when two or more Tags are used with differing capitalization
 - Tag count available in site.tags dict
 - Option index_backlinks, if True site.backlinks becomes available in templates, use site.backlinks[page.base_url] to list all pages that link to page
+- Error message now contains file that caused template rendering to fail
 
 ## Fixed
 
