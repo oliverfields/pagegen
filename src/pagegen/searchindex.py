@@ -49,7 +49,7 @@ class searchindex:
 
 		i+='"urls":{'
 		for url, hit in urls.items():
-			i+='"%s":["%s","%s","%s"],' % (hit.id, hit.url, hit.title, hit.description)
+			i+='"%s":["%s","%s","%s"],' % (hit.id, hit.url, hit.title.replace('\\', '\\\\'), hit.description)
 		i=i.rstrip(',')
 		i+='}'
 		i+='}'
