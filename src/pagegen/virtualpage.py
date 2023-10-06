@@ -169,7 +169,7 @@ class virtualpage:
 		# Remove non site path
 		path_part = source_path.replace(site_path + '/' + CONTENTDIR, '')
 
-		if strip_extensions:
+		if self.headers['preserve file name'] == False and strip_extensions:
 			path_part = self.strip_extensions(path_part, strip_extensions)
 
 		self.target_dir = site_path + '/' + environment_dir_name

@@ -5,6 +5,7 @@
 ## Fixed
 
 - Sitemap exclude header must now be set explicitly in all pages, it is no longer inherited by the page children
+- Page header 'Strip extension' now is only applied if header 'Preserve file name' is False
 
 
 # v3.8.5
