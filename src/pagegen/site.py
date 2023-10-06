@@ -496,8 +496,9 @@ class site:
 		for p in pages:
 			if p.headers['link chain exclude'] == False:
 				self.link_sequence.append(p)
-				if p.children:
-					self.set_link_sequence(p.children)
+
+			if p.children:
+				self.set_link_sequence(p.children)
 
 
 	def get_directory_page(self, path, parent):
@@ -950,6 +951,9 @@ class site:
 				else:
 					self.sitemap += self.sitemap_url(p)
 					self.sitemaptxt += p.absolute_url + '\n'
+
+			else:
+				self.generate_sitemap_urls(p.children)
 
 
 	def generate_sitemap(self, pages):

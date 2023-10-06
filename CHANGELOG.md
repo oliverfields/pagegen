@@ -1,4 +1,13 @@
-# v3.?.?
+# vX.X.X
+
+## Added
+
+## Fixed
+
+- Sitemap exclude header must now be set explicitly in all pages, it is no longer inherited by the page children
+
+
+# v3.8.5
 
 ## Added
 
@@ -13,6 +22,7 @@
 - pagegen command line argument --production <version> now works, fixes https://github.com/oliverfields/pagegen/issues/14
 - If using strip extensions and filenames had no extensions, would fail
 - Page titles containing \ are now properly escaped in search-index
+- Page next and previous links bug where if parent was excluded, none of its children where included either
 
 
 # v3.8.0
