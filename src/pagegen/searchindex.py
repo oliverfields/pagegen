@@ -71,7 +71,7 @@ class searchindex:
 
 		for word in string.split(' '):
 
-			word=sub('[^a-z]*', '', word)
+			word=sub('[^a-z0-9]*', '', word)
 			word=word.strip()
 
 			if len(word) == 0:
