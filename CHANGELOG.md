@@ -7,7 +7,7 @@
 - Sitemap exclude header must now be set explicitly in all pages, it is no longer inherited by the page children
 - Page header 'Strip extension' now is only applied if header 'Preserve file name' is False
 - Search now indexes search terms that are alphanumeric, previously only alpabetic search terms where index
-
+- Double dashes(--) in url are replaced with a single dash (-)
 
 # v3.8.5
 
