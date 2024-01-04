@@ -1,4 +1,5 @@
-from pagegen.utility import DEFAULTPAGETEMPLATE, DATEFORMAT, DIRDEFAULTFILE, CONTENTDIR, urlify, TARGETDIR
+from pagegen.utility import DEFAULTPAGETEMPLATE, DATEFORMAT, DIRDEFAULTFILE, CONTENTDIR, TARGETDIR
+from pagegen.utility-no-deps import urlify
 from bs4 import BeautifulSoup
 from datetime import date
 from os.path import splitext
