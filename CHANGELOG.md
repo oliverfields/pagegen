@@ -8,6 +8,7 @@
 - Page header 'Strip extension' now is only applied if header 'Preserve file name' is False
 - Search now indexes search terms that are alphanumeric, previously only alpabetic search terms where index
 - Double dashes(--) in url are replaced with a single dash (-)
+- Refactored library for looser coupling
 
 # v3.8.5
 
