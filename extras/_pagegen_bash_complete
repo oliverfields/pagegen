@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# https://stackoverflow.com/questions/1146098/properly-handling-spaces-and-quotes-in-bash-completion
+_pagegen_content() {
+  compopt -o filenames
+
+  local IFS=$'\n'
+  local prefix="$pg_dir/content"
+  prefix="${prefix%/}/"
+  local cur=${COMP_WORDS[COMP_CWORD]}
+  local items=($(compgen -f $prefix$cur))
+
+  for item in "${items[@]}"; do
+
+    local item_name="${item#$prefix}"
+
+    # Remove path, so left with just directory or file name
+    name="${item_name##*/}"
+
+    # Skip hidden files
+    [ "${name:0:1}" = "." ] && continue
+
+    if [ -d "$item" ]; then
+      COMPREPLY+=("$item_name/")
+    else
+      COMPREPLY+=("$item_name")
+    fi
+  done
+
+  # Disable space to end if COMPREPLY option is a directory
+  [[ -d "$item" ]] && compopt -o nospace
+}
+
+
+_pagegen_environments() {
+  while read -r line; do
+    if [ "${line:0:1}" = "[" ]; then
+      line="${line:1}"
+      line="${line:0:-1}"
+      echo -n "$line "
+    fi
+  done < "$site_conf"
+}
+
+
+
+
+command -v pagegen &> /dev/null &&
+_pagegen_complete()
+{
+  local cur prev
+
+  # Check we are in a pagegen dir tree
+  local pg_dir="$PWD"
+  while true; do
+    local site_conf="$pg_dir/site.conf"
+
+    if ! [ -d "$pg_dir" ]; then
+      return
+    elif [ -f "$pg_dir/site.conf" ]; then
+      break
+    else
+      pg_dir="${pg_dir%/*}"
+    fi
+  done
+
+  cur=${COMP_WORDS[$COMP_CWORD]}
+  prev=${COMP_WORDS[$COMP_CWORD-1]}
+
+  if [ $COMP_CWORD -eq 1 ]; then
+    COMPREPLY=( $(compgen -W "-g --generate -s --serve -h --help -v --version -i --init" -- $cur) )
+    _pagegen_content
+  elif [ $COMP_CWORD -gt 1 ]; then
+    case $prev in
+      -g|--generate|-s|--serve)
+        COMPREPLY=( $(compgen -W "$(_pagegen_environments)" -- $cur) ) 
+      ;;
+    esac
+  fi
+
+} &&
+complete -F _pagegen_complete pagegen
+

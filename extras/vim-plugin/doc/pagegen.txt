@@ -1,0 +1,84 @@
+*pagegen.txt* pagegen for vim
+
+                    pagegen - helpers for pagegen sites
+
+==============================================================================
+
+Contents                                                     *pagegenContents*
+
+1. Usage............................|pagegenUsage|
+  1.1 Redaction.....................|pagegenRedaction|
+  1.2 Figure........................|pagegenFigure|
+  1.3 Link..........................|pagegenLink|
+  1.4 Append........................|pagegenAppend|
+  1.5 Tags..........................|pagegenTags|
+  1.6 Open..........................|pagegenOpen|
+
+
+==============================================================================
+
+1. Usage                                                        *pagegenUsage*
+
+The pagegen plugin provides an eclecting bunch of stuff for managing threads.
+
+
+------------------------------------------------------------------------------
+1.1 Redaction                                               *pagegenRedaction*
+
+Assist redacting a document.
+
+1.1.1 One word
+
+To redact the word under the cursor '<leader>r'
+
+
+1.1.2 All words matching current word
+
+To redact all occurances of the word under the cursor '<leader>ra'
+
+
+------------------------------------------------------------------------------
+1.2 Figure                                                     *pagegenFigure*
+
+Select file from media dir and add shortcode '<leader>f'
+
+
+------------------------------------------------------------------------------
+1.3 Link                                                         *pagegenLink*
+
+Select file from content dir and add Markdown link '<leader>l'
+
+
+------------------------------------------------------------------------------
+1.4 Append                                                     *pagegenAppend*
+
+Append new lines and enter insert mode '<leader>a'
+
+
+------------------------------------------------------------------------------
+1.5 Tags                                                         *pagegenTags*
+
+Select and add tags.
+
+
+1.5.1 Add tag
+
+Select tag and add '<leader>t'
+
+
+1.5.2 Refresh tags database
+
+Trawl content and make tags.txt '<leader>tr'
+
+
+------------------------------------------------------------------------------
+1.6 Open                                                         *pagegenOpen*
+
+1.6.1 Open page
+
+Open content page for editing from Markdown link, e.g. [My file](/link). Cursor must be between the paranthesis  '<leader>o'
+
+1.6.2 Refresh url to page database
+
+Make map from relative url to page path in url_map.csv '<leader>or'
+

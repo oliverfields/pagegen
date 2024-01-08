@@ -1,16 +1,18 @@
-from pagegen.utility import report_error, report_notice, get_site_conf_path, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_script, ASSETDIR, THEMEDIR, SHORTCODECUSTOM
+from pagegen.utility import report_error, report_notice, get_site_conf_path, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_script, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE
 from pagegen.site import site
-from os.path import expanduser, basename, join, isfile
-from os import getcwd, listdir, sep, chdir, X_OK, access
+from os.path import expanduser, basename, join, isfile, isdir, dirname, exists
+from os import getcwd, listdir, sep, chdir, X_OK, access, get_terminal_size, makedirs, getenv
+from glob import glob
 from sys import exit, argv
 from distutils.dir_util import copy_tree
 from getopt import getopt, GetoptError
 import pkg_resources
 from pagegen.auto_build_serve import auto_build_serve
+from subprocess import run, PIPE
 
 
 def usage(exit_after=True):
-	print('Usage: %s [-i|--init] [-g|--generate <environment>] [-s|--serve <environment>] [-v|--version] [-h|--help]' % (basename(argv[0])))
+	print('Usage: %s [-i|--init] [-g|--generate <environment>] [-s|--serve <environment>] [-v|--version] [-h|--help] <item>' % (basename(argv[0])))
 
 	if exit_after:
 		exit(0)
@@ -104,6 +106,82 @@ def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=Non
 			exec_script(hook, envs)
 
 
+def file_mode(item, site_conf_path, environment):
+	'''
+	Create and open file for editing
+	'''
+
+	site_conf_file, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
+	selected_file = False
+	content_dir = site_dir + '/' + CONTENTDIR
+
+	# If item False and fzy or fzf exist then allow user to select a file to edit
+	if item == False:
+
+		# Get files and directories
+		items = glob(content_dir + '/**', recursive=True)
+
+		paths = ''
+
+		for i in items:
+			# Skip assets
+			if '/assets/' in i or i.endswith('/assets'):
+				continue
+
+			# Skip root
+			if i == content_dir + '/':
+				continue
+
+			# Skip directories
+			if isdir(i):
+				continue
+
+			# Strip content_dir
+			paths += i[len(content_dir + '/'):] + '\n'
+
+		paths = paths.rstrip()
+
+		# Select file using fzy
+		try:
+			columns, lines = get_terminal_size()
+			lines = lines - 1
+			result = run(['fzy', '--lines=' + str(lines)], stdout=PIPE, input=paths.encode('utf-8'))
+			selected_file = result.stdout.decode('utf-8').rstrip()
+		except FileNotFoundError:
+			# Select file using fzf
+			try:
+				result = run(['fzf'], stdout=PIPE, input=paths.encode('utf-8'))
+				selected_file = result.stdout.decode('utf-8').rstrip()
+			except FileNotFoundError:
+				pass
+
+	# If item is not False then create it
+	else:
+		full_path = content_dir + '/' + item
+		if not exists(full_path):
+			# If new path is a directory, create dir and add index file
+			if full_path.endswith('/'):
+				makedirs(full_path.rstrip('/'), exist_ok=True)
+				selected_file = full_path + DIRDEFAULTFILE
+			# If path is file, create any dirs if needed
+			else:
+				if '/' in item:
+					makedirs(dirname(full_path), exist_ok=True)
+				selected_file = full_path
+		# File exists
+		else:
+			selected_file = full_path
+
+	# Open file for editing
+	if selected_file:
+		if getenv('EDITOR'):
+			editor = getenv('EDITOR')
+		else:
+			editor = 'vim'
+
+		run([editor, selected_file])
+
+
 def serve_mode(site_conf_path, environment):
 	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
 	serve_dir = site_dir + '/' + TARGETDIR + '/' + environment
@@ -159,7 +237,6 @@ def main():
 
 	mode=False
 	site_config=False
-
 	for opt, arg in opts:
 		if opt in ('-i', '--init'): 
 			mode="init"
@@ -175,12 +252,21 @@ def main():
 		elif opt in ('-h', '--help'):
 			usage(exit_after=True)
 
+	if mode == False:
+		mode='file'
+
 	if mode == 'gen':
 		gen_mode(site_config, environment)
 	elif mode == 'init':
 		init_mode()
 	elif mode == 'serve':
 		serve_mode(site_config, environment)
+	elif mode == 'file':
+		if len(argv) == 2:
+			file_arg=argv[1]
+		else:
+			file_arg=False
+		file_mode(file_arg, site_config, environment)
 	else:
 		usage(exit_after=True)
 
