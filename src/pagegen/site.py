@@ -1,6 +1,5 @@
 from pagegen.utility import ASSETDIR, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, write_file, generate_menu, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF, rst_to_html, markdown_to_html
 from pagegen.utility_no_deps import urlify
-import sass
 from configparser import ConfigParser, NoOptionError
 from os.path import isdir, join, isfile, exists, islink
 from os import listdir, sep, makedirs, remove, unlink, X_OK, access
@@ -817,8 +816,6 @@ class site:
 		else:
 			copytree(self.theme_asset_dir, target_theme_asset_dir)
 
-		self.process_sass(target_theme_asset_dir)
-
 		# Create sitemap
 		if self.exclude_sitemap == False:
 			write_file(self.target_dir + '/' + SITEMAPFILE, self.sitemap)
@@ -836,15 +833,6 @@ class site:
 
 		if self.minify_css:
 			self.minify_css_in_directory(target_assets_dir)
-
-
-	def process_sass(self, directory):
-		files = self.find_files_by_extension(directory, 'sass')
-		for sass_file_name in files:
-			css_file_name = sass_file_name.replace('.sass', '.css')
-			css = sass.compile(filename=sass_file_name, output_style='compressed')
-			write_file(css_file_name, css)
-			remove(sass_file_name)
 
 
 	def minify_javascript_in_directory(self, directory):
