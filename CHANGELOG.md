@@ -1,6 +1,26 @@
 # vX.X.X
 
+
 ## Added
+
+
+## Fixed
+
+
+## Removed
+
+
+# v3.9.2
+
+
+## Added
+
+- extras/_pagegen_bash_completion
+- If fzy or fzf installed calling pagegen command with no arguments gives list of content files to choose for editing
+- Calling pagegen with a single path will create the path if not existing and open it for editing
+- Plugin for vim, extras/vim-plugin. Copy this directory to ~/.vim/pack/plugins/start/pagegen to start using. Complete tags, open files etc, see extras/vim-plugin/doc/pagegen.txt for help
+- Major refactor of modules for looser coupling
+
 
 ## Fixed
 
@@ -8,7 +28,12 @@
 - Page header 'Strip extension' now is only applied if header 'Preserve file name' is False
 - Search now indexes search terms that are alphanumeric, previously only alpabetic search terms where index
 - Double dashes(--) in url are replaced with a single dash (-)
-- Refactored library for looser coupling
+
+
+# Removed
+
+- SASS support has been removed, CSS ftw
+
 
 # v3.8.5
 

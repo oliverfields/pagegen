@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 
 setup(name = 'pagegen',
-	version='3.9.1',
+	version='3.9.2',
 	description='Static site generator',
 	author='Oliver Fields',
 	author_email='pagegen@phnd.net',
