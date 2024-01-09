@@ -255,20 +255,17 @@ def main():
 			usage(exit_after=True)
 
 	if mode == False:
-		mode='file'
-
-	if mode == 'gen':
-		gen_mode(site_config, environment)
-	elif mode == 'init':
-		init_mode()
-	elif mode == 'serve':
-		serve_mode(site_config, environment)
-	elif mode == 'file':
 		if len(argv) == 2:
 			file_arg=argv[1]
 		else:
 			file_arg=False
 		file_mode(file_arg, site_config, environment)
+	elif mode == 'gen':
+		gen_mode(site_config, environment)
+	elif mode == 'init':
+		init_mode()
+	elif mode == 'serve':
+		serve_mode(site_config, environment)
 	else:
 		usage(exit_after=True)
 
