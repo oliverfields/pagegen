@@ -1,10 +1,9 @@
 from getopt import getopt, GetoptError
-import pkg_resources
 from os import getcwd, listdir, chdir, X_OK, access, get_terminal_size, makedirs, getenv
 from pagegen.constants import SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE
 from sys import exit, argv
 from pagegen.utility_no_deps import report_error, report_notice, get_site_conf_path, exec_script
-from os.path import expanduser, basename, join, isfile, isdir, dirname, exists
+from os.path import expanduser, basename, join, isfile, isdir, dirname, exists, abspath
 from subprocess import run, PIPE
 from glob import glob
 
@@ -218,7 +217,7 @@ def init_mode():
 
 	from distutils.dir_util import copy_tree
 
-	skel_dir = pkg_resources.resource_filename('pagegen', 'skel/')
+	skel_dir = dirname(abspath(__file__)) + '/skel'
 	root_dir=getcwd()
 
 	if listdir(root_dir):
@@ -256,6 +255,7 @@ def main():
 			environment=arg.lstrip('=')
 			mode='gen'
 		elif opt in ('-v', '--version'):
+			import pkg_resources
 			print("pagegen %s" % pkg_resources.get_distribution("pagegen").version)
 			exit(0)
 		elif opt in ('-s', '--serve'):
