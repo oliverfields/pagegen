@@ -1,5 +1,4 @@
 from re import sub
-from lxml import etree
 from pagegen.utility import relative_path, report_error, load_file, report_warning, STOPWORDSFILE, NEWLINE
 
 class searchindex:
@@ -115,6 +114,8 @@ class searchindex:
 
 	def index_file(self, file, url, title, description):
 		''' Search in file for relevant xpaths for containing tags that may contain indexable content '''
+
+		from lxml import etree
 
 		try:
 			data=load_file(file)

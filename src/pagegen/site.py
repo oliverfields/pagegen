@@ -11,10 +11,7 @@ from datetime import date
 from datetime import datetime
 from operator import itemgetter
 from pagegen.searchindex import searchindex
-from htmlmin import minify
 from glob import glob
-from rcssmin import cssmin
-from jsmin import jsmin
 import pkg_resources
 from pagegen.shortcodes import shortcodes
 
@@ -836,6 +833,7 @@ class site:
 
 
 	def minify_javascript_in_directory(self, directory):
+		from jsmin import jsmin
 		files = self.find_files_by_extension(directory, 'js')
 		for file_name in files:
 			with open(file_name, 'r+') as f:
@@ -846,6 +844,7 @@ class site:
 
 
 	def minify_css_in_directory(self, directory):
+		from rcssmin import cssmin
 		files = self.find_files_by_extension(directory, 'css')
 		for file_name in files:
 			with open(file_name, 'r+') as f:
@@ -867,6 +866,7 @@ class site:
 		for p in pages:
 
 			if self.minify_html and p.headers['exclude html minify'] == False:
+				from htmlmin import minify
 				p.html = minify(p.html)
 
 			if p.parent and is_default_file(p.target_path):

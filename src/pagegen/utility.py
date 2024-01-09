@@ -6,15 +6,8 @@ from io import StringIO
 from re import match, sub, finditer
 from subprocess import check_call, check_output
 import codecs
-from mako.template import Template
-from mako.lookup import TemplateLookup
-from mako.exceptions import RichTraceback
-from mako.runtime import Context
-import markdown
-import pagegen.markdown_inline_graphviz
-import docutils_graphviz
-from docutils.parsers.rst import directives
-from docutils.core import publish_parts
+#from mako.template import Template
+#from mako.runtime import Context
 
 
 # Constants
@@ -146,6 +139,9 @@ def load_file(file):
 def render_template(templates_dir, page, context):
 	''' Apply Mako template to file content '''
 
+	from mako.lookup import TemplateLookup
+	from mako.exceptions import RichTraceback
+
 	lookup = TemplateLookup(templates_dir, strict_undefined=True)
 
 	try:
@@ -240,6 +236,9 @@ def generate_menu(pages, page, level=1):
 def markdown_to_html(markdown_string):
 	''' Convert markdown to html '''
 
+	import markdown
+	import pagegen.markdown_inline_graphviz
+
 	md = markdown.Markdown(
 		extensions = [
 			'tables',
@@ -253,6 +252,10 @@ def markdown_to_html(markdown_string):
 
 def rst_to_html(rst_string):
 	''' Concert rst to html '''
+
+	import docutils_graphviz
+	from docutils.parsers.rst import directives
+	from docutils.core import publish_parts
 
 	# Enable graphviz support, if Graphviz is not installed, do nothing, in the event a dot directive has been created docutils will itself report the error to the user
 	try:

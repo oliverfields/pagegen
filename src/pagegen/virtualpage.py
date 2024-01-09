@@ -1,6 +1,5 @@
 from pagegen.utility import DEFAULTPAGETEMPLATE, DATEFORMAT, DIRDEFAULTFILE, CONTENTDIR, TARGETDIR
 from pagegen.utility_no_deps import urlify
-from bs4 import BeautifulSoup
 from datetime import date
 from os.path import splitext
 from re import sub
@@ -112,6 +111,8 @@ class virtualpage:
 		'''
 		Extracts list of URLs from html
 		'''
+
+		from bs4 import BeautifulSoup
 
 		self.links = []
 

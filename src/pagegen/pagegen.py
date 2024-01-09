@@ -7,7 +7,6 @@ from sys import exit, argv
 from distutils.dir_util import copy_tree
 from getopt import getopt, GetoptError
 import pkg_resources
-from pagegen.auto_build_serve import auto_build_serve
 from subprocess import run, PIPE
 
 
@@ -203,6 +202,7 @@ def serve_mode(site_conf_path, environment):
 
 	watch_elements_full_path = [site_dir + '/' + we for we in watch_elements]
 
+	from pagegen.auto_build_serve import auto_build_serve
 	auto_build_serve(site_conf_path, environment, watch_elements_full_path, serve_dir, exclude_hooks, build_site, serve_base_url, serve_port)
 
 
