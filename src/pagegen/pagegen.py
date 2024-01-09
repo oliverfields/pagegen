@@ -1,4 +1,5 @@
 from getopt import getopt, GetoptError
+import pkg_resources
 from os import getcwd, listdir, chdir, X_OK, access, get_terminal_size, makedirs, getenv
 from pagegen.constants import SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE
 from sys import exit, argv
@@ -215,6 +216,8 @@ def gen_mode(site_conf_path, environment):
 def init_mode():
 	''' Copy skeleton directory to current directory for basic setup '''
 
+	from distutils.dir_util import copy_tree
+
 	skel_dir = pkg_resources.resource_filename('pagegen', 'skel/')
 	root_dir=getcwd()
 
@@ -230,15 +233,12 @@ def init_mode():
 def main():
 	site_config=False
 
+	# Do file mode first, for perfomance
 	if len(argv) < 3:
 		if len(argv) == 1:
 			file_mode(False, site_config)
 		elif not argv[1].startswith('-'):
 			file_mode(argv[1], site_config)
-
-	# Lazy import
-	from distutils.dir_util import copy_tree
-	import pkg_resources
 
 	environment=None
 
