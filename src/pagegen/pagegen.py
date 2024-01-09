@@ -237,6 +237,8 @@ def main():
 		usage(exit_after=False)
 		report_error(1, "Invalid arguments: %s" % e)
 
+	exit(0)
+
 	mode=False
 	site_config=False
 	for opt, arg in opts:
