@@ -1,13 +1,15 @@
 from getopt import getopt, GetoptError
 from os import getcwd, listdir, chdir, X_OK, access, get_terminal_size, makedirs, getenv
-from pagegen.utility_no_deps import report_error, report_notice, get_site_conf_path, exec_script
-from sys import exit, argv
-from os.path import expanduser, basename, join, isfile, isdir, dirname, exists
 from pagegen.constants import SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE
+from sys import exit, argv
+from pagegen.utility_no_deps import report_error, report_notice, get_site_conf_path, exec_script
+from os.path import expanduser, basename, join, isfile, isdir, dirname, exists
 from subprocess import run, PIPE
+from glob import glob
+
 
 def usage(exit_after=True):
-	print('Usage: %s [-i|--init] [-g|--generate <environment>] [-s|--serve <environment>] [-v|--version] [-h|--help] <item>' % (basename(argv[0])))
+	print('Usage: pagegen [-i|--init] [-g|--generate <environment>] [-s|--serve <environment>] [-v|--version] [-h|--help] <item>')
 
 	if exit_after:
 		exit(0)
@@ -178,6 +180,8 @@ def file_mode(item, site_conf_path):
 
 		run([editor, selected_file])
 
+	exit(0)
+
 
 def serve_mode(site_conf_path, environment):
 	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
@@ -224,6 +228,17 @@ def init_mode():
 
 
 def main():
+	site_config=False
+
+	if len(argv) < 3:
+		if len(argv) == 1:
+			file_mode(False, site_config)
+		elif not argv[1].startswith('-'):
+			file_mode(argv[1], site_config)
+
+	# Lazy import
+	from distutils.dir_util import copy_tree
+	import pkg_resources
 
 	environment=None
 
@@ -234,7 +249,6 @@ def main():
 		report_error(1, "Invalid arguments: %s" % e)
 
 	mode=False
-	site_config=False
 	for opt, arg in opts:
 		if opt in ('-i', '--init'): 
 			mode="init"
@@ -249,20 +263,6 @@ def main():
 			mode='serve'
 		elif opt in ('-h', '--help'):
 			usage(exit_after=True)
-
-	if mode == False:
-		if len(argv) == 2:
-			file_arg=argv[1]
-		else:
-			file_arg=False
-		file_mode(file_arg, site_config)
-
-		exit(0)
-
-	# Lazy import
-	from glob import glob
-	from distutils.dir_util import copy_tree
-	import pkg_resources
 
 	if mode == 'gen':
 		gen_mode(site_config, environment)
