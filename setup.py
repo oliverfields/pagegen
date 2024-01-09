@@ -31,6 +31,7 @@ setup(name = 'pagegen',
 		'markdown==3.3.6',
 		'python-docutils-graphviz==1.0.3',
 		'pillow==9.2.0',
+		'beautifulsoup4==4.10.0',
 	],
 	entry_points={
 		'console_scripts': ['pagegen=pagegen.pagegen:main'],
