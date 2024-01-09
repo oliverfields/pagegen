@@ -1,9 +1,8 @@
-from getopt import getopt, GetoptError
-from os import getcwd, listdir, chdir, X_OK, access, get_terminal_size, makedirs, getenv
-from pagegen.constants import SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE
-from sys import exit, argv
 from pagegen.utility_no_deps import report_error, report_notice, get_site_conf_path, exec_script
 from os.path import expanduser, basename, join, isfile, isdir, dirname, exists, abspath
+from sys import exit, argv
+from os import getcwd, listdir, chdir, X_OK, access, get_terminal_size, makedirs, getenv
+from pagegen.constants import SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE
 from subprocess import run, PIPE
 from glob import glob
 
@@ -240,6 +239,9 @@ def main():
 			file_mode(argv[1], site_config)
 
 	environment=None
+
+	# Lazy load what we can
+	from getopt import getopt, GetoptError
 
 	try:
 		opts, args=getopt(argv[1:],"ig:vs:h", ["init", "generate=", "version", "serve=", "help"])
