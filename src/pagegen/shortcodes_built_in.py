@@ -1,4 +1,5 @@
-from pagegen.utility import DIRDEFAULTFILE, appropriate_markup, generate_menu, CONTENTDIR, ASSETDIR
+from pagegen.utility import appropriate_markup, generate_menu
+from pagegen.constants import DIRDEFAULTFILE, CONTENTDIR, ASSETDIR
 from os.path import isfile, getctime
 from os import makedirs
 from PIL import Image, ImageOps

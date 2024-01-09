@@ -1,44 +1,11 @@
-from sys import exit, stderr
-from os import listdir, getcwd, sep, access, X_OK, O_APPEND, environ
-from os.path import join, isdir, isfile, expanduser
+from os import listdir, getcwd, sep, access, X_OK, O_APPEND
+from os.path import join, isdir
 from configparser import RawConfigParser
 from io import StringIO
-from re import match, sub, finditer
+from re import sub, finditer
 from subprocess import check_call, check_output
 import codecs
-#from mako.template import Template
-#from mako.runtime import Context
 
-
-# Constants
-HOME=expanduser("~")
-SITECONF='site.conf'
-CONFROOT='root'
-CONTENTDIR='content'
-DIRDEFAULTFILE='index'
-TARGETDIR='site'
-ASSETDIR='assets'
-THEMEDIR='themes'
-SITEMAPFILE='sitemap.xml'
-SITEMAPTXTFILE='sitemap.txt'
-HOOKDIR='hooks'
-DEFAULTPAGETEMPLATE='pages.mako'
-TEMPLATEDIR='templates'
-NEWLINE='\n'
-DATEFORMAT='%Y-%m-%d'
-RSSFEEDFILE='feed.rss'
-HEADERPROFILEDIR='header_profiles'
-STOPWORDSFILE='stopwords.txt'
-SEARCHINDEXFILE='search-index.json'
-SEARCHMODEJSFILE='pagegen-reload-on-regenerate.js'
-SEARCHMODESITEUPDATEDFILE='pagegen_site_hash'
-DIRECTORIESTEMPLATE='directories.mako'
-TAGSTEMPLATE='tags.mako'
-TAGTEMPLATE='tag.mako'
-AUTHORTEMPLATE='author.mako'
-AUTHORSTEMPLATE='authors.mako'
-SHORTCODECUSTOM='shortcodes'
-AUTHORSCONF='authors.conf'
 
 def get_first_words(string, x):
 	if len(string) > x:
@@ -71,19 +38,6 @@ def relative_path(path):
 	return path.replace(getcwd()+sep, '')
 
 
-def report_error(code, message):
-	stderr.write('Error:  %s\n' % message)
-	exit(code)
-
-
-def report_warning(message):
-	print('Warning: %s' % message)
-
-
-def report_notice(message):
-	print('Notice:  %s' % message)
-
-
 def load_config(conf_path, add_dummy_section=True):
 	''' Load config '''
 
@@ -102,28 +56,6 @@ def load_config(conf_path, add_dummy_section=True):
 		report_error(1,"Unable to read config from '%s': %s" % (conf_path, e))
 
 	return c
-
-
-def get_site_conf_path(conf_file=False):
-	''' Return path of site.conf, either current working one or one of its parents '''
-
-	if not conf_file:
-		conf_file=SITECONF
-
-	cwd=getcwd()
-	dirs=cwd.split(sep)
-	# Disgard root dir
-	dirs.pop(0)
-
-	for i in range(len(dirs), 0, -1):
-		site_dir=''
-		for x in range(0, i):
-			site_dir+=sep+dirs[x]
-		site_conf=site_dir+sep+conf_file
-		if isfile(site_conf):
-			return site_conf
-
-	return False
 
 
 def load_file(file):
@@ -160,34 +92,6 @@ def write_file(file, content):
 			f.write(content)
 	except Exception as e:
 		raise (Exception('Unable to write file %s: %s' % (file, e)))
-
-
-def is_default_file(file):
-	return match('.*'+DIRDEFAULTFILE+'[.a-z]*$', file)
-
-
-def setup_environment_variables(env):
-	# Unset all PAGEGEN_* environment variables
-	for env_name, env_value in environ.items():
-		if env_name.startswith('PAGEGEN_'):
-			environ.pop(env_name)
-
-	# Ensure all environment values are utf-8
-	if env != None:
-		for name, value in env.items():
-			#putenv(name, value.encode('utf-8'))
-			environ[name] = value
-
-
-def exec_script(script, env=None):
-	''' Run specified script if executable '''
-
-	setup_environment_variables(env)
-
-	try:
-		check_call(script)
-	except Exception as e:
-		report_error(1,"Script '%s' execution failed: %s" % (script, e))
 
 
 def appropriate_markup(page, html):

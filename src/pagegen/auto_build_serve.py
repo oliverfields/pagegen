@@ -2,7 +2,9 @@ import hashlib
 import glob
 import os
 import time
-from pagegen.utility import load_config, get_environment_config, exec_script, SEARCHMODESITEUPDATEDFILE, write_file
+from pagegen.utility import load_config, get_environment_config, write_file
+from pagegen.utility_no_deps import exec_script
+from pagegen.constants import SEARCHMODESITEUPDATEDFILE
 import subprocess
 import sys
 import signal

@@ -1,5 +1,5 @@
-from pagegen.utility import report_error, report_notice, get_site_conf_path, SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, exec_script, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE
-from pagegen.site import site
+from pagegen.utility_no_deps import report_error, report_notice, get_site_conf_path, exec_script
+from pagegen.constants import SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE
 from os.path import expanduser, basename, join, isfile, isdir, dirname, exists
 from os import getcwd, listdir, sep, chdir, X_OK, access, get_terminal_size, makedirs, getenv
 from glob import glob
@@ -28,6 +28,8 @@ def guess_site_conf_and_dir_paths(site_conf_path):
 
 
 def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=None, serve_mode=False):
+	from pagegen.site import site
+
 	site_conf_path, site_dir=guess_site_conf_and_dir_paths(site_conf_path)
 
 	try:

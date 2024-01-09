@@ -1,5 +1,7 @@
 from re import sub
-from pagegen.utility import relative_path, report_error, load_file, report_warning, STOPWORDSFILE, NEWLINE
+from pagegen.utility import relative_path, load_file
+from pagegen.utility_no_deps import report_error, report_warning
+from pagegen.constants import STOPWORDSFILE, NEWLINE
 
 class searchindex:
 

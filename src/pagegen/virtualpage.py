@@ -1,4 +1,4 @@
-from pagegen.utility import DEFAULTPAGETEMPLATE, DATEFORMAT, DIRDEFAULTFILE, CONTENTDIR, TARGETDIR
+from pagegen.constants import DEFAULTPAGETEMPLATE, DATEFORMAT, DIRDEFAULTFILE, CONTENTDIR, TARGETDIR
 from pagegen.utility_no_deps import urlify
 from datetime import date
 from os.path import splitext

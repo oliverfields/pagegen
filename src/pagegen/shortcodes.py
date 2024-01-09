@@ -1,4 +1,5 @@
-from pagegen.utility import SHORTCODECUSTOM, report_warning
+from pagegen.utility_no_deps import report_warning
+from pagegen.constants import SHORTCODECUSTOM
 from os.path import isfile
 import importlib.util
 from inspect import getmembers, isfunction

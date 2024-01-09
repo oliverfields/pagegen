@@ -1,4 +1,6 @@
-from pagegen.utility import ASSETDIR, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, exec_script, get_first_words, HOOKDIR, is_default_file, load_config, load_file, NEWLINE, relative_path, render_template, report_error, report_notice, report_warning, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, write_file, generate_menu, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF, rst_to_html, markdown_to_html
+from pagegen.utility import get_first_words, load_config, load_file, relative_path, render_template, write_file, generate_menu, rst_to_html, markdown_to_html
+from pagegen.utility_no_deps import exec_script, is_default_file, report_error, report_notice, report_warning
+from pagegen.constants import ASSETDIR, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, HOOKDIR, NEWLINE, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF
 from pagegen.utility_no_deps import urlify
 from configparser import ConfigParser, NoOptionError
 from os.path import isdir, join, isfile, exists, islink
@@ -691,7 +693,6 @@ class site:
 
 	def load_pages(self, dir_path, siblings, parent, default_extension):
 		''' Recursively load pages from content directory '''
-
 		file_list = sorted(listdir(dir_path))
 
 		for f in file_list:
@@ -708,6 +709,7 @@ class site:
 
 				# Index file exists on disk
 				if dir_page:
+
 					p = self.get_directory_page(dir_page, parent)
 
 				# No index file defined, create virutal one
