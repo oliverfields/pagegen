@@ -17,7 +17,7 @@ current_version="${current_version/\',/}"
 current_version="${current_version#"${current_version%%[![:space:]]*}"}"
 
 
-echo "Keep current version number $current_version? [y|n]"
+echo "Keep current version number $current_version? [Y|n]"
 read keep_version
 
 if [ "$keep_version" = "n" ]; then
@@ -25,11 +25,8 @@ if [ "$keep_version" = "n" ]; then
 	read build_version
 
 	sed -i "s/version='$current_version'/version='$build_version'/" setup.py
-elif [[ "$keep_version" = "y" ]] || [[ "$keep_version" = "" ]]; then
-	build_version="$current_version"
 else
-	echo "Unable to understand '$keep_version', quitting.."
-	exit 1
+	build_version="$current_version"
 fi
 
 
@@ -46,7 +43,7 @@ package="$PWD/dist/pagegen-${build_version}-py3-none-any.whl"
 
 # Test it?
 echo
-echo "Care to do some interactive testing? [y|n]"
+echo "Care to do some interactive testing? [y|N]"
 read do_test
 
 if [ "$do_test" = "y" ]; then
@@ -78,7 +75,7 @@ fi
 
 
 # Upload to pypi
-echo "Package built, upload it to pypi? [y|n]"
+echo "Package built, upload it to pypi? [y|N]"
 read release
 if [ "$release" = "y" ]; then
 	twine upload "$package"
