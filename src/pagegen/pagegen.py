@@ -1,14 +1,10 @@
-from pagegen.utility_no_deps import report_error, report_notice, get_site_conf_path, exec_script
-from pagegen.constants import SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE
-from os.path import expanduser, basename, join, isfile, isdir, dirname, exists
-from os import getcwd, listdir, sep, chdir, X_OK, access, get_terminal_size, makedirs, getenv
-from glob import glob
-from sys import exit, argv
-from distutils.dir_util import copy_tree
 from getopt import getopt, GetoptError
-import pkg_resources
+from os import getcwd, listdir, chdir, X_OK, access, get_terminal_size, makedirs, getenv
+from pagegen.utility_no_deps import report_error, report_notice, get_site_conf_path, exec_script
+from sys import exit, argv
+from os.path import expanduser, basename, join, isfile, isdir, dirname, exists
+from pagegen.constants import SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE
 from subprocess import run, PIPE
-
 
 def usage(exit_after=True):
 	print('Usage: %s [-i|--init] [-g|--generate <environment>] [-s|--serve <environment>] [-v|--version] [-h|--help] <item>' % (basename(argv[0])))
@@ -24,7 +20,7 @@ def guess_site_conf_and_dir_paths(site_conf_path):
 	if not site_conf_path:
 		report_error(1, "Not in pagegen directory tree, unable to find a valid site.conf")
 
-	return (site_conf_path, site_conf_path[:-len(sep+basename(site_conf_path))])
+	return (site_conf_path, site_conf_path[:-len('/'+basename(site_conf_path))])
 
 
 def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=None, serve_mode=False):
@@ -107,7 +103,7 @@ def build_site(site_conf_path, environment, exclude_hooks=[], force_base_url=Non
 			exec_script(hook, envs)
 
 
-def file_mode(item, site_conf_path, environment):
+def file_mode(item, site_conf_path):
 	'''
 	Create and open file for editing
 	'''
@@ -237,8 +233,6 @@ def main():
 		usage(exit_after=False)
 		report_error(1, "Invalid arguments: %s" % e)
 
-	exit(0)
-
 	mode=False
 	site_config=False
 	for opt, arg in opts:
@@ -261,8 +255,16 @@ def main():
 			file_arg=argv[1]
 		else:
 			file_arg=False
-		file_mode(file_arg, site_config, environment)
-	elif mode == 'gen':
+		file_mode(file_arg, site_config)
+
+		exit(0)
+
+	# Lazy import
+	from glob import glob
+	from distutils.dir_util import copy_tree
+	import pkg_resources
+
+	if mode == 'gen':
 		gen_mode(site_config, environment)
 	elif mode == 'init':
 		init_mode()
@@ -270,9 +272,6 @@ def main():
 		serve_mode(site_config, environment)
 	else:
 		usage(exit_after=True)
-
-
-
 
 if __name__ == '__main__':
 	main()
