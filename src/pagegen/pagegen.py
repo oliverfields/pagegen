@@ -144,12 +144,12 @@ def file_mode(item, site_conf_path):
 			columns, lines = get_terminal_size()
 			lines = lines - 1
 			result = run(['fzy', '--lines=' + str(lines)], stdout=PIPE, input=paths.encode('utf-8'))
-			selected_file = result.stdout.decode('utf-8').rstrip()
+			selected_file = content_dir + '/' + result.stdout.decode('utf-8').rstrip()
 		except FileNotFoundError:
 			# Select file using fzf
 			try:
 				result = run(['fzf'], stdout=PIPE, input=paths.encode('utf-8'))
-				selected_file = result.stdout.decode('utf-8').rstrip()
+				selected_file = content_dir + '/' + result.stdout.decode('utf-8').rstrip()
 			except FileNotFoundError:
 				pass
 
