@@ -1,10 +1,7 @@
 #!/bin/bash
 
-pg_dir="${1%/*}"
-
+pg_dir="$PWD"
 while true; do
-  site_conf="$pg_dir/site.conf"
-
   if ! [ -d "$pg_dir" ]; then
     exit 1
   elif [ -f "$pg_dir/site.conf" ]; then

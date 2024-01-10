@@ -13,12 +13,8 @@ let g:loaded_pagegen_plugin = 1
 " Get threads path from config
 let g:plugin_dir = fnamemodify(resolve(expand('<sfile>:p')), ':h')
 let pagegen_dir = system(g:plugin_dir . '/get_pagegen_dir.sh ' . shellescape(expand('%:p')))[:-2]
+
 let pagegen_template_dir = pagegen_dir . '/vim-templates'
-
-if !exists("pagegen_dir")
-  finish
-endif
-
 let url_map = pagegen_dir . '/url_map.csv'
 
 " Redact

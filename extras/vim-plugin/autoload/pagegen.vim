@@ -115,48 +115,7 @@ function! pagegen#PageLink(pagegen_dir)
 endfunction
 
 
-function! pagegen#TemplateSourceIndex(type)
-  if a:type == "book"
-    let template = "Authors: \n"
-      \ . "Format: book|ebook|pdf|etc\n"
-      \ . "Published: \n"
-      \ . "Publisher: \n"
-      \ . "Template: book-source.mako\n"
-      \ . "\n"
-  elseif a:type == 'audio'
-    let template = "Speakers: \n"
-      \ . "Format: podcast|radio|etc\n"
-      \ . "Recorded: \n"
-      \ . "Template: audio-source.mako\n"
-      \ . "\n"
-   elseif a:type == 'web'
-    let template = "Authors: \n"
-      \ . "URL: \n"
-      \ . "Template: web-source.mako\n"
-      \ . "\n"
-   endif
-
-  return template
-endfunction
-
-
-function! pagegen#TemplateSource(type)
-  if a:type == "book"
-    let template = "Page: \n\n"
-  elseif a:type == 'audio'
-    let template = "Time: \n"
-      \ . "Accessed: \n\n"
-   elseif a:type == 'web'
-    let template = "URL: \n"
-      \ . "Accessed: \n\n"
-   endif
-
-  return template
-endfunction
-
-
 function! pagegen#Templates(template_dir)
-  echomsg a:template_dir
   let t = system('[ -d "' . a:template_dir . '" ] && ls -1 "' . a:template_dir . '" | fzy --lines=' . &lines)[:-2]
   redraw!
 
