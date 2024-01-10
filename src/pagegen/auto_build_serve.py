@@ -4,7 +4,7 @@ import os
 import time
 from pagegen.utility import load_config, get_environment_config, write_file
 from pagegen.utility_no_deps import exec_script
-from pagegen.constants import SEARCHMODESITEUPDATEDFILE
+from pagegen.constants import SERVEMODESITEUPDATEDFILE
 import subprocess
 import sys
 import signal
@@ -42,7 +42,7 @@ def auto_build_serve(site_conf_path, environment, watch_elements, serve_dir, exc
 			print('           ' + we)
 
 		# Write hash file so there is something to poll
-		write_file(serve_dir + '/' + SEARCHMODESITEUPDATEDFILE, '')
+		write_file(serve_dir + '/' + SERVEMODESITEUPDATEDFILE, '')
 
 		while True:
 			names_and_modified_times = '' # Create string of file and directories with timestamps, create hash of this and compare to previous hash to detect changes
@@ -66,7 +66,7 @@ def auto_build_serve(site_conf_path, environment, watch_elements, serve_dir, exc
 				build_function(site_conf_path, environment, exclude_hooks, serve_base_url + ':' + serve_port, serve_mode=True)
 
 				# Update timestamp to signal to live reaload js poll script to reload
-				write_file(serve_dir + '/' + SEARCHMODESITEUPDATEDFILE, this_hash)
+				write_file(serve_dir + '/' + SERVEMODESITEUPDATEDFILE, this_hash)
 				print('[' + get_time_stamp() + '] Serving..')
 			else:
 				write_status('[' + get_time_stamp() + '] Watching.. (Ctrl+C to quit)')

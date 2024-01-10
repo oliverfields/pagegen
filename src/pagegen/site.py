@@ -1,6 +1,6 @@
 from pagegen.utility import get_first_words, load_config, load_file, relative_path, render_template, write_file, generate_menu, rst_to_html, markdown_to_html
 from pagegen.utility_no_deps import exec_script, is_default_file, report_error, report_notice, report_warning
-from pagegen.constants import ASSETDIR, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, HOOKDIR, NEWLINE, RSSFEEDFILE, SEARCHINDEXFILE, SEARCHMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF
+from pagegen.constants import ASSETDIR, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, HOOKDIR, NEWLINE, RSSFEEDFILE, SEARCHINDEXFILE, SERVEMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF
 from pagegen.utility_no_deps import urlify
 from configparser import ConfigParser, NoOptionError
 from os.path import isdir, join, isfile, exists, islink
@@ -55,7 +55,7 @@ class site:
 		self.shortcodes = shortcodes(self)
 
 		if self.serve_mode:
-			self.serve_mode_js_script = load_file(pkg_resources.resource_filename('pagegen', SEARCHMODEJSFILE))
+			self.serve_mode_js_script = load_file(pkg_resources.resource_filename('pagegen', SERVEMODEJSFILE))
 
 		try:
 			config=load_config(config_file, add_dummy_section=False)
@@ -605,8 +605,7 @@ class site:
 
 			# If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated
 			if self.serve_mode:
-				js = '<script>' + self.serve_mode_js_script + '</script>'
-				p.html = p.html.replace('</body>', js + '</body>')
+				p.html += '<script>' + self.serve_mode_js_script + '</script>'
 
 			if p.children:
 				self.generate_pages_html(p.children)
