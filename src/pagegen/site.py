@@ -389,7 +389,7 @@ class site:
 
 		# Create author overview content
 		for p in o.children:
-			o.content += '* `%s <%s>`_%s' % (p.menu_title, p.url_path, NEWLINE)
+			o.content += '* [%s](%s)%s' % (p.menu_title, p.url_path, NEWLINE)
 
 		self.pages.append(o)
 
@@ -437,7 +437,7 @@ class site:
 			l.headers['tag page count'] = len(tags['pages'])
 
 			for page in tags['pages']:
-				l.content += '* %s `%s <%s>`_ %s' % (page.headers['publish'], page.menu_title, page.url_path, NEWLINE)
+				l.content += '* %s [%s](%s)%s' % (page.headers['publish'], page.menu_title, page.url_path, NEWLINE)
 
 			o.children.append(l)
 

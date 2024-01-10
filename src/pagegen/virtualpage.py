@@ -32,7 +32,7 @@ class virtualpage:
 		self.raw_headers=[]
 		self.target_dir=None
 		self.custom_headers={}
-		self.markup='rst'
+		self.markup='md'
 		self.toc=False
 		self.authors = []
 		self.excerpt = False

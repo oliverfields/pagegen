@@ -16,7 +16,7 @@ class page(virtualpage):
 	def __init__(self):
 		virtualpage.__init__(self)
 
-	def load(self, path, site_dir, parent=False, base_url='', url_include_index=True, default_extension='', environment='', absolute_urls=False, default_markup='rst', authors=None, strip_extensions=None):
+	def load(self, path, site_dir, parent=False, base_url='', url_include_index=True, default_extension='', environment='', absolute_urls=False, default_markup='md', authors=None, strip_extensions=None):
 
 		self.source_path=path
 		self.site_dir=site_dir
