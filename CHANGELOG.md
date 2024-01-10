@@ -1,8 +1,9 @@
 # vX.X.X
 
 
-## Added
+## Changed
 
+- Markdown is now default markup, must specify in page headers 'Markup: rst' to use reStructuredText
 
 ## Fixed
 
