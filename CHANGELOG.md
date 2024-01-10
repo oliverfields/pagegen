@@ -6,6 +6,7 @@
 
 ## Fixed
 
+- Hot reload from browser now works again
 
 ## Removed
 
