@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 
 setup(name = 'pagegen',
-	version='3.10.1',
+	version='3.10.2',
 	description='Static site generator',
 	author='Oliver Fields',
 	author_email='pagegen@phnd.net',
@@ -23,15 +23,17 @@ setup(name = 'pagegen',
 	long_description="""Python static site generator with reStructuredText or Markdown markup and Mako templates.""",
 	install_requires=[
 		'lxml==4.6.3',
-		'docutils==0.16',
 		'htmlmin==0.1.12',
 		'rcssmin==1.1.2',
 		'jsmin==3.0.1',
 		'mako==1.3.0',
 		'markdown==3.3.4',
-		'python-docutils-graphviz==1.0.3',
 		'pillow==8.2.0',
 		'beautifulsoup4==4.12.2',
+	],
+	extra_require=[
+		'docutils==0.16',
+		'python-docutils-graphviz==1.0.3',
 	],
 	entry_points={
 		'console_scripts': ['pagegen=pagegen.pagegen:main'],
