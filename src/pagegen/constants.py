@@ -2,6 +2,7 @@ from os.path import expanduser
 
 
 # Constants
+DEFAULTMARKUP='md'
 HOME=expanduser("~")
 SITECONF='site.conf'
 CONFROOT='root'

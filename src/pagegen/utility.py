@@ -150,7 +150,6 @@ def markdown_to_html(markdown_string):
 			pagegen.markdown_inline_graphviz.makeExtension()
 		]
 	)
-
 	return md.convert(markdown_string)
 
 

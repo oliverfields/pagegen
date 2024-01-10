@@ -1,6 +1,6 @@
 from pagegen.utility import get_first_words, load_config, load_file, relative_path, render_template, write_file, generate_menu, rst_to_html, markdown_to_html
 from pagegen.utility_no_deps import exec_script, is_default_file, report_error, report_notice, report_warning
-from pagegen.constants import ASSETDIR, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, HOOKDIR, NEWLINE, RSSFEEDFILE, SEARCHINDEXFILE, SERVEMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF
+from pagegen.constants import ASSETDIR, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, HOOKDIR, NEWLINE, RSSFEEDFILE, SEARCHINDEXFILE, SERVEMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF, DEFAULTMARKUP
 from pagegen.utility_no_deps import urlify
 from configparser import ConfigParser, NoOptionError
 from os.path import isdir, join, isfile, exists, islink
@@ -38,7 +38,7 @@ class site:
 		self.search_xpaths = []
 		self.environment = environment
 		self.serve_mode = serve_mode
-		self.default_markup = 'rst'
+		self.default_markup = DEFAULTMARKUP
 		self.default_templates = {}
 		self.page_list = []
 		self.image_classes = {}
@@ -225,7 +225,7 @@ class site:
 		try:
 			self.default_markup=config.get(self.environment,'default_markup')
 		except:
-			self.default_markup='rst'
+			self.default_markup=DEFAULTMARKUP
 
 		try:
 			self.include_search=self.ensure_bool('include_search', config.get(self.environment,'include_search'))
@@ -570,19 +570,20 @@ class site:
 					except Exception as e:
 						report_error(1, 'Failed to run shortcodes: ' + p.source_path + ': ' + str(e))
 
-				# If defined use markdown, else use rst
-				if p.markup == 'md':
+				# If defined use rst, else default to markdown
+				if p.markup == 'rst':
+					print(p.target_path)
+					try:
+						p.html = rst_to_html(p.content)
+					except:
+						raise(Exception(p.source_path + ': Content reStructruedText conversion failed'))
+				else:
 					try:
 						p.html = markdown_to_html(p.content)
 					except RuntimeError as e:
 						report_error(1, p.source_path + ': ' + str(e))
 					except Exception as e:
 						raise(Exception(p.source_path + ': Content Markdown conversion failed'))
-				else:
-					try:
-						p.html = rst_to_html(p.content)
-					except:
-						raise(Exception(p.source_path + ': Content reStructruedText conversion failed'))
 
 				# Needs to happen to html content, i.e. after markup conversion
 				if p.headers['number headings']:
@@ -1091,17 +1092,15 @@ class site:
 			p.set_excerpt()
 
 			if p.excerpt:
-				if p.markup == 'md':
+				if p.markup == 'rst':
+					try:
+						p.excerpt = rst_to_html(p.excerpt)
+					except:
+						raise(Exception(p.source_path + ': Excerpt reStructruedText conversion failed'))
+				else:
 					try:
 						p.excerpt = markdown_to_html(p.excerpt)
 					except RuntimeError as e:
 						report_error(1, p.source_path + ': ' + str(e))
 					except Exception as e:
 						raise(Exception(p.source_path + ': Excerpt Markdown conversion failed'))
-				else:
-					try:
-						p.excerpt = rst_to_html(p.excerpt)
-					except:
-						raise(Exception(p.source_path + ': Excerpt reStructruedText conversion failed'))
-
-
