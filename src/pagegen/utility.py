@@ -5,7 +5,7 @@ from io import StringIO
 from re import sub, finditer
 from subprocess import check_call, check_output
 import codecs
-
+from pagegen.utility_no_deps import report_error
 
 def get_first_words(string, x):
 	if len(string) > x:
