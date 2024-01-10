@@ -155,31 +155,16 @@ function! pagegen#TemplateSource(type)
 endfunction
 
 
-function! pagegen#Templates()
-  let templates = {
-    \ 'index-book': pagegen#TemplateSourceIndex('book'),
-    \ 'index-audio': pagegen#TemplateSourceIndex('audio'),
-    \ 'index-web': pagegen#TemplateSourceIndex('web'),
-    \ 'source-book': pagegen#TemplateSource('book'),
-    \ 'source-audio': pagegen#TemplateSource('audio'),
-    \ 'source-web': pagegen#TemplateSource('web'),
-  \ }
-
-  let ts = ''
-  for t in sort(keys(templates))
-    let ts = ts . t . '\n'
-  endfor
-  let ts = ts[:-3]
-
-  let t = system('echo -e "' . ts . '" | fzy --lines=' . &lines)[:-2]
+function! pagegen#Templates(template_dir)
+  echomsg a:template_dir
+  let t = system('[ -d "' . a:template_dir . '" ] && ls -1 "' . a:template_dir . '" | fzy --lines=' . &lines)[:-2]
   redraw!
 
-  if t != ''
-
-    let default_headers = 'Date: ' . strftime('%Y%m%d') . "\n"
-      \ . "Tags: \n"
-
-    execute "normal! ggdGi" . default_headers . templates[t]
+  if t == ''
+    echomsg 'No template selected'
+  else
+    let template = system(a:template_dir . '/' . t)
+    execute "normal! ggdGi" . template
   endif
 endfunction
 
