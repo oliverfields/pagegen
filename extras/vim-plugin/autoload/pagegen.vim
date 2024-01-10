@@ -68,22 +68,20 @@ function! pagegen#OpenFile(pagegen_dir, url_map)
 endfunction
 
 
-function! pagegen#TagsRefresh(pagegen_dir)
+function! pagegen#TagsRefresh(pagegen_dir, tag_file)
   let content_dir = a:pagegen_dir . '/content'
-  let tag_file = a:pagegen_dir . '/tags.txt'
-  let result = system('grep -Rih "^tags:" "' . content_dir . '" | sed "s/tags://I ; s/,/\n/g" | sed "s/^[ \t]*// ; s/[ \t]*$//" | sort -u > "' . tag_file . '"')
-  echomsg 'Refreshed ' . tag_file
+  let result = system('grep -Rih "^tags:" "' . content_dir . '" | sed "s/tags://I ; s/,/\n/g" | sed "s/^[ \t]*// ; s/[ \t]*$//" | sort -u > "' . a:tag_file . '"')
+  echomsg 'Refreshed ' . a:tag_file
 endfunction
 
 
-function! pagegen#Tags(pagegen_dir)
-  let tags_file = a:pagegen_dir . '/tags.txt'
+function! pagegen#Tags(pagegen_dir, tag_file)
 
-  if !filereadable(tags_file)
-    call pagegen#TagsRefresh(a:pagegen_dir)
+  if !filereadable(a:tag_file)
+    call pagegen#TagsRefresh(a:pagegen_dir, a:tag_file)
   endif
 
-  let t = system('fzy --lines=' . &lines . ' < ' . tags_file)[:-2]
+  let t = system('fzy --lines=' . &lines . ' < ' . a:tag_file)[:-2]
   redraw!
 
   if t != ''
