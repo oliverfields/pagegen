@@ -4,10 +4,15 @@
 
 set -e
 
-build_dir='/home/oliver/Documents/pagegen'
+build_dir="$(dirname "$0")"
 
 cd "$build_dir"
 
+# Sanity check
+if ! [ -f "setup.py" ]; then
+   echo "No $PWD/setup.py"
+   exit 1
+fi
 
 # Update version in setup.py
 
