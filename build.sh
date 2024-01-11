@@ -4,7 +4,7 @@
 
 set -e
 
-build_dir='/home/oliver/Documents/Projects/pagegen'
+build_dir='/home/oliver/Documents/pagegen'
 
 cd "$build_dir"
 
@@ -25,10 +25,10 @@ if [ "$keep_version" = "n" ]; then
 	read build_version
 
 	sed -i "s/version='$current_version'/version='$build_version'/" setup.py
+	sed -i "s/^PAGEGENVERSION=.*/PAGEGENVERSION='$build_version' # Managed by build.sh/" src/pagegen/constants.py
 else
 	build_version="$current_version"
 fi
-
 
 # Clean old builds
 python3 setup.py clean --all

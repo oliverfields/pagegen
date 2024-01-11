@@ -1,10 +1,9 @@
 from pagegen.utility_no_deps import report_error, report_notice, get_site_conf_path, exec_script
 from os.path import expanduser, basename, join, isfile, isdir, dirname, exists, abspath
 from sys import exit, argv
-from os import getcwd, listdir, chdir, X_OK, access, get_terminal_size, makedirs, getenv
-from pagegen.constants import SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE
+from os import getcwd, listdir, chdir, X_OK, access, get_terminal_size, makedirs, getenv, walk
+from pagegen.constants import SITECONF, HOME, CONFROOT, TARGETDIR, HOOKDIR, CONTENTDIR, ASSETDIR, THEMEDIR, SHORTCODECUSTOM, DIRDEFAULTFILE, PAGEGENVERSION
 from subprocess import run, PIPE
-from glob import glob
 
 
 def usage(exit_after=True):
@@ -117,7 +116,10 @@ def file_mode(item, site_conf_path):
 	if item == False:
 
 		# Get files and directories
-		items = glob(content_dir + '/**', recursive=True)
+		items = []
+		for current_path, dirs, files in walk(content_dir):
+			for f in files:
+				items.append(join(current_path, f))
 
 		paths = ''
 
@@ -152,6 +154,9 @@ def file_mode(item, site_conf_path):
 				selected_file = content_dir + '/' + result.stdout.decode('utf-8').rstrip()
 			except FileNotFoundError:
 				pass
+
+		if result.returncode != 0:
+			exit(0)
 
 	# If item is not False then create it
 	else:
@@ -257,8 +262,7 @@ def main():
 			environment=arg.lstrip('=')
 			mode='gen'
 		elif opt in ('-v', '--version'):
-			import pkg_resources
-			print("pagegen %s" % pkg_resources.get_distribution("pagegen").version)
+			print("pagegen %s" % PAGEGENVERSION)
 			exit(0)
 		elif opt in ('-s', '--serve'):
 			environment=arg.lstrip('=')

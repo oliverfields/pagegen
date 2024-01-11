@@ -31,3 +31,5 @@ AUTHORTEMPLATE='author.mako'
 AUTHORSTEMPLATE='authors.mako'
 SHORTCODECUSTOM='shortcodes'
 AUTHORSCONF='authors.conf'
+PAGEGENVERSION='3.10.2' # Managed by build.sh
+

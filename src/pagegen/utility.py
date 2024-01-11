@@ -156,9 +156,12 @@ def markdown_to_html(markdown_string):
 def rst_to_html(rst_string):
 	''' Concert rst to html '''
 
-	import docutils_graphviz
-	from docutils.parsers.rst import directives
-	from docutils.core import publish_parts
+	try:
+		from docutils.parsers.rst import directives
+		from docutils.core import publish_parts
+		import docutils_graphviz
+	except ImportError:
+		report_error('Packages docutils and/or docutils_graphviz not found, try pip install pagegen[extra] to install them')
 
 	# Enable graphviz support, if Graphviz is not installed, do nothing, in the event a dot directive has been created docutils will itself report the error to the user
 	try:
