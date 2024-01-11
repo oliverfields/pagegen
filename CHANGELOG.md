@@ -9,6 +9,7 @@
 
 - Hot reload from browser now works again
 - Build fail due to missing report_error import
+- Refactoring (removed some imports)
 
 ## Removed
 
