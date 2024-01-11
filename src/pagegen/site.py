@@ -572,7 +572,6 @@ class site:
 
 				# If defined use rst, else default to markdown
 				if p.markup == 'rst':
-					print(p.target_path)
 					try:
 						p.html = rst_to_html(p.content)
 					except:
