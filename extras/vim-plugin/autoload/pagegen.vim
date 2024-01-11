@@ -105,7 +105,7 @@ function! pagegen#PageLink(pagegen_dir)
 
   if f != ''
     let url = system("python3 -c \"from pagegen.utility_no_deps import urlify; print(urlify('" . f . "'))\"")[:-2]
-    let title = substitute(f, '.*/', '', 'g')
+    let title = system("python3 -c \"from pagegen.utility_no_deps import title_from_path; print(title_from_path('" . f . "'))\"")[:-2]
     execute 'normal! i[' . title . '](/' . url . ')'
     execute "normal! F[l"
     :startinsert

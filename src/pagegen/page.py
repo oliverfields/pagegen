@@ -3,9 +3,8 @@ from os import sep, access, X_OK, environ
 from os.path import splitext, join
 from re import sub, search
 from pagegen.utility import load_file, relative_path
-from pagegen.utility_no_deps import is_default_file, report_warning, report_error, setup_environment_variables
+from pagegen.utility_no_deps import is_default_file, report_warning, report_error, setup_environment_variables, urlify
 from pagegen.constants import DIRDEFAULTFILE, CONTENTDIR, NEWLINE, HEADERPROFILEDIR, TARGETDIR, AUTHORSCONF
-from pagegen.utility_no_deps import urlify
 from subprocess import check_output
 from bs4 import BeautifulSoup
 

@@ -1,7 +1,7 @@
 from sys import exit, stderr
 from re import sub, match
 from os import getcwd, sep, environ
-from os.path import isfile
+from os.path import isfile, splitext
 from subprocess import check_call
 from pagegen.constants import SITECONF, DIRDEFAULTFILE
 
@@ -75,6 +75,28 @@ def setup_environment_variables(env):
 
 def is_default_file(file):
 	return match('.*'+DIRDEFAULTFILE+'[.a-z]*$', file)
+
+
+def title_from_path(path):
+	# Get path leaf
+
+	# Delete any extension
+	path, extension = splitext(path)
+
+	# If Directory, then need to chop off default to get actual title
+	if path.endswith('/' + DIRDEFAULTFILE):
+		path = sub('/' + DIRDEFAULTFILE + '$', '', path)
+
+	leaf = path.rpartition('/')[2]
+
+	# Remove any XXX_ ordering prefix if present
+	if '_' in leaf:
+		split_leaf = leaf.split('_')
+		title = split_leaf[1]
+	else:
+		title = leaf
+
+	return title
 
 
 

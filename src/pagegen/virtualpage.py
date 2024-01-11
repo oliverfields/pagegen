@@ -1,7 +1,6 @@
 from pagegen.constants import DEFAULTPAGETEMPLATE, DATEFORMAT, DIRDEFAULTFILE, CONTENTDIR, TARGETDIR
-from pagegen.utility_no_deps import urlify
+from pagegen.utility_no_deps import urlify, title_from_path
 from datetime import date
-from os.path import splitext
 from re import sub
 
 class virtualpage:
@@ -130,28 +129,6 @@ class virtualpage:
 		return html
 
 
-	def set_title_from_path(self, path):
-		# Get path leaf
-
-		# Delete any extension
-		path, extension = splitext(path)
-
-		# If Directory, then need to chop off default to get actual title
-		if path.endswith('/' + DIRDEFAULTFILE):
-			path = sub('/' + DIRDEFAULTFILE + '$', '', path)
-
-		leaf = path.rpartition('/')[2]
-
-		# Remove any XXX_ ordering prefix if present
-		if '_' in leaf:
-			split_leaf = leaf.split('_')
-			title = split_leaf[1]
-		else:
-			title = leaf
-
-		return title
-
-
 	def strip_extensions(self, path, extensions_list):
 		'''
 		Replace file extensions given in list
@@ -208,3 +185,7 @@ class virtualpage:
 		self.page_file_name = path_part
 		if self.page_file_name == '':
 			self.page_file_name = DIRDEFAULTFILE + self.default_extension
+
+	def set_title_from_path(self, path):
+		return title_from_path(path)
+
