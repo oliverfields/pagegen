@@ -13,13 +13,14 @@ Contents                                                     *pagegenContents*
   1.4 Append........................|pagegenAppend|
   1.5 Tags..........................|pagegenTags|
   1.6 Open..........................|pagegenOpen|
+  1.7 Suggest keywords              |pagegenKeywords|
 
 
 ==============================================================================
 
 1. Usage                                                        *pagegenUsage*
 
-The pagegen plugin provides an eclecting bunch of stuff for managing threads.
+The pagegen plugin provides an eclectic bunch of stuff for managing threads.
 
 
 ------------------------------------------------------------------------------
@@ -34,19 +35,19 @@ To redact the word under the cursor '<leader>r'
 
 1.1.2 All words matching current word
 
-To redact all occurances of the word under the cursor '<leader>ra'
+To redact all occurrences of the word under the cursor '<leader>ra'
 
 
 ------------------------------------------------------------------------------
 1.2 Figure                                                     *pagegenFigure*
 
-Select file from media dir and add shortcode '<leader>f'
+Select file from media directory and add shortcode '<leader>f'
 
 
 ------------------------------------------------------------------------------
 1.3 Link                                                         *pagegenLink*
 
-Select file from content dir and add Markdown link '<leader>l'
+Select file from content directory and add Markdown link '<leader>l'
 
 
 ------------------------------------------------------------------------------
@@ -76,9 +77,15 @@ Trawl content and make tags.txt '<leader>tr'
 
 1.6.1 Open page
 
-Open content page for editing from Markdown link, e.g. [My file](/link). Cursor must be between the paranthesis  '<leader>o'
+Open content page for editing from Markdown link, e.g. [My file](/link). Cursor must be between the parenthesis  '<leader>o'
 
-1.6.2 Refresh url to page database
+1.6.2 Refresh URL to page database
 
-Make map from relative url to page path in url_map.csv '<leader>or'
+Make map from relative URL to page path in url_map.csv '<leader>or'
+
+
+------------------------------------------------------------------------------
+1.7 Suggest Keywords                                  *pagegenSuggestKeywords*
+
+Analyze current document, count word frequency and discard any words from stoplist.txt. Append suggestions to Tag: line '<leader>k'
 

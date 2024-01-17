@@ -20,6 +20,36 @@ function! pagegen#Figure(pagegen_dir)
 endfunction
 
 
+function! pagegen#SuggestKeywords(pagegen_dir)
+  let f=join(getline(1, '$'), "\n")
+  let result = system(g:plugin_dir . '/suggest_keywords.sh ' . shellescape(a:pagegen_dir . '/stopwords.txt'), f)[:-2]
+
+  if result == ''
+    echomsg 'No keywords found that have sufficient frequency'
+  else
+    let tags_line = 'Tags: '
+    " Subtrackt 1 because using this for array index value later
+    let tags_line_len = len(tags_line) - 1
+    :normal! gg<cr>
+    call search('^' . tags_line)
+
+    let l = getline('.')
+
+    if l == tags_line
+      execute ':normal! A' . result
+    else
+      " If line starts with tagsLine
+      echomsg l[0:tags_line_len]
+      if l[0:tags_line_len] == tags_line
+        execute ':normal! A, ' . result
+      else
+        execute ':normal! O' . tags_line . result
+      endif
+    endif
+  endif
+endfunction
+
+
 function! pagegen#OpenMapRefresh(pagegen_dir, url_map)
   let content_dir = a:pagegen_dir . '/content'
 
