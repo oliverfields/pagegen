@@ -48,3 +48,6 @@ nnoremap <leader>or :call pagegen#OpenMapRefresh(pagegen_dir, url_map)<cr>
 
 " Append
 nnoremap <leader>a Go<cr>
+
+" Quote
+nnoremap <leader>q i<sc>quote("", "by")</sc><esc>12h
