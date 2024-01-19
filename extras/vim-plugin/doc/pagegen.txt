@@ -13,7 +13,8 @@ Contents                                                     *pagegenContents*
   1.4 Append........................|pagegenAppend|
   1.5 Tags..........................|pagegenTags|
   1.6 Open..........................|pagegenOpen|
-  1.7 Suggest keywords              |pagegenKeywords|
+  1.7 Suggest keywords..............|pagegenKeywords|
+  1.8 Vim scripts...................|pagegenVimscripts|
 
 
 ==============================================================================
@@ -88,4 +89,14 @@ Make map from relative URL to page path in url_map.csv '<leader>or'
 1.7 Suggest Keywords                                  *pagegenSuggestKeywords*
 
 Analyze current document, count word frequency and discard any words from stoplist.txt. Append suggestions to Tag: line '<leader>k'
+
+
+------------------------------------------------------------------------------
+1.8 Vim scripts                                            *pagegenVimscripts*
+
+Select and execute vim scripts/commands '<leader>p'
+
+Scripts are saved to 'vim-scripts' file, where the syntax is "<name>=<vim commands to execute>".
+
+E.g. the line "quote=normal! i<q></q>" will allow selecting quote from the vim script menu and the string "<q></q>" will be inserted into the document.
 

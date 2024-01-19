@@ -156,3 +156,17 @@ function! pagegen#Templates(template_dir)
 endfunction
 
 
+function! pagegen#VimScripts(scripts_file)
+  " Scripts file syntax: <name>=<vim commands to execute>
+echomsg a:scripts_file
+  let script_name = system('[ -f "' . a:scripts_file . '" ] && sed "s/\(.*\).*=\(.*\)/\1/" "' . a:scripts_file . '" | fzy --lines=' . &lines)[:-2]
+  redraw!
+
+  if script_name == ''
+    echomsg 'No script selected'
+  else
+    let script = system('grep "^' . script_name . '=" "' . a:scripts_file . '" | sed "s/\(.*\).*=\(.*\)/\2/"')[:-2]
+    execute script
+  endif
+endfunction
+

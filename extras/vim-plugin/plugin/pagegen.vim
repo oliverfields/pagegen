@@ -16,7 +16,8 @@ let pagegen_dir = system(g:plugin_dir . '/get_pagegen_dir.sh ' . shellescape(exp
 let pagegen_var_dir = pagegen_dir . '/var'
 let pagegen_template_dir = pagegen_dir . '/vim-templates'
 let url_map = pagegen_var_dir . '/url_map.csv'
-let tag_file = pagegen_var_dir . '/tags.txt'
+let tag_file = pagegen_var_dir . '/tags'
+let vim_scripts_file = pagegen_dir . '/vim-scripts'
 
 if !isdirectory(g:pagegen_var_dir)
   call mkdir(g:pagegen_var_dir)
@@ -39,6 +40,9 @@ nnoremap <leader>m :call pagegen#Templates(pagegen_template_dir)<cr>
 nnoremap <leader>t :call pagegen#Tags(pagegen_dir, tag_file)<cr>
 nnoremap <leader>tr :call pagegen#TagsRefresh(pagegen_dir, tag_file)<cr>
 
+" Scripts
+nnoremap <leader>p :call pagegen#VimScripts(vim_scripts_file)<cr>
+
 " Suggest tags/keywords
 nnoremap <leader>k :call pagegen#SuggestKeywords(pagegen_dir)<cr>
 
@@ -49,5 +53,3 @@ nnoremap <leader>or :call pagegen#OpenMapRefresh(pagegen_dir, url_map)<cr>
 " Append
 nnoremap <leader>a Go<cr>
 
-" Quote
-nnoremap <leader>q i<sc>quote("", "by")</sc><esc>12h
