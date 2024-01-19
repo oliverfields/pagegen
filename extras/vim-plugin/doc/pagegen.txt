@@ -100,3 +100,8 @@ Scripts are saved to 'vim-scripts' file, where the syntax is "<name>=<vim comman
 
 E.g. the line "quote=normal! i<q></q>" will allow selecting quote from the vim script menu and the string "<q></q>" will be inserted into the document.
 
+To pass multiple commands to vim using this functionality, separate them with a pipe (|).
+
+The following example inserts Markdown admonition markup and leaves user in insert mode
+
+admonition=normal! i!!! note ""|normal! o|normal! o    |startinsert

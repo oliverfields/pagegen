@@ -166,7 +166,9 @@ echomsg a:scripts_file
     echomsg 'No script selected'
   else
     let script = system('grep "^' . script_name . '=" "' . a:scripts_file . '" | sed "s/\(.*\).*=\(.*\)/\2/"')[:-2]
-    execute script
+    for s:cmd in split(script, '|')
+      execute s:cmd
+    endfor
   endif
 endfunction
 
