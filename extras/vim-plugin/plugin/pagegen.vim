@@ -40,13 +40,13 @@ nnoremap <leader>m :call pagegen#Templates(pagegen_template_dir)<cr>
 nnoremap <leader>t :call pagegen#Tags(pagegen_dir, tag_file)<cr>
 nnoremap <leader>tr :call pagegen#TagsRefresh(pagegen_dir, tag_file)<cr>
 
-" Scripts
-nnoremap <leader>p :call pagegen#VimScripts(vim_scripts_file)<cr>
+" Vim scripts
+nnoremap <leader>v :call pagegen#VimScripts(vim_scripts_file)<cr>
 
 " Suggest tags/keywords
 nnoremap <leader>k :call pagegen#SuggestKeywords(pagegen_dir)<cr>
 
-" Open files
+" Open url file
 nnoremap <leader>o :call pagegen#OpenFile(pagegen_dir, url_map)<cr>
 nnoremap <leader>or :call pagegen#OpenMapRefresh(pagegen_dir, url_map)<cr>
 

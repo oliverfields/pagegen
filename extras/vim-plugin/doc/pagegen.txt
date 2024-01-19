@@ -94,7 +94,7 @@ Analyze current document, count word frequency and discard any words from stopli
 ------------------------------------------------------------------------------
 1.8 Vim scripts                                            *pagegenVimscripts*
 
-Select and execute vim scripts/commands '<leader>p'
+Select and execute vim scripts/commands '<leader>v'
 
 Scripts are saved to 'vim-scripts' file, where the syntax is "<name>=<vim commands to execute>".
 
