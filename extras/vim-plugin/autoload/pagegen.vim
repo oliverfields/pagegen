@@ -158,7 +158,6 @@ endfunction
 
 function! pagegen#VimScripts(scripts_file)
   " Scripts file syntax: <name>=<vim commands to execute>
-echomsg a:scripts_file
   let script_name = system('[ -f "' . a:scripts_file . '" ] && sed "s/\(.*\).*=\(.*\)/\1/" "' . a:scripts_file . '" | fzy --lines=' . &lines)[:-2]
   redraw!
 
