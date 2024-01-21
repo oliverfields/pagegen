@@ -42,13 +42,13 @@ _pagegen_environments() {
   done < "$site_conf"
 }
 
-
-
-
-command -v pagegen &> /dev/null &&
+command -v pgn &> /dev/null &&
 _pagegen_complete()
 {
-  local cur prev
+  local cur=${COMP_WORDS[$COMP_CWORD]}
+  local prev=${COMP_WORDS[$COMP_CWORD-1]}
+
+  COMPREPLY=( $(compgen -W "-g --generate -s --serve -h --help -v --version -i --init" -- $cur) )
 
   # Check we are in a pagegen dir tree
   local pg_dir="$PWD"
@@ -64,11 +64,8 @@ _pagegen_complete()
     fi
   done
 
-  cur=${COMP_WORDS[$COMP_CWORD]}
-  prev=${COMP_WORDS[$COMP_CWORD-1]}
 
   if [ $COMP_CWORD -eq 1 ]; then
-    COMPREPLY=( $(compgen -W "-g --generate -s --serve -h --help -v --version -i --init" -- $cur) )
     _pagegen_content
   elif [ $COMP_CWORD -gt 1 ]; then
     case $prev in
