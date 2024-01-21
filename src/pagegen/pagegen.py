@@ -7,7 +7,7 @@ from subprocess import run, PIPE
 
 
 def usage(exit_after=True):
-	print('Usage: pagegen [-i|--init] [-g|--generate <environment>] [-s|--serve <environment>] [-v|--version] [-h|--help] <item>')
+	print('Usage: pgn [-i|--init] [-g|--generate <environment>] [-s|--serve <environment>] [-v|--version] [-h|--help] <item>')
 
 	if exit_after:
 		exit(0)

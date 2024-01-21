@@ -3,6 +3,7 @@
 
 ## Changed
 
+- Pagegen command renamed to pgn!!
 - Markdown is now default markup, must specify in page headers 'Markup: rst' to use reStructuredText
 
 ## Fixed

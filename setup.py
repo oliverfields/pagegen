@@ -36,6 +36,6 @@ setup(name = 'pagegen',
 		'python-docutils-graphviz==1.0.3',
 	],
 	entry_points={
-		'console_scripts': ['pagegen=pagegen.pagegen:main'],
+		'console_scripts': ['pgn=pagegen.pagegen:main'],
 	}
 )

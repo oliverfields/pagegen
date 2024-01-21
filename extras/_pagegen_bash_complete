@@ -79,5 +79,5 @@ _pagegen_complete()
   fi
 
 } &&
-complete -F _pagegen_complete pagegen
+complete -F _pagegen_complete pgn
 
