@@ -7,11 +7,20 @@ from pagegen.constants import SITECONF, DIRDEFAULTFILE
 
 
 def urlify(string):
-	''' Anything wich isn't alphanumeric, - or _ gets replaced with a - '''
-	url = string.lower()
+	''' Make path name into a url '''
+
+	# Remove ordering prefix
+	url = sub('/[0-9]+_', '/', string)
+
+	url = url.lower()
+
+    # Anything wich isn't alphanumeric, - or _ gets replaced with a -
+
 	url = sub('[^/a-z0-9-_.]', '-', url)
-	# Replace any double dashes
-	url = sub('--', '-', url)
+
+	# Replace multiple dashes with a single dash
+	url = sub('-+', '-', url)
+
 	return url
 
 

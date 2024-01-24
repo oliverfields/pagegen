@@ -9,7 +9,7 @@ endfunction
 
 function! pagegen#Figure(pagegen_dir)
   let search_path = a:pagegen_dir . '/content/assets/media'
-  let f = system('find "' . search_path . '" -type f | sed "s#^' . search_path . '/##" | fzy --lines=' . &lines)[:-2]
+  let f = system('find "' . search_path . '" -type f | sed "s#^' . search_path . '/##" | fzy "--prompt=Media > " --lines=' . &lines)[:-2]
   redraw!
 
   if f != ''
@@ -60,6 +60,7 @@ endfunction
 
 
 function! pagegen#OpenFile(pagegen_dir, url_map)
+echomsg 'hello'
   if !filereadable(a:url_map)
     call pagegen#EditMapRefresh(a:pagegen_dir, a:url_map)
   endif
@@ -111,7 +112,7 @@ function! pagegen#Tags(pagegen_dir, tag_file)
     call pagegen#TagsRefresh(a:pagegen_dir, a:tag_file)
   endif
 
-  let t = system('fzy --lines=' . &lines . ' < ' . a:tag_file)[:-2]
+  let t = system('fzy "--prompt=Tags > " --lines=' . &lines . ' < ' . a:tag_file)[:-2]
   redraw!
 
   if t != ''
@@ -126,16 +127,26 @@ function! pagegen#Tags(pagegen_dir, tag_file)
 endfunction
 
 
+function! pagegen#Urlify(path)
+    return system("python3 -c \"from pagegen.utility_no_deps import urlify; print(urlify('" . a:path . "'))\"")[:-2]
+endfunction
+
+function! pagegen#Titleify(path)
+    return system("python3 -c \"from pagegen.utility_no_deps import title_from_path; print(title_from_path('" . a:path . "'))\"")[:-2]
+endfunction
+
+
 function! pagegen#PageLink(pagegen_dir)
   let search_path = a:pagegen_dir . '/content'
   let exclude_path = a:pagegen_dir . '*/assets/media*'
 
-  let f = system('find "' . search_path . '" -not -path "' . exclude_path . '" -type f | sed "s#^' . search_path . '/##" | fzy --lines=' . &lines)[:-2]
+  let f = system('find "' . search_path . '" -not -path "' . exclude_path . '" -type f | sed "s#^' . search_path . '/##" | fzy "--prompt=Pages > " --lines=' . &lines)[:-2]
   redraw!
 
   if f != ''
-    let url = system("python3 -c \"from pagegen.utility_no_deps import urlify; print(urlify('" . f . "'))\"")[:-2]
-    let title = system("python3 -c \"from pagegen.utility_no_deps import title_from_path; print(title_from_path('" . f . "'))\"")[:-2]
+    let url = pagegen#Urlify(f)
+    let title = pagegen#Titleify(f)
+
     execute 'normal! i[' . title . '](/' . url . ')'
     execute "normal! F[l"
     :startinsert
@@ -143,8 +154,27 @@ function! pagegen#PageLink(pagegen_dir)
 endfunction
 
 
+function! pagegen#Backlinks(pagegen_dir)
+  let search_path = a:pagegen_dir . '/content'
+  let exclude_path = a:pagegen_dir . '/assets'
+
+  let page_path = expand('%:p')[len(search_path):]
+
+  let page_url = pagegen#Urlify(page_path)
+
+  let cmd = 'grep --recursive --files-with-matches "--exclude-dir=' . exclude_path . '" "(' . page_url . ')" "' . search_path . '/" | sed "s#^' . search_path . '/##" | fzy "--prompt=Backlinks > " --lines=' . &lines
+  let f = system(cmd)[:-2]
+  redraw!
+
+  if f != ''
+    execute 'tabnew ' . fnameescape(search_path . '/' . f)
+  endif
+endfunction
+
+
+
 function! pagegen#Templates(template_dir)
-  let t = system('[ -d "' . a:template_dir . '" ] && ls -1 "' . a:template_dir . '" | fzy --lines=' . &lines)[:-2]
+  let t = system('[ -d "' . a:template_dir . '" ] && ls -1 "' . a:template_dir . '" | fzy "--prompt=Templates > " --lines=' . &lines)[:-2]
   redraw!
 
   if t == ''
@@ -158,7 +188,7 @@ endfunction
 
 function! pagegen#VimScripts(scripts_file)
   " Scripts file syntax: <name>=<vim commands to execute>
-  let script_name = system('[ -f "' . a:scripts_file . '" ] && sed "s/\(.*\).*=\(.*\)/\1/" "' . a:scripts_file . '" | fzy --lines=' . &lines)[:-2]
+  let script_name = system('[ -f "' . a:scripts_file . '" ] && sed "s/\(.*\).*=\(.*\)/\1/" "' . a:scripts_file . '" | fzy "--prompt=Vim scripts > " --lines=' . &lines)[:-2]
   redraw!
 
   if script_name == ''

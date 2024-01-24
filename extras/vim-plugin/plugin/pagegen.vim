@@ -33,6 +33,9 @@ nnoremap <leader>f :call pagegen#Figure(pagegen_dir)<cr>
 " Link
 nnoremap <leader>l :call pagegen#PageLink(pagegen_dir)<cr>
 
+" Backlinks
+nnoremap <leader>b :call pagegen#Backlinks(pagegen_dir)<cr>
+
 " Templates
 nnoremap <leader>m :call pagegen#Templates(pagegen_template_dir)<cr>
 

@@ -15,6 +15,7 @@ Contents                                                     *pagegenContents*
   1.6 Open..........................|pagegenOpen|
   1.7 Suggest keywords..............|pagegenKeywords|
   1.8 Vim scripts...................|pagegenVimscripts|
+  1.9 Backlinks.....................|pagegenBacklinks|
 
 
 ==============================================================================
@@ -105,3 +106,10 @@ To pass multiple commands to vim using this functionality, separate them with a 
 The following example inserts Markdown admonition markup and leaves user in insert mode
 
 admonition=normal! i!!! note ""|normal! o|normal! o    |startinsert
+
+
+------------------------------------------------------------------------------
+1.9 Backlinks                                               *pagegenBacklinks*
+
+Select any pages that link to the current page, and open in new tag '<leader>b'
+

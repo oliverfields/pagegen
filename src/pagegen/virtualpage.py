@@ -155,12 +155,6 @@ class virtualpage:
 
 		# If not preserve file name, then make it nicely urlified
 		if self.headers['preserve file name'] == False:
-			# Remove ordering prefix
-			path_part=sub('/[0-9]*_', '/', path_part)
-
-			# Lowercase
-			path_part=path_part.lower()
-
 			# Replace anything that isn't a charachter, number, slash, underscore or hyphen with a hyphen
 			path_part = urlify(path_part)
 
