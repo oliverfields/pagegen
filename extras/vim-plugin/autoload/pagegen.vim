@@ -8,7 +8,7 @@ endfunction
 
 
 function! pagegen#Figure(pagegen_dir)
-  let search_path = a:pagegen_dir . '/content/assets/media'
+  let search_path = a:pagegen_dir . '/content/assets'
   let f = system('find "' . search_path . '" -type f | sed "s#^' . search_path . '/##" | fzy "--prompt=Media > " --lines=' . &lines)[:-2]
   redraw!
 
@@ -60,19 +60,27 @@ endfunction
 
 
 function! pagegen#OpenFile(pagegen_dir, url_map)
-echomsg 'hello'
   if !filereadable(a:url_map)
-    call pagegen#EditMapRefresh(a:pagegen_dir, a:url_map)
+    call pagegen#OpenMapRefresh(a:pagegen_dir, a:url_map)
   endif
 
   let k_save = @k
 
-  " Links will be in markdown link format [text](link), so visual select everything in link paranthesis, assumes cursor is in (link)
+  " Links will be in markdown link format [text](link) or part of figure shortcode figure("link", "text"), so visual select everything in () first
   normal! "kyi(
 
   let selection = @k
+
   let @k = k_save
 
+  " If selection is figure then try to open media
+  if selection[0] == '"'
+    let selection = a:pagegen_dir . '/content/assets/' . substitute(@k[1:], '".*', '', 'g')
+    silent execute '!xdg-open "' . selection . '"'
+    return
+  endif
+
+  " Selection is a page, so convert url to file path and then open in vim
   let map_line = system('grep "^' . selection . ';" "' . a:url_map . '"')[:-2]
 
   if map_line == ''
@@ -91,7 +99,7 @@ echomsg 'hello'
   let file_path = a:pagegen_dir . '/content/' . file_path
 
   if filereadable(file_path)
-    echomsg "opening " . file_path
+    echomsg "Opening " . file_path
     execute 'tabnew ' . fnameescape(file_path)
   else
     echomsg "No file " . file_path
