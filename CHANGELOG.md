@@ -2,7 +2,7 @@
 
 ## Changed
 
--
+- Builtin shortcode image resizes within dimensions given, but now also maintaining aspect ratio. Images smaller than given dimensions are kept as is and there is now padding added to the image
 
 
 ## Fixed

@@ -50,7 +50,7 @@ def built_in_image(site, page, image_source, alt_attribute, target_dir=None, ima
 
 	# Target dir defults to assets
 	if target_dir is None:
-		target_dir = site.asset_dir 
+		target_dir = site.asset_dir
 	else:
 		# Target dir cannot start with .
 		if target_dir.startswith('.'):
@@ -99,12 +99,15 @@ def built_in_image(site, page, image_source, alt_attribute, target_dir=None, ima
 	else:
 		create_target = True
 
-	if create_target:
-		im = Image.open(image_source)	
-		im_new = ImageOps.fit(im, (width, height))
-		im_new.save(target_file_path)
+	im = Image.open(image_source)
 
-	html = '<img src="' + img_src + '" alt="' + alt_attribute + '" width="' + str(width) + '" height="' + str(height) + '" />'
+	if create_target:
+		im.thumbnail((width, height), Image.ANTIALIAS)
+		im.save(target_file_path)
+
+	img_width, img_height = im.size
+
+	html = '<img src="' + img_src + '" alt="' + alt_attribute + '" width="' + str(img_width) + '" height="' + str(img_height) + '" />'
 
 	return appropriate_markup(page, html)
 
