@@ -66,7 +66,7 @@ def built_in_image(site, page, image_source, alt_attribute, target_dir=None, ima
 	if image_class:
 		width = site.image_classes[image_class]['width']
 		height = site.image_classes[image_class]['height']
-		target_file = source_file.replace('.', '-' + image_class + '.')
+		target_file = source_file.replace('.', '_' + image_class + '.')
 		resize = True
 	elif image_size:
 		dims = image_size.split('x')
@@ -99,11 +99,13 @@ def built_in_image(site, page, image_source, alt_attribute, target_dir=None, ima
 	else:
 		create_target = True
 
-	im = Image.open(image_source)
 
 	if create_target:
+		im = Image.open(image_source)
 		im.thumbnail((width, height), Image.ANTIALIAS)
 		im.save(target_file_path)
+	else:
+		im = Image.open(target_file_path)
 
 	img_width, img_height = im.size
 
