@@ -87,7 +87,7 @@ Make map from relative URL to page path in url_map.csv '<leader>or'
 
 
 ------------------------------------------------------------------------------
-1.7 Suggest Keywords                                  *pagegenSuggestKeywords*
+1.7 Suggest Keywords                                         *pagegenKeywords*
 
 Analyze current document, count word frequency and discard any words from stoplist.txt. Append suggestions to Tag: line '<leader>k'
 
