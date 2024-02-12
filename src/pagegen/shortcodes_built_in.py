@@ -42,7 +42,7 @@ def built_in_image(site, page, image_source, alt_attribute, target_dir=None, ima
 
 	# Check source image exists
 	if not isfile(image_source):
-		raise Exception('No file: ' + source_image)
+		raise Exception('No file: ' + image_source)
 
 	t = image_source.rpartition('/')
 	source_dir = t[0]
