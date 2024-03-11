@@ -3,6 +3,7 @@
 ## Changed
 
 - Builtin shortcode image resizes within dimensions given, but now also maintaining aspect ratio. Images smaller than given dimensions are kept as is and there is now padding added to the image
+- Page publish header can be set to either yyyy-mm-dd date or string False to disable publishing
 
 
 ## Fixed

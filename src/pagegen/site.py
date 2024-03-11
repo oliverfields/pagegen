@@ -762,14 +762,16 @@ class site:
 		''' If page publish header date is today or in past return true. Pagegen dates are always strings, so need to convert '''
 
 		try:
-			page_publish_date=datetime.strptime(page.headers['publish'], DATEFORMAT)
+			if page.headers['publish'].lower() == 'false':
+				publish = False
+			else:
+				page_publish_date = datetime.strptime(page.headers['publish'], DATEFORMAT)
+				publish = page_publish_date < datetime.now()
 		except Exception as e:
 			report_error(1, "Unable to parse date '%s': %s: %s" % (page.headers['publish'], relative_path(page.source_path), e))
 
-		publish=page_publish_date < datetime.now()
-
-		if publish is False:
-			report_notice("Not publishing '%s' (or any child pages) until '%s': %s" % (page.title, page.headers['publish'], relative_path(page.source_path)))
+		if not publish:
+			report_notice("Not publishing '%s' (or any child pages), header Publish is '%s': %s" % (page.title, page.headers['publish'], relative_path(page.source_path)))
 
 		return publish
 
