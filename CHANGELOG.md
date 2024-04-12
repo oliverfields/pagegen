@@ -8,7 +8,7 @@
 
 ## Fixed
 
--
+- authors.conf now works
 
 
 ## Removed

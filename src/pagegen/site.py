@@ -136,7 +136,7 @@ class site:
 
 		if isfile(self.authors_conf):
 			try:
-				authors_config = load_config(self.authors_conf, add_dummy_sections=False)
+				authors_config = load_config(self.authors_conf, add_dummy_section=False)
 				self.authors = {}
 				for s in authors_config.sections():
 					self.authors[s] = {
@@ -144,7 +144,7 @@ class site:
 					}
 					for setting, value in authors_config.items(s):
 						self.authors[s][setting] = value
-			except:
+			except Exception as e:
 				pass
 
 		try:
