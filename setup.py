@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 
 setup(name = 'pagegen',
-	version='3.11.1',
+	version='3.11.2',
 	description='Static site generator',
 	author='Oliver Fields',
 	author_email='pagegen@phnd.net',
@@ -31,10 +31,12 @@ setup(name = 'pagegen',
 		'pillow==8.2.0',
 		'beautifulsoup4==4.12.2',
 	],
-	extra_require=[
-		'docutils==0.16',
-		'python-docutils-graphviz==1.0.3',
-	],
+	extras_require={
+		"rst": [
+			'docutils==0.16',
+			'python-docutils-graphviz==1.0.3',
+		]
+	},
 	entry_points={
 		'console_scripts': ['pgn=pagegen.pagegen:main'],
 	}

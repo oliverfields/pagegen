@@ -1,4 +1,4 @@
-# vX.X.X
+# v3.11.2
 
 ## Changed
 
@@ -9,11 +9,7 @@
 ## Fixed
 
 - authors.conf now works
-
-
-## Removed
-
--
+- Installation of reStructuredText (pip install[rst]) fixed
 
 
 # v3.11.0

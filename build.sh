@@ -68,7 +68,7 @@ if [ "$do_test" = "y" ]; then
 	# Init pagegen test site
 	mkdir "$pg_dir"
 	cd "$pg_dir"
-	pagegen --init
+	pgn --init
 
 	echo
 	echo "Starting test environment, type exit to continue build.."
