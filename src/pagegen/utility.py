@@ -142,14 +142,20 @@ def markdown_to_html(markdown_string):
 
 	import markdown
 	import pagegen.markdown_inline_graphviz
+	import pagegen.markdown_inline_convo
 
-	md = markdown.Markdown(
-		extensions = [
-			'tables',
-			'admonition',
-			pagegen.markdown_inline_graphviz.makeExtension()
-		]
-	)
+	try:
+		md = markdown.Markdown(
+			extensions = [
+				'tables',
+				'admonition',
+				pagegen.markdown_inline_graphviz.makeExtension(),
+				pagegen.markdown_inline_convo.makeExtension()
+			]
+		)
+	except Exception as e:
+		print(e)
+
 	return md.convert(markdown_string)
 
 

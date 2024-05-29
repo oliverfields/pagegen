@@ -1,3 +1,9 @@
+# v3.?.?
+
+## Added
+
+- Markdown conversation markup extension <convo>
+
 # v3.11.2
 
 ## Changed
