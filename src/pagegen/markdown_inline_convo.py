@@ -10,8 +10,8 @@ Example:
 > Bestill på padden
 < Får dere mye tips her eller👄🫦
 > Hæææ🤬
-{ 🤯😱😰🥵🥵🥵🥵🥵
->! Idiot!
+< 🤯😱😰🥵🥵🥵🥵🥵
+> Idiot!
 </convo>
 """
 
@@ -53,21 +53,12 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                         prefix = parsed_msg[0]
                         content = parsed_msg[1]
 
-                        match prefix:
-                            case '<':
-                                html += '<div class="convo-speech-left">' + content + '</div>\n'
-                            case '>':
-                                html += '<div class="convo-speech-right">' + content + '</div>\n'
-                            case '{':
-                                html += '<div class="convo-though-left">' + content + '</div>\n'
-                            case '}':
-                                html += '<div class="convo-thought-right">' + content + '</div>\n'
-                            case '!<':
-                                html += '<div class="convo-shout-left">' + content + '</div>\n'
-                            case '!>':
-                                html += '<div class="convo-shout-right">' + content + '</div>\n'
-                            case _:
-                                html += msg + '\n'
+                        if prefix == '<':
+                             html += '<div class="convo-speech-left">' + content + '</div>\n'
+                         elif prefix == '>':
+                             html += '<div class="convo-speech-right">' + content + '</div>\n'
+                         else:$
+                             html += msg + '\n'
 
                 text = '%s\n%s\n%s' % (text[:m.start()], '<div class="convo">\n' + html + '</div>', text[m.end():])
             else:
