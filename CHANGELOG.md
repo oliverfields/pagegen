@@ -1,3 +1,9 @@
+# v3.x.x
+
+## Changed
+
+- Removed match case to make script portable to >3.10 Python versions
+
 # v3.12.0
 
 ## Added
