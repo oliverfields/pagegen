@@ -54,11 +54,11 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                         content = parsed_msg[1]
 
                         if prefix == '<':
-                             html += '<div class="convo-speech-left">' + content + '</div>\n'
-                         elif prefix == '>':
-                             html += '<div class="convo-speech-right">' + content + '</div>\n'
-                         else:$
-                             html += msg + '\n'
+                            html += '<div class="convo-speech-left">' + content + '</div>\n'
+                        elif prefix == '>':
+                            html += '<div class="convo-speech-right">' + content + '</div>\n'
+                        else:
+                            html += msg + '\n'
 
                 text = '%s\n%s\n%s' % (text[:m.start()], '<div class="convo">\n' + html + '</div>', text[m.end():])
             else:
