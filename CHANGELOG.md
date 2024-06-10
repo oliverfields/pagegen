@@ -4,6 +4,10 @@
 
 - Removed match case to make script portable to >3.10 Python versions
 
+## Added
+
+- Color (Ansi escape codes) in warning, notice and error messages
+
 # v3.12.0
 
 ## Added
