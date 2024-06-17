@@ -1,3 +1,9 @@
+# v3.*.*
+
+## Fixed
+
+- Hide MarkupResemblesLocatorWarning from beautyfuilsoup
+
 # v3.12.1
 
 ## Changed

@@ -111,7 +111,9 @@ class virtualpage:
 		Extracts list of URLs from html
 		'''
 
-		from bs4 import BeautifulSoup
+		import warnings
+		from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
+		warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 
 		self.links = []
 
