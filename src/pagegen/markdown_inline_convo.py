@@ -4,14 +4,20 @@ Markup a convo with speech bubbles
 Example:
 
 <convo>
-< Burger
-> Bestill på padden
-< Brus
-> Bestill på padden
-< Får dere mye tips her eller👄🫦
-> Hæææ🤬
-< 🤯😱😰🥵🥵🥵🥵🥵
-> Idiot!
+{ thoughts
+} nothing
+<profile:<img src="/assets/mugshot.jpg" />
+< Hei jeg er skoledagboka Starlet👋
+>💖 hey
+< Så hyggelig å møte deg😇 Kan jeg stille deg noen spørsmål?
+>🫦 øh?
+< Hvem er du forelsket i?
+> Ruth-Iren er drit fin💩👰‍♀️
+<💅💃😅 Nå vet Øyvind👺, Fred🥵 and Bendik🙄 dette
+<😇 Hæ, sa du det til dem?
+< Seff🙌
+<🖕 Kanskje hun får vite det💖
+<.
 </convo>
 """
 
