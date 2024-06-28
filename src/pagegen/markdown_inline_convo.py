@@ -47,8 +47,28 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
             m = CONVO_RE_QUESTION.search(text)
             html = ''
             if m:
+
+                profile_left = '<div class="convo-profile-left">🐘</div>'
+                #profile_right = '<div class="convo-profile-right">🎠</div>'
+                profile_right = ''
+                profile_left_understanding = '<div class="convo-understanding-left">🐘</div>'
+
                 for msg in m.group('msgs').split('\n'):
                     if msg:
+
+                        if msg.startswith('<profile:'):
+                            profile_left = '<div class="convo-profile-left">' + msg[9:] + '</div>'
+                            profile_left_understanding = '<div class="convo-left-understanding">' + msg[9:] + '</div>'
+                            continue
+
+                        #if msg.startswith('>profile:'):
+                        #    profile_right = '<div class="convo-profile-right">' + msg.lstrip[9:] + '</div>'
+                        #    continue
+
+                        if msg == 'left_here':
+                            profile_left_understanding = ''
+                            continue
+
                         parsed_msg = msg.split(' ', 1)
                         msg_meta = parsed_msg[0]
                         reaction_class_text = ' <span class="convo-msg-reaction">'
@@ -60,6 +80,7 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                             content = ''
 
                         reactions = ''
+
                         try:
                             for c in  msg_meta[1:]:
                                 reactions += reaction_class_text + c + '</span>'
@@ -71,6 +92,8 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                         try:
                             if msg_meta[1] == '.':
                                 typing = True
+                            else:
+                                typing = False
                         except:
                             typing = False
 
@@ -78,11 +101,11 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                             if source == '<':
                                 html += '<div class="convo-typing-left">◗⬤◖</div>\n'
                             else:
-                                html += '<div class="convo-typing-right">&hellip;</div>\n'
+                                html += '<div class="convo-typing-right">◗⬤◖</div>\n'
                         elif source == '<':
-                            html += '<div class="convo-speech-left">' + content + reactions + '</div>\n'
+                            html += '<div class="convo-speech-left">' + profile_left + content + reactions + '</div>\n'
                         elif source == '>':
-                            html += '<div class="convo-speech-right">' + content + reactions + '</div>\n'
+                            html += '<div class="convo-speech-right">' + profile_left_understanding + content + reactions + '</div>\n'
                         else:
                             html += msg + '\n'
 
