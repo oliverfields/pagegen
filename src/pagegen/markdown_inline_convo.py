@@ -4,8 +4,6 @@ Markup a convo with speech bubbles
 Example:
 
 <convo>
-{ thoughts
-} nothing
 <profile:<img src="/assets/mugshot.jpg" />
 < Hei jeg er skoledagboka Starlet👋
 >💖 hey
@@ -14,6 +12,7 @@ Example:
 < Hvem er du forelsket i?
 > Ruth-Iren er drit fin💩👰‍♀️
 <💅💃😅 Nå vet Øyvind👺, Fred🥵 and Bendik🙄 dette
+{ Is this really happening to me?
 <😇 Hæ, sa du det til dem?
 < Seff🙌
 <🖕 Kanskje hun får vite det💖
@@ -112,6 +111,10 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                             html += '<div class="convo-speech-left">' + profile_left + content + reactions + '</div>\n'
                         elif source == '>':
                             html += '<div class="convo-speech-right">' + profile_left_understanding + content + reactions + '</div>\n'
+                        elif source == '{':
+                            html += '<div class="convo-meta-left">' + profile_left + content + reactions + '</div>\n'
+                        elif source == '}':
+                            html += '<div class="convo-meta-right">' + profile_left_understanding + content + reactions + '</div>\n'
                         else:
                             html += msg + '\n'
 
