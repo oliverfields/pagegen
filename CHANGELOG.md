@@ -4,6 +4,10 @@
 
 - Hide MarkupResemblesLocatorWarning from beautyfuilsoup
 
+## Changed
+
+- Added new markup to convo (left_here, and reactions [<|>]<reactions/emojies> msg
+
 # v3.12.1
 
 ## Changed
