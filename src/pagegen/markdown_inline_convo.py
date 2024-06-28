@@ -51,7 +51,7 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                     if msg:
                         parsed_msg = msg.split(' ', 1)
                         msg_meta = parsed_msg[0]
-                        reaction_class_text = ' <span class="convo-reaction">'
+                        reaction_class_text = ' <span class="convo-msg-reaction">'
                         source = msg_meta[0]
 
                         try:
@@ -64,7 +64,7 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                             for c in  msg_meta[1:]:
                                 reactions += reaction_class_text + c + '</span>'
                             reactions = '<div class="convo-msg-reactions">' + reactions + '</span></div>'
-                            reactions = reactions.replace('convo_msg_reactions"> ' + reaction_class_text, 'convo_msg_reactions">')
+                            reactions = reactions.replace('convo-msg-reactions"> ' + reaction_class_text, 'convo-msg-reactions">')
                         except:
                             pass
 
