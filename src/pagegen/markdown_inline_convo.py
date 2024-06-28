@@ -50,13 +50,39 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                 for msg in m.group('msgs').split('\n'):
                     if msg:
                         parsed_msg = msg.split(' ', 1)
-                        prefix = parsed_msg[0]
-                        content = parsed_msg[1]
+                        msg_meta = parsed_msg[0]
+                        reaction_class_text = ' <span class="convo-reaction">'
+                        source = msg_meta[0]
 
-                        if prefix == '<':
-                            html += '<div class="convo-speech-left">' + content + '</div>\n'
-                        elif prefix == '>':
-                            html += '<div class="convo-speech-right">' + content + '</div>\n'
+                        try:
+                            content = parsed_msg[1]
+                        except:
+                            content = ''
+
+                        reactions = ''
+                        try:
+                            for c in  msg_meta[1:]:
+                                reactions += reaction_class_text + c + '</span>'
+                            reactions = '<div class="convo-msg-reactions">' + reactions + '</span></div>'
+                            reactions = reactions.replace('convo_msg_reactions"> ' + reaction_class_text, 'convo_msg_reactions">')
+                        except:
+                            pass
+
+                        try:
+                            if msg_meta[1] == '.':
+                                typing = True
+                        except:
+                            typing = False
+
+                        if typing:
+                            if source == '<':
+                                html += '<div class="convo-typing-left">&ellip;</div>\n'
+                            else:
+                                html += '<div class="convo-typing-right">&ellip;</div>\n'
+                        elif source == '<':
+                            html += '<div class="convo-speech-left">' + content + reactions + '</div>\n'
+                        elif source == '>':
+                            html += '<div class="convo-speech-right">' + content + reactions + '</div>\n'
                         else:
                             html += msg + '\n'
 
