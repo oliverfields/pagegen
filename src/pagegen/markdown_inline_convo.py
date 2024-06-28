@@ -76,9 +76,9 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
 
                         if typing:
                             if source == '<':
-                                html += '<div class="convo-typing-left">&ellip;</div>\n'
+                                html += '<div class="convo-typing-left">&hellip;</div>\n'
                             else:
-                                html += '<div class="convo-typing-right">&ellip;</div>\n'
+                                html += '<div class="convo-typing-right">&hellip;</div>\n'
                         elif source == '<':
                             html += '<div class="convo-speech-left">' + content + reactions + '</div>\n'
                         elif source == '>':
