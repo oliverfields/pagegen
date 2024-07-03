@@ -48,7 +48,7 @@ _pagegen_complete()
   local cur=${COMP_WORDS[$COMP_CWORD]}
   local prev=${COMP_WORDS[$COMP_CWORD-1]}
 
-  COMPREPLY=( $(compgen -W "-g --generate -s --serve -h --help -v --version -i --init" -- $cur) )
+  COMPREPLY=( $(compgen -W "-g --generate -s --serve -h --help -v --version -i --init -p --page" -- $cur) )
 
   # Check we are in a pagegen dir tree
   local pg_dir="$PWD"
@@ -70,7 +70,10 @@ _pagegen_complete()
   elif [ $COMP_CWORD -gt 1 ]; then
     case $prev in
       -g|--generate|-s|--serve)
-        COMPREPLY=( $(compgen -W "$(_pagegen_environments)" -- $cur) ) 
+        COMPREPLY=( $(compgen -W "$(_pagegen_environments)" -- $cur) )
+      ;;
+      -p|--page)
+        _filedir
       ;;
     esac
   fi

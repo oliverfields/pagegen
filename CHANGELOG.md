@@ -1,4 +1,8 @@
-# v3.*.*
+# v3.13.*
+
+## Added
+
+- Added serve single page for previewing a page without building the entire site. Usage: pgn --serve <environment> --page <path to page>
 
 ## Fixed
 
@@ -7,6 +11,7 @@
 ## Changed
 
 - Added new markup to convo (left_here, and reactions [<|>]<reactions/emojies> msg
+
 
 # v3.12.1
 
