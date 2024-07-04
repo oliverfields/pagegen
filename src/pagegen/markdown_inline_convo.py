@@ -53,24 +53,37 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
             html = ''
             if m:
 
-                profile_left = '<div class="convo-profile-left">🐘</div>'
+
+                profile_left_avatar = '🐷'
+                profile_left = '<div class="convo-profile-left">' + profile_left_avatar + '</div>'
                 #profile_right = '<div class="convo-profile-right">🎠</div>'
                 profile_right = ''
                 profile_left_understanding = '<div class="convo-understanding-left">🐘</div>'
+                profile_left_header = False
+                input = ''
 
                 for msg in m.group('msgs').split('\n'):
                     if msg:
 
-                        if msg.startswith('<profile:'):
-                            profile_left = '<div class="convo-profile-left">' + msg[9:] + '</div>'
-                            profile_left_understanding = '<div class="convo-left-understanding">' + msg[9:] + '</div>'
+                        if msg.startswith('[profile]:'):
+                            profile_left_avatar = msg[10:]
+                            profile_left = '<div class="convo-profile-left">' + profile_left_avatar + '</div>'
+                            profile_left_understanding = '<div class="convo-left-understanding">' + profile_left_avatar + '</div>'
+                            continue
+
+                        if msg.startswith('[name]:'):
+                            html = '<div class="convo-header"><div class="convo-header-profile">' + profile_left_avatar + '</div><strong>' + msg[7:] + '</strong></div>'
+                            continue
+
+                        if msg.startswith('[input]:'):
+                            input = '<div class="convo-input">' + msg[8:] + '<div class="convo-input-send">↲</div></div>'
                             continue
 
                         #if msg.startswith('>profile:'):
                         #    profile_right = '<div class="convo-profile-right">' + msg.lstrip[9:] + '</div>'
                         #    continue
 
-                        if msg == 'left_here':
+                        if msg == '[left_here]':
                             profile_left_understanding = ''
                             continue
 
@@ -118,7 +131,7 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                         else:
                             html += msg + '\n'
 
-                text = '%s\n%s\n%s' % (text[:m.start()], '<div class="convo">\n' + html + '</div>', text[m.end():])
+                text = '%s\n%s\n%s' % (text[:m.start()], '<div class="convo">\n' + html + input + '</div>', text[m.end():])
             else:
                 break
 
