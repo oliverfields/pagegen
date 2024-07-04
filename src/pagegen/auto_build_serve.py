@@ -26,7 +26,7 @@ def kill_http_server():
         os.kill(http_server_pid, signal.SIGTERM)
 
 
-def auto_build_serve(site_conf_path, environment, watch_elements, serve_dir, exclude_hooks, build_function, serve_base_url, serve_port, default_url=False):
+def auto_build_serve(site_conf_path, environment, watch_elements, serve_dir, exclude_hooks, build_function, serve_base_url, serve_port, default_url=False, single_page_path=False):
 
     try:
         http_server_process = subprocess.Popen(["python3", "-m", "http.server", serve_port, "-d", serve_dir], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -65,7 +65,7 @@ def auto_build_serve(site_conf_path, environment, watch_elements, serve_dir, exc
 
             if last_hash != this_hash:
                 print('[' + get_time_stamp() + '] Building..')
-                build_function(site_conf_path, environment, exclude_hooks, serve_base_url + ':' + serve_port, serve_mode=True)
+                build_function(site_conf_path, environment, exclude_hooks, serve_base_url + ':' + serve_port, serve_mode=True, single_page_path=single_page_path)
 
                 # Update timestamp to signal to live reaload js poll script to reload
                 write_file(serve_dir + '/' + SERVEMODESITEUPDATEDFILE, this_hash)

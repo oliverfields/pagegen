@@ -221,7 +221,8 @@ def serve_mode(site_conf_path, environment, single_page_path=False, default_exte
     watch_elements_full_path = [site_dir + '/' + we for we in watch_elements]
 
     from pagegen.auto_build_serve import auto_build_serve
-    auto_build_serve(site_conf_path, environment, watch_elements_full_path, serve_dir, exclude_hooks, build_site, serve_base_url, serve_port, default_url=default_serve_url)
+
+    auto_build_serve(site_conf_path, environment, watch_elements_full_path, serve_dir, exclude_hooks, build_site, serve_base_url, serve_port, default_url=default_serve_url, single_page_path=single_page_path)
 
 
 def gen_mode(site_conf_path, environment):
