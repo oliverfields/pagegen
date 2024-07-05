@@ -1,3 +1,9 @@
+# v3.13.*
+
+## Fixed
+
+- Bug with -s and -p
+
 # v3.13.0
 
 ## Added
