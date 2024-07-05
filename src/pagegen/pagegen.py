@@ -204,6 +204,8 @@ def serve_mode(site_conf_path, environment, single_page_path=False, default_exte
     # Build site and serve
     site = build_site(site_conf_path, environment, exclude_hooks, serve_base_url + ':' + serve_port, serve_mode=True, single_page_path=single_page_path)
 
+    default_serve_url = False
+
     if single_page_path:
         default_serve_url = single_page_path.removeprefix(site_dir + '/' + CONTENTDIR + '/')
         default_serve_url = urlify(default_serve_url)
