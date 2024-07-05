@@ -4,7 +4,8 @@ Markup a convo with speech bubbles
 Example:
 
 <convo>
-<profile:<img src="/assets/mugshot.jpg" />
+[avatar]:<img src="/assets/mugshot.jpg" />
+[name]:Left Name
 < Hei jeg er skoledagboka Starlet👋
 >💖 hey
 < Så hyggelig å møte deg😇 Kan jeg stille deg noen spørsmål?
@@ -15,8 +16,10 @@ Example:
 { Is this really happening to me?
 <😇 Hæ, sa du det til dem?
 < Seff🙌
+[left_here]
 <🖕 Kanskje hun får vite det💖
 <.
+[input]:Unsent message
 </convo>
 """
 
@@ -52,21 +55,17 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
             m = CONVO_RE_QUESTION.search(text)
             html = ''
             if m:
-
-
-                profile_left_avatar = '🐷'
-                profile_left = '<div class="convo-profile-left">' + profile_left_avatar + '</div>'
-                #profile_right = '<div class="convo-profile-right">🎠</div>'
-                profile_right = ''
-                profile_left_understanding = '<div class="convo-understanding-left">🐘</div>'
+                profile_left_avatar = ''
+                profile_left = ''
+                profile_left_understanding = ''
                 profile_left_header = False
                 input = ''
 
                 for msg in m.group('msgs').split('\n'):
                     if msg:
 
-                        if msg.startswith('[profile]:'):
-                            profile_left_avatar = msg[10:]
+                        if msg.startswith('[avatar]:'):
+                            profile_left_avatar = msg[9:]
                             profile_left = '<div class="convo-profile-left">' + profile_left_avatar + '</div>'
                             profile_left_understanding = '<div class="convo-left-understanding">' + profile_left_avatar + '</div>'
                             continue
@@ -78,10 +77,6 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                         if msg.startswith('[input]:'):
                             input = '<div class="convo-input">' + msg[8:] + '<div class="convo-input-send">↲</div></div>'
                             continue
-
-                        #if msg.startswith('>profile:'):
-                        #    profile_right = '<div class="convo-profile-right">' + msg.lstrip[9:] + '</div>'
-                        #    continue
 
                         if msg == '[left_here]':
                             profile_left_understanding = ''
@@ -125,7 +120,7 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                         elif source == '>':
                             html += '<div class="convo-speech-right">' + profile_left_understanding + content + reactions + '</div>\n'
                         elif source == '{':
-                            html += '<div class="convo-meta-left">' + profile_left + content + reactions + '</div>\n'
+                            html += '<div class="convo-meta-left">' + content + reactions + '</div>\n'
                         elif source == '}':
                             html += '<div class="convo-meta-right">' + profile_left_understanding + content + reactions + '</div>\n'
                         else:
