@@ -1,4 +1,4 @@
-from pagegen.utility_no_deps import report_error, report_notice, get_site_conf_path, exec_script, urlify
+from pagegen.utility_no_deps import report_error, report_notice, get_site_conf_path, exec_script, urlify, remove_prefix
 from os.path import expanduser, basename, join, isfile, isdir, dirname, exists, abspath
 from sys import exit, argv
 from os import getcwd, listdir, chdir, X_OK, access, get_terminal_size, makedirs, getenv, walk, environ
@@ -207,8 +207,9 @@ def serve_mode(site_conf_path, environment, single_page_path=False, default_exte
     default_serve_url = False
 
     if single_page_path:
-        default_serve_url = single_page_path.removeprefix(site_dir + '/' + CONTENTDIR + '/')
-        default_serve_url = urlify(default_serve_url)
+        default_serve_url = remove_prefix(single_page_path, site_dir + '/' + CONTENTDIR + '/')
+        # urlify needs to strip /digits_ so add / and then strip it
+        default_serve_url = urlify('/' + default_serve_url)[1:]
         default_serve_url += site.default_extension
 
     watch_elements = [

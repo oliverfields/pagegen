@@ -117,4 +117,11 @@ def title_from_path(path):
     return title
 
 
+def remove_prefix(text, prefix):
+    return text[text.startswith(prefix) and len(prefix):]
 
+
+def remove_suffix(text, suffix):
+    if suffix and text.endswith(suffix):
+        return text[:-len(suffix)]
+    return text

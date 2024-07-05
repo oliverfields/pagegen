@@ -1,5 +1,5 @@
 from pagegen.utility import get_first_words, load_config, load_file, relative_path, render_template, write_file, generate_menu, rst_to_html, markdown_to_html
-from pagegen.utility_no_deps import exec_script, is_default_file, report_error, report_notice, report_warning
+from pagegen.utility_no_deps import exec_script, is_default_file, report_error, report_notice, report_warning, remove_suffix, remove_prefix
 from pagegen.constants import ASSETDIR, CONFROOT, CONTENTDIR, DATEFORMAT, DIRDEFAULTFILE, DIRECTORIESTEMPLATE, HOOKDIR, NEWLINE, RSSFEEDFILE, SEARCHINDEXFILE, SERVEMODEJSFILE, SITECONF, SITEMAPFILE, SITEMAPTXTFILE, STOPWORDSFILE, TAGSTEMPLATE, TAGTEMPLATE, TARGETDIR, TEMPLATEDIR, THEMEDIR, AUTHORTEMPLATE, AUTHORSTEMPLATE, AUTHORSCONF, DEFAULTMARKUP
 from pagegen.utility_no_deps import urlify
 from configparser import ConfigParser, NoOptionError
@@ -286,7 +286,7 @@ class site:
         ''' Prepare single page and its parents for site generation '''
 
         if path.startswith(self.site_dir + '/'):
-            path = path.removeprefix(self.site_dir + '/')
+            path = remove_prefix(path, self.site_dir + '/')
 
         full_path = self.site_dir
         old_parent = False
@@ -308,7 +308,7 @@ class site:
 
                 if self.default_templates['directories']:
                     p.headers['template'] = self.default_templates['directories']
-                full_path = full_path.removesuffix('/' + DIRDEFAULTFILE)
+                full_path = remove_suffix(full_path, '/' + DIRDEFAULTFILE)
             else:
                 p = page()
                 p.load(
