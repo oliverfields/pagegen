@@ -1,4 +1,4 @@
-# v3.13.*
+# v3.13.0
 
 ## Added
 
@@ -10,7 +10,7 @@
 
 ## Changed
 
-- Added new markup to convo (left_here, and reactions [<|>]<reactions/emojies> msg
+- Added new markup to convo ([left_here], [avatar]:<emoji or html img tag>, [name]:<Left name>, and reactions [<|>]<reactions/emojies> msg
 
 
 # v3.12.1
