@@ -1,5 +1,9 @@
 # v3.13.*
 
+## Added
+
+- Image builtin shortcode rotates according to Exif orientation
+
 ## Fixed
 
 - Bug with -s and -p

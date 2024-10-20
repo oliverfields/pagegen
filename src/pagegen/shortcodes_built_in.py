@@ -99,9 +99,18 @@ def built_in_image(site, page, image_source, alt_attribute, target_dir=None, ima
     else:
         create_target = True
 
-
     if create_target:
         im = Image.open(image_source)
+
+        # Rotate if specified in exif
+        exif = im._getexif()
+        ORIENTATION = 274
+        if exif is not None and ORIENTATION in exif:
+            orientation = exif[ORIENTATION]
+            method = {2: Image.FLIP_LEFT_RIGHT, 4: Image.FLIP_TOP_BOTTOM, 8: Image.ROTATE_90, 3: Image.ROTATE_180, 6: Image.ROTATE_270, 5: Image.TRANSPOSE, 7: Image.TRANSVERSE}
+            if orientation in method:
+                im = im.transpose(method[orientation])
+
         im.thumbnail((width, height), Image.ANTIALIAS)
         im.save(target_file_path)
     else:
