@@ -632,7 +632,7 @@ class site:
                     except RuntimeError as e:
                         report_error(1, p.source_path + ': ' + str(e))
                     except Exception as e:
-                        raise(Exception(p.source_path + ': Content Markdown conversion failed'))
+                        raise(Exception(p.source_path + ': Content Markdown conversion failed: ' + str(e)))
 
                 # Needs to happen to html content, i.e. after markup conversion
                 if p.headers['number headings']:

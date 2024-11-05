@@ -30,10 +30,10 @@ import markdown
 
 class InlineConvoExtension(markdown.Extension):
 
-    def extendMarkdown(self, md, md_globals):
+    def extendMarkdown(self, md):
         """ Add InlineConvoPreprocessor to the Markdown instance. """
         md.registerExtension(self)
-        md.preprocessors.add('convo', InlineConvoCompiler(md), "_begin")
+        md.preprocessors.register(InlineConvoCompiler(md), 'convo', 31)
 
 
 class InlineConvoCompiler(markdown.preprocessors.Preprocessor):

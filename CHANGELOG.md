@@ -7,6 +7,7 @@
 ## Fixed
 
 - Bug with -s and -p
+- Markdown extensions support markdown 3.7 extension api
 
 # v3.13.0
 
