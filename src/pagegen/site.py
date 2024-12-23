@@ -46,6 +46,7 @@ class site:
         self.image_classes = {}
         self.authors = None
         self.strip_extensions = None
+        self.cache = {} # Convinience attibure for general purpose storing of data
 
         if isdir(site_dir):
             self.site_dir = site_dir

@@ -3,6 +3,7 @@
 ## Added
 
 - Image builtin shortcode rotates according to Exif orientation
+- site.cache attribute for use when caching stuff
 
 ## Fixed
 
