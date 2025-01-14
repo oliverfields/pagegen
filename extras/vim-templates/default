@@ -1,6 +1,0 @@
-#!/bin/bash
-
-today="$(date +%Y%m%d)"
-echo "Date: $today"
-echo "Tags: "
-echo ""
