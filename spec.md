@@ -65,11 +65,21 @@ init -> e.g. add files to content dir
 prune_cache -> after page loads prune the caches if required
 page_load -> when a page loads plugin gets a peak and can do stuff here, e.g. write caches
 build -> plugin does what it has to do
-
+shortcodes -> make scs available in markdown
 
 sitemap
   register -> sitemap.txt and sitemap.xml
   page_load -> add url to sitemap cache file if not header sitemap exclude: True
   prune -> if page deleted then remove it from cache file
   build -> update sitemap.* if it is older than any of the files
+  custom markdown generation
+
+plugin candidates
+archive
+tags
+search
+pagination
+prev/next links
+backlinks
+rss feed
 
