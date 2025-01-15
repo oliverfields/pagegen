@@ -13,21 +13,25 @@ def generate_site():
 
 
 def find_site_dir(path=False):
+    '''
+    Retrns path to site env if found in current directory or one of its parents
+    '''
+
     if not path:
         path = Path.cwd()
 
     possible_site_env = path / SITE_ENV
 
     if possible_site_env.is_file():
-        return possible_site_env.parent
+        return str(possible_site_env.parent)
     elif path != path.parent:
         return find_site_dir(path.parent)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     try:
-        system("") # Enable ansi escape codes
+        system('') # Enable ansi escape codes
 
         p = argparse.ArgumentParser()
 
@@ -41,17 +45,19 @@ if __name__ == "__main__":
             'dry_run': a.dry_run
         }
 
+        c = Common(settings=settings)
+
         if a.generate:
             site_dir = find_site_dir()
 
             if site_dir is None:
-                log_error(f'Unable to find {SITE_ENV}')
+                c.log_error(f'Unable to find {SITE_ENV}')
+                exit(1)
 
             s = Site(site_dir=site_dir, settings=settings)
 
 
     except Exception as e:
-        c = Common(settings=settings)
         c.log_error('Unknown failure')
         print_exception(type(e), e, e.__traceback__)
         exit(1)

@@ -1,6 +1,8 @@
 from constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES
 from sys import stderr, stdout
-from os import system, remove
+from os.path import isdir
+from os import system, remove, makedirs
+from shutil import copyfile
 
 
 class Common:
@@ -43,11 +45,28 @@ class Common:
                 self.log_info(f'Copy: {source} to {target}')
 
             try:
-                pass
-                #remove(path)
+                copyfile(source, target)
             except Exception as e:
                 log_error(f'Unable to copy {source} to {target}): {str(e)}')
                 raise
+
+
+    def make_dir(self, dir_path):
+        '''
+        Make directory
+        '''
+        if not isdir(dir_path):
+            if self.settings['dry_run']:
+                self.log_notice(f'DRY RUN: Would make: {dir_path}')
+            else:
+                if self.settings['verbose']:
+                    self.log_info(f'Creating: {dir_path}')
+
+                try:
+                    makedirs(dir_path)
+                except Exception as e:
+                    log_error(f'Unable to create directory: {dir_path}): {str(e)}')
+                    raise
 
 
     def log_error(self, message):
