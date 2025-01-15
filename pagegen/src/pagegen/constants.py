@@ -9,3 +9,4 @@ ESCAPECODES = {
 SITE_ENV = 'site.env'
 CONTENT_DIR = 'content'
 BUILD_DIR = 'build'
+ASSET_DIR = 'assets'
