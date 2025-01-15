@@ -24,6 +24,7 @@ class Site(Common):
         self.content_dir_list = self.get_file_list(self.content_dir)
 
         print('TODO refactor build list so there are less checks, maybe need lists for assets, list for dirs and list for pages, instead of all in one?')
+        print('TODO build lists should have both source and target paths set, so dont have to compute again')
 
         self.build_dir_list = self.get_file_list(self.build_dir)
 
@@ -77,7 +78,7 @@ class Site(Common):
             add_build_list = False
 
             if isfile(build_path):
-                if getmtime(content_path) < getmtime(build_path):
+                if getmtime(content_path) > getmtime(build_path):
                     add_build_list = True
             else:
                 add_build_list = True
