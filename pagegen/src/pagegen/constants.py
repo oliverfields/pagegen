@@ -6,5 +6,6 @@ ESCAPECODES = {
   "default": "\033[0m"
 }
 
-SITEENV = 'site.env'
-
+SITE_ENV = 'site.env'
+CONTENT_DIR = 'content'
+BUILD_DIR = 'build'

@@ -72,3 +72,4 @@ sitemap
   page_load -> add url to sitemap cache file if not header sitemap exclude: True
   prune -> if page deleted then remove it from cache file
   build -> update sitemap.* if it is older than any of the files
+
