@@ -1,0 +1,15 @@
+Preserve file name: True
+Generate HTML: False
+Exclude HTML minify: True
+Sitemap exclude: True
+Menu exclude: True
+Link chain exclude: True
+Search index exclude: True
+Preserve file name: True
+Template: whatever
+
+User-agent: *
+Disallow: /?tracking=on
+Disallow: /?tracking=off
+Sitemap: https://tidesofsea.com/sitemap.xml
+

@@ -1,0 +1,9 @@
+Title: Page not found
+Template: regular_pages.mako
+Menu title: 404
+Sitemap exclude: True
+Menu exclude: True
+Link chain exclude: True
+Search index exclude: True
+
+These are not the droids you are looking for🤖

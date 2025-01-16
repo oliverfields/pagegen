@@ -1,0 +1,7 @@
+Title: Search
+Menu exclude: True
+Link chain exclude: True
+Search index exclude: True
+Sitemap exclude: True
+Template: search.mako
+

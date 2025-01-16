@@ -1,0 +1,5 @@
+Template: archive.mako
+Search index exclude: True
+Sitemap exclude: True
+Title: Archive
+
