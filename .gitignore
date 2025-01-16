@@ -6,3 +6,4 @@ pyvenv.cfg
 lib/
 __pycache__/
 *.py[cod]
+venv
