@@ -2,6 +2,7 @@ from os import walk, listdir
 from os.path import basename, getmtime, join, isfile, isdir
 from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR
 from Common import Common
+from Page import Page
 
 
 class Site(Common):
@@ -44,16 +45,17 @@ class Site(Common):
         self.log_info(f'Building content {self.build_dir}')
 
         # Create directories
-        for d in self.directories_build_list:
-            self.make_dir(d)
+        for target_path in self.directories_build_list:
+            self.make_dir(target_path)
 
         # Generate pages
-        for p in self.pages_build_list:
-            self.log_info(f'Generate page: src {p[0]} tgt {p[1]}')
+        for src_tgt_paths in self.pages_build_list:
+            p = Page(src_tgt_paths[0], settings=self.settings)
+            p.write(src_tgt_paths[1])
 
         # Copy assets
-        for a in self.assets_build_list:
-            self.copy_path(a[0], a[1])
+        for src_tgt_paths in self.assets_build_list:
+            self.copy_path(src_tgt_paths[0], src_tgt_paths[1])
 
 
     def path_relative_to(self, path, relative_to):
@@ -76,44 +78,33 @@ class Site(Common):
             relative_path = self.path_relative_to(content_path, self.content_dir)
             build_path = f'{self.build_dir}{relative_path}'
 
-            add_build_list = False
-            is_page_path = False
-            is_asset_path = False
-            is_dir_path = False
+            path_type = False
 
-            # Type of path
+            # Set path type
             if isfile(content_path):
                 if content_path.startswith(self.asset_dir):
-                    is_asset_path = True
+                    path_type = 'asset'
                 else:
-                    is_page_path = True
+                    path_type = 'page'
             else:
-                is_dir_path = True
+                path_type = 'dir'
 
-            # Add paths to the respective build_lists
-            if isfile(build_path):
 
-                if getmtime(content_path) > getmtime(build_path):
-                    add_build_list = True
-
-            elif not isfile(build_path):
-                add_build_list = True
-
-            # Always add directories
-            elif isdir(build_path):
-                add_build_list = True
-
-            if add_build_list:
-
-                if is_dir_path:
-                    self.log_info(f'Adding to directories_build_list (always): {content_path}')
+            if path_type == 'dir':
+                if not isdir(build_path):
+                    self.log_info(f'Adding to directories_build_list: {content_path}')
                     self.directories_build_list.append(build_path)
-                elif is_asset_path:
-                    self.log_info(f'Adding to assets_build_list: {content_path}')
-                    self.assets_build_list.append((content_path, build_path))
-                else:
-                    self.log_info(f'Adding to page_build_list: {content_path}')
-                    self.pages_build_list.append((content_path, build_path))
+
+            else:
+
+                if not isfile(build_path) or getmtime(content_path) > getmtime(build_path):
+
+                    if path_type == 'asset':
+                        self.log_info(f'Adding to assets_build_list: {content_path}')
+                        self.assets_build_list.append((content_path, build_path))
+                    elif path_type == 'page':
+                        self.log_info(f'Adding to page_build_list: {content_path}')
+                        self.pages_build_list.append((content_path, build_path))
 
 
     def get_file_list(self, path):

@@ -1,8 +1,11 @@
 from constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES
 from sys import stderr, stdout
-from os.path import isdir
+from os.path import isdir, isfile
 from os import system, remove, makedirs
-from shutil import copyfile
+from shutil import copyfile, rmtree
+
+
+DRYRUNMSG = f'{ESCAPECODES["yellow"]}DRY RUN{ESCAPECODES["default"]}'
 
 
 class Common:
@@ -20,14 +23,16 @@ class Common:
         '''
 
         if self.settings['dry_run']:
-            self.log_notice(f'DRY RUN: Would delete: {path}')
+            self.log_notice(f'{DRYRUNMSG}: Would delete: {path}')
         else:
             if self.settings['verbose']:
-                self.log_info(f'Delete: {path}')
+                self.log_info(f'Deleting {path}')
 
             try:
-                pass
-                #remove(path)
+                if isfile(path):
+                    remove(path)
+                elif isdir(path):
+                    rmtree(path)
             except Exception as e:
                 log_error(f'Unable to delete {path}): {str(e)}')
                 raise
@@ -39,15 +44,34 @@ class Common:
         '''
 
         if self.settings['dry_run']:
-            self.log_notice(f'DRY RUN: Would copy: {source} to {target}')
+            self.log_notice(f'{DRYRUNMSG}: Would copy: {source} to {target}')
         else:
             if self.settings['verbose']:
-                self.log_info(f'Copy: {source} to {target}')
+                self.log_info(f'Copying {source} to {target}')
 
             try:
                 copyfile(source, target)
             except Exception as e:
                 log_error(f'Unable to copy {source} to {target}): {str(e)}')
+                raise
+
+
+    def write_file(self, file_path, content):
+        '''
+        Write contents to given file path
+        '''
+
+        if self.settings['dry_run']:
+            self.log_notice(f'{DRYRUNMSG}: Would write: {file_path}')
+        else:
+            if self.settings['verbose']:
+                self.log_info(f'Writing {file_path}')
+
+            try:
+                with open(file_path, 'w') as f:
+                    f.write(content)
+            except Exception as e:
+                log_error(f'Unable to write file: {file_path}): {str(e)}')
                 raise
 
 
@@ -57,15 +81,15 @@ class Common:
         '''
         if not isdir(dir_path):
             if self.settings['dry_run']:
-                self.log_notice(f'DRY RUN: Would make: {dir_path}')
+                self.log_notice(f'{DRYRUNMSG}: Would make {dir_path}')
             else:
                 if self.settings['verbose']:
-                    self.log_info(f'Creating: {dir_path}')
+                    self.log_info(f'Making {dir_path}')
 
                 try:
                     makedirs(dir_path)
                 except Exception as e:
-                    log_error(f'Unable to create directory: {dir_path}): {str(e)}')
+                    log_error(f'Unable to create directory {dir_path}): {str(e)}')
                     raise
 
 
