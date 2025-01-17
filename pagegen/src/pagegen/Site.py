@@ -99,7 +99,7 @@ class Site(Common):
             # Add header template too
             td.insert(0, template_path)
 
-            # Add any dependencies the page has
+            # Add page dependencies
             self.dep_graph.add(p.source_path, td)
 
             p.write()
