@@ -27,6 +27,9 @@ def find_site_dir(path=False):
 
 if __name__ == '__main__':
 
+    print('TODO LOCKPATH')
+    lock_path = join(site_dir, LOCK_FILE)
+
     try:
         system('') # Enable ansi escape codes
 
@@ -51,7 +54,6 @@ if __name__ == '__main__':
                 c.log_error(f'Unable to find {SITE_ENV}')
                 exit(1)
 
-            lock_path = join(site_dir, LOCK_FILE)
 
             if isfile(lock_path):
                 c.log_error(f'Lock file found, try again or delete: {lock_path}')
