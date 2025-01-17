@@ -63,7 +63,7 @@ class Site(Common):
         # A page depends on one template, so add that, and also all dependencies that that template has
         # Check that any pages that depend on templates are newer than the templates
         for content_path, depends_on_paths in self.dep_graph.deps.items():
-            relative_path = content_path[len(self.content_dir)+1:]
+            relative_path = content_path[len(self.content_dir)+1:].lstrip('/')
             build_path = join(self.build_dir, relative_path)
             for dep_path in depends_on_paths:
                 if getmtime(build_path) < getmtime(dep_path): # Yes, build path!
