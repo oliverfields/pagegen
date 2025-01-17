@@ -1,4 +1,4 @@
-from os.path import basename, getmtime, join, isfile, isdir
+from os.path import basename, getmtime, join, isfile, isdir, sep
 from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR
 from Common import Common
 from Page import Page
@@ -63,10 +63,7 @@ class Site(Common):
         # A page depends on one template, so add that, and also all dependencies that that template has
         # Check that any pages that depend on templates are newer than the templates
         for content_path, depends_on_paths in self.dep_graph.deps.items():
-            print(self.content_dir)
-            print(content_path)
-            relative_path = content_path[len(self.content_dir):]
-            print(relative_path)
+            relative_path = content_path[len(self.content_dir):].lstrip(sep)
             build_path = join(self.build_dir, relative_path)
             for dep_path in depends_on_paths:
                 if getmtime(build_path) < getmtime(dep_path): # Yes, build path!
