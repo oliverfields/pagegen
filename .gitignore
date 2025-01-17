@@ -7,3 +7,4 @@ lib/
 __pycache__/
 *.py[cod]
 venv
+.cache/
