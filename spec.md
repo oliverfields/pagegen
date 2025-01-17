@@ -51,6 +51,10 @@
 1. plugins register paths -> update content dir
 2. make content list
 3. prune build dir
+
+x. load dependency graph
+y. check build list items against dependency graph and add any items to build list
+
 4. update template cache
 5. template pass, for each file in cache that is older than its template add page to build list
 6. add pages that are older than build dir to build list
@@ -58,6 +62,19 @@
     7.1 run any plugin load functions
 8. plugin prune cache
 9. plugins run build functions
+
+
+
+
+dependency graph
+{
+  '<content_path>': [
+    '<build_path>', # Build path dependency
+    ...
+  ]
+}
+
+when item is found that needs building because of dependency graph, also check it's dependencies
 
 
 Plugin architecture

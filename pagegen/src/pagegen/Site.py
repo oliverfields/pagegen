@@ -1,8 +1,10 @@
-from os import walk, listdir
 from os.path import basename, getmtime, join, isfile, isdir
-from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR
+from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR
 from Common import Common
 from Page import Page
+from pickle import load, dump
+from DepGraph import DepGraph
+from TemplateDeps import TemplateDeps
 
 
 class Site(Common):
@@ -21,10 +23,16 @@ class Site(Common):
         self.content_dir = join(self.site_dir, CONTENT_DIR)
         self.build_dir = join(self.site_dir, BUILD_DIR)
         self.asset_dir = join(self.content_dir, ASSET_DIR)
+        self.cache_dir = join(self.site_dir, CACHE_DIR, self.__class__.__name__)
+
+        self.theme_dir = join(self.get_theme_dir())
+        self.theme_template_dir = join(self.theme_dir, THEME_TEMPLATE_DIR)
 
         self.log_info(f'site_dir: {self.site_dir}')
         self.log_info(f'content_dir: {self.content_dir}')
         self.log_info(f'build_dir: {self.build_dir}')
+
+        self.make_dir(self.cache_dir)
 
         self.content_dir_list = self.get_file_list(self.content_dir)
 
@@ -34,7 +42,39 @@ class Site(Common):
 
         self.set_build_lists()
 
+        self.add_broken_page_deps_to_build_list()
+
         self.build_site()
+
+        self.dep_graph.save()
+
+
+    def add_broken_page_deps_to_build_list(self):
+        '''
+        Pages may have dependencies, add page to build list dependency not satisfied and page needs building
+        '''
+
+        self.log_info('Analyzing dependencies')
+        self.dep_graph = DepGraph(join(self.cache_dir, 'dep_graph'))
+
+        if self.dep_graph.deps == {}:
+            self.log_warning('Dependency graph cache is empty')
+
+        # A page depends on one template, so add that, and also all dependencies that that template has
+        # Check that any pages that depend on templates are newer than the templates
+        for content_path, depends_on_paths in self.dep_graph.deps.items():
+            relative_path = content_path[len(self.content_dir)+1:]
+            build_path = join(self.build_dir, relative_path)
+            for dep_path in depends_on_paths:
+                if getmtime(build_path) < getmtime(dep_path): # Yes, build path!
+                    self.log_info(dep_path +' is newer than dependency ' + build_path)
+
+                    self.pages_build_list[content_path] = build_path
+
+
+    def get_theme_dir(self):
+        self.log_error('Implement Site.get_theme_template_dir()')
+        return join(self.site_dir, 'themes', 'ebbandflow')
 
 
     def build_site(self):
@@ -48,14 +88,25 @@ class Site(Common):
         for target_path in self.directories_build_list:
             self.make_dir(target_path)
 
+        template_deps = TemplateDeps(self.theme_template_dir)
+
         # Generate pages
-        for src_tgt_paths in self.pages_build_list:
-            p = Page(src_tgt_paths[0], settings=self.settings)
-            p.write(src_tgt_paths[1])
+        for src, tgt in self.pages_build_list.items():
+            p = Page(src, tgt, settings=self.settings)
+
+            template_path = join(self.theme_template_dir, p.headers['template'] + '.mako')
+            td = template_deps.deps[template_path]
+            # Add header template too
+            td.insert(0, template_path)
+
+            # Add any dependencies the page has
+            self.dep_graph.add(p.source_path, td)
+
+            p.write()
 
         # Copy assets
-        for src_tgt_paths in self.assets_build_list:
-            self.copy_path(src_tgt_paths[0], src_tgt_paths[1])
+        for src, tgt in self.assets_build_list.items():
+            self.copy_path(src, tgt)
 
 
     def path_relative_to(self, path, relative_to):
@@ -67,12 +118,14 @@ class Site(Common):
         Populates various lists of content that needs to be built
         '''
 
-        self.pages_build_list = []
-        self.assets_build_list = []
+        # page and asset list is used many places and best use dict so duplicate values are not added
+        self.pages_build_list = {}
+        self.assets_build_list = {}
         self.directories_build_list = []
 
         self.log_info(f'Making build lists {self.build_dir}')
 
+        # content_dir
         for content_path in self.content_dir_list:
 
             relative_path = self.path_relative_to(content_path, self.content_dir)
@@ -101,31 +154,10 @@ class Site(Common):
 
                     if path_type == 'asset':
                         self.log_info(f'Adding to assets_build_list: {content_path}')
-                        self.assets_build_list.append((content_path, build_path))
+                        self.assets_build_list[content_path] = build_path
                     elif path_type == 'page':
                         self.log_info(f'Adding to page_build_list: {content_path}')
-                        self.pages_build_list.append((content_path, build_path))
-
-
-    def get_file_list(self, path):
-        '''
-        Return list of all files and directories
-        '''
-        self.log_info(f'Get files in {path}')
-
-        l = []
-
-        for root, dirs, files in walk(path):
-
-            for d in dirs:
-                path = join(root, d)
-                l.append(path)
-
-            for f in files:
-                path = join(root, f)
-                l.append(path)
-
-        return l
+                        self.pages_build_list[content_path] = build_path
 
 
     def prune_build_dir(self):

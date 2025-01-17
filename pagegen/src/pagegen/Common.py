@@ -1,7 +1,7 @@
 from constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES
 from sys import stderr, stdout
-from os.path import isdir, isfile
-from os import system, remove, makedirs
+from os.path import isdir, isfile, join
+from os import system, remove, makedirs, walk
 from shutil import copyfile, rmtree
 
 
@@ -71,7 +71,7 @@ class Common:
                 with open(file_path, 'w') as f:
                     f.write(content)
             except Exception as e:
-                log_error(f'Unable to write file: {file_path}): {str(e)}')
+                self.log_error(f'Unable to write file: {file_path}): {str(e)}')
                 raise
 
 
@@ -108,4 +108,27 @@ class Common:
     def log_info(self, message):
         if self.settings['verbose']:
             stdout.write('%sINFO%s: %s\n' % (ESCAPECODES['blue'], ESCAPECODES['default'], message))
+
+
+    def get_file_list(self, path):
+        '''
+        Return list of all files and directories
+        '''
+        self.log_info(f'Get files in {path}')
+
+        l = []
+
+        for root, dirs, files in walk(path):
+
+            for d in dirs:
+                path = join(root, d)
+                l.append(path)
+
+            for f in files:
+                path = join(root, f)
+                l.append(path)
+
+        return l
+
+
 

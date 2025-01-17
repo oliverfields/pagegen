@@ -58,6 +58,7 @@ if __name__ == '__main__':
 
 
     except Exception as e:
+        print('cache could be inconsistent, delete it?')
         c.log_error('Unknown failure')
         print_exception(type(e), e, e.__traceback__)
         exit(1)
