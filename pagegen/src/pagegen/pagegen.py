@@ -27,8 +27,8 @@ def find_site_dir(path=False):
 
 if __name__ == '__main__':
 
-    print('TODO LOCKPATH')
-    lock_path = join(site_dir, LOCK_FILE)
+    site_dir = find_site_dir()
+    lock_file = join(site_dir, LOCK_FILE)
 
     try:
         system('') # Enable ansi escape codes
@@ -48,27 +48,24 @@ if __name__ == '__main__':
         c = Common(settings=settings)
 
         if a.generate:
-            site_dir = find_site_dir()
 
             if site_dir is None:
                 c.log_error(f'Unable to find {SITE_ENV}')
                 exit(1)
 
-
-            if isfile(lock_path):
-                c.log_error(f'Lock file found, try again or delete: {lock_path}')
+            if isfile(lock_file):
+                c.log_error(f'Lock file found, try again or delete: {lock_file}')
                 exit(1)
             else:
-                open(lock_path, O_CREAT | O_EXCL)
+                open(lock_file, O_CREAT | O_EXCL)
 
-            import time
-            time.sleep(20)
             s = Site(site_dir=site_dir, settings=settings)
 
-        remove(lock_path)
+        remove(lock_file)
 
     except KeyboardInterrupt:
-        remove(lock_path)
+        if isfile(lock_file):
+            remove(lock_file)
         print('')
         exit(1)
     except Exception as e:
