@@ -1,10 +1,11 @@
 from os.path import basename, getmtime, join, isfile, isdir, sep
-from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR
+from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR
 from Common import Common
 from Page import Page
 from pickle import load, dump
 from DepGraph import DepGraph
 from TemplateDeps import TemplateDeps
+from Plugins import Plugins
 
 
 class Site(Common):
@@ -25,13 +26,15 @@ class Site(Common):
         self.build_dir = join(self.site_dir, BUILD_DIR)
         self.asset_dir = join(self.content_dir, ASSET_DIR)
         self.cache_dir = join(self.site_dir, CACHE_DIR, self.__class__.__name__)
-
         self.theme_dir = join(self.get_theme_dir())
         self.theme_template_dir = join(self.theme_dir, THEME_TEMPLATE_DIR)
+        self.plugin_dir = join(self.site_dir, PLUGIN_DIR)
 
         self.log_info(f'site_dir: {self.site_dir}')
         self.log_info(f'content_dir: {self.content_dir}')
         self.log_info(f'build_dir: {self.build_dir}')
+
+        self.load_plugins()
 
         print('PLUGIN pre_build: before the fun starts')
 
@@ -52,6 +55,24 @@ class Site(Common):
         self.dep_graph.save()
 
         print('PLUGIN post_build: afterparty')
+
+
+    def load_plugins(self):
+        '''
+        Add plugin hook functions as specified in .pgn.env
+        '''
+        plugin_sources = []
+
+        for p in self.get_file_list(self.plugin_dir):
+            if p.endswith(f'{sep}class.py'):
+                self.log_info('Found plugin: ' + p)
+                plugin_sources.append(p)
+
+        self.plugins = Plugins(plugin_sources)
+
+        #self.hooks = {
+        #    ''
+        #}
 
 
     def add_broken_page_deps_to_build_list(self):
