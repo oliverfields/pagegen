@@ -128,3 +128,28 @@ Template plugin:
 
     PLUGIN post_build: afterparty
 
+
+
+search plugin:
+
+    PLUGIN pre_build: before the fun starts
+
+        plugin prunes index removing all related to pages no longer in content_dir_list
+
+    PLUGIN pre_build_lists
+
+        plugin updates its index file if any files it depends on are changed
+
+    PLUGIN post_build_lists
+
+
+    PLUGIN page_dep_check: Chance for plugin to check if any pages need to be rebuilt, the plugin probably maintains its own cache for this purpose
+    PLUGIN pre_page_build: before page is generated plugin can inspect and do stuff
+    PLUGIN add_template_functions
+    PLUGIN page_generate, if exists then use plugin function instead of builtin one, make it easy to use something other than markdown, builtin just copies page content verbatim
+    PLUGIN post_page_build: after page is generated plugin can inspect page and do stuff, e.g update any caches or such
+
+        plugin extracts terms from html and updates its index
+
+    PLUGIN post_build: afterparty
+
