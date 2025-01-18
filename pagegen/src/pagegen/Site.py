@@ -65,7 +65,7 @@ class Site(Common):
         if self.dep_graph.deps == {}:
             self.log_warning('Dependency graph cache is empty')
 
-        print('PLUGIN build_list: Chance for plugin to check if any pages need to be rebuilt, the plugin probably maintains its own cache for this purpose')
+        print('PLUGIN page_dep_check: Chance for plugin to check if any pages need to be rebuilt, the plugin probably maintains its own cache for this purpose')
 
         # A page depends on one template, so add that, and also all dependencies that that template has
         # Check that any pages that depend on templates are newer than the templates
@@ -100,6 +100,8 @@ class Site(Common):
         for src, tgt in self.pages_build_list.items():
             print('PLUGIN pre_page_build: before page is generated plugin can inspect and do stuff')
             p = Page(src, tgt, settings=self.settings)
+
+            print('PLUGIN page_generate_pipline_step: add a step in the pipleine')
 
             template_path = join(self.theme_template_dir, p.headers['template'] + '.mako')
             td = template_deps.deps[template_path]

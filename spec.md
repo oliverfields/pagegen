@@ -100,3 +100,31 @@ prev/next links
 backlinks
 rss feed
 
+plugin_add_hook(pre_build, sequence=10)
+if a plugin adds itself and there already exists a hook registered with same sequence integer then raise error. point of this is to make explicit the sequence that hooks are executed in, e.g. the markdown plugin must have a sequence lower than the template plugin so that the page content is first converted to  markdown, and then the template is applied creating the final html
+
+Template plugin:
+
+    PLUGIN pre_build: before the fun starts
+
+        plugin loads its own dep graph showing what templates depend on each other. if template has changed since it deps where calculated, then write new cache
+
+    PLUGIN pre_build_lists
+    PLUGIN post_build_lists
+    PLUGIN page_dep_check: Chance for plugin to check if any pages need to be rebuilt, the plugin probably maintains its own cache for this purpose
+
+        check page template for any dependencies against the dependencies that the template plugin maintains as pages are built, see the post_page_build hook
+
+    PLUGIN pre_page_build: before page is generated plugin can inspect and do stuff
+    PLUGIN add_template_functions
+
+    PLUGIN page_generate, if exists then use plugin function instead of builtin one, make it easy to use something other than markdown, builtin just copies page content verbatim
+
+        template plugin adds a step in the pipline for generating the page, another normal pipleline step is the markdown to html generator, the rusult of the pipeline is written to build target
+
+    PLUGIN post_page_build: after page is generated plugin can inspect page and do stuff, e.g update any caches or such
+
+        plugin figures out what template files the page relays on based on the page header template value. adding this dependency to the site dep_graph cache
+
+    PLUGIN post_build: afterparty
+
