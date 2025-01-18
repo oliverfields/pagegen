@@ -1,5 +1,5 @@
 import argparse
-from sys import exit
+from sys import exit, stdout
 from os import system, open, O_CREAT, O_EXCL, remove
 from os.path import join, isfile
 from Common import Common
@@ -7,6 +7,7 @@ from traceback import print_exception
 from constants import SITE_ENV, LOCK_FILE
 from Site import Site
 from pathlib import Path
+from Environment import Environment
 
 
 def find_site_dir(path=False):
@@ -46,6 +47,7 @@ if __name__ == '__main__':
         }
 
         c = Common(settings=settings)
+        env = Environment(join(site_dir, SITE_ENV)).env
 
         if a.generate:
 
@@ -54,14 +56,21 @@ if __name__ == '__main__':
                 exit(1)
 
             if isfile(lock_file):
-                c.log_error(f'Lock file found, try again or delete: {lock_file}')
-                exit(1)
+                c.log_warning(f'Lock file found: {lock_file}')
+
+                if stdout.isatty() and input('Delete lock file and continue? [N|y] ') == 'y':
+                    remove(lock_file)
+                else:
+                    exit()
             else:
                 open(lock_file, O_CREAT | O_EXCL)
 
-            s = Site(site_dir=site_dir, settings=settings)
+            s = Site(site_dir=site_dir, settings=settings, env=env)
 
-        remove(lock_file)
+        try:
+            remove(lock_file)
+        except FileNotFoundError:
+            pass
 
     except KeyboardInterrupt:
         if isfile(lock_file):

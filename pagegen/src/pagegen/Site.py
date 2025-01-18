@@ -16,10 +16,11 @@ class Site(Common):
     build_dir - generated site goes here, e.g. html etc
     '''
 
-    def __init__(self, site_dir=None, settings={}):
+    def __init__(self, site_dir=None, settings={}, env={}):
         self.site_dir = site_dir
 
         self.settings = settings
+        self.env = env
         self.content_dir = join(self.site_dir, CONTENT_DIR)
         self.build_dir = join(self.site_dir, BUILD_DIR)
         self.asset_dir = join(self.content_dir, ASSET_DIR)
@@ -31,6 +32,8 @@ class Site(Common):
         self.log_info(f'site_dir: {self.site_dir}')
         self.log_info(f'content_dir: {self.content_dir}')
         self.log_info(f'build_dir: {self.build_dir}')
+
+        print('PLUGIN pre_build: before the fun starts')
 
         self.make_dir(self.cache_dir)
 
@@ -48,6 +51,8 @@ class Site(Common):
 
         self.dep_graph.save()
 
+        print('PLUGIN post_build: afterparty')
+
 
     def add_broken_page_deps_to_build_list(self):
         '''
@@ -59,6 +64,8 @@ class Site(Common):
 
         if self.dep_graph.deps == {}:
             self.log_warning('Dependency graph cache is empty')
+
+        print('PLUGIN build_list: Chance for plugin to check if any pages need to be rebuilt, the plugin probably maintains its own cache for this purpose')
 
         # A page depends on one template, so add that, and also all dependencies that that template has
         # Check that any pages that depend on templates are newer than the templates
@@ -73,8 +80,7 @@ class Site(Common):
 
 
     def get_theme_dir(self):
-        self.log_error('Implement Site.get_theme_template_dir()')
-        return join(self.site_dir, 'themes', 'ebbandflow')
+        return join(self.site_dir, 'themes', self.env['site']['theme'])
 
 
     def build_site(self):
@@ -92,6 +98,7 @@ class Site(Common):
 
         # Generate pages
         for src, tgt in self.pages_build_list.items():
+            print('PLUGIN pre_page_build: before page is generated plugin can inspect and do stuff')
             p = Page(src, tgt, settings=self.settings)
 
             template_path = join(self.theme_template_dir, p.headers['template'] + '.mako')
@@ -102,6 +109,7 @@ class Site(Common):
             # Add page dependencies
             self.dep_graph.add(p.source_path, td)
 
+            print('PLUGIN post_page_build: after page is generated plugin can inspect page and do stuff, e.g update any caches or such')
             p.write()
 
         # Copy assets
@@ -124,6 +132,8 @@ class Site(Common):
         self.directories_build_list = []
 
         self.log_info(f'Making build lists {self.build_dir}')
+
+        print('PLUGIN pre_build_lists')
 
         # content_dir
         for content_path in self.content_dir_list:
@@ -158,6 +168,8 @@ class Site(Common):
                     elif path_type == 'page':
                         self.log_info(f'Adding to page_build_list: {content_path}')
                         self.pages_build_list[content_path] = build_path
+
+        print('PLUGIN post_build_lists')
 
 
     def prune_build_dir(self):
