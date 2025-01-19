@@ -34,9 +34,9 @@ class Site(Common):
         self.log_info(f'content_dir: {self.content_dir}')
         self.log_info(f'build_dir: {self.build_dir}')
 
-        self.load_plugins()
+        self.load_plugin_hooks()
 
-        print('PLUGIN pre_build: before the fun starts')
+        self.exec_hooks('pre_build')
 
         self.make_dir(self.cache_dir)
 
@@ -54,25 +54,32 @@ class Site(Common):
 
         self.dep_graph.save()
 
-        print('PLUGIN post_build: afterparty')
+        self.exec_hooks('post_build')
 
 
-    def load_plugins(self):
+    def exec_hooks(self, hook_name):
         '''
-        Add plugin hook functions as specified in .pgn.env
+        Run plugin hooks
         '''
+
+        self.log_info('Executing hooks: ' + hook_name)
+
+        for h in self.plugins.hooks[hook_name]:
+            h()
+
+
+    def load_plugin_hooks(self):
         plugin_sources = []
+
+        print('TODO get latest mtime from plugins files, if the mtime is less than the plugin class pickle, then load pickle and return, else load plugins from files and save pickle')
+        print(plugins_list)
 
         for p in self.get_file_list(self.plugin_dir):
             if p.endswith(f'{sep}class.py'):
-                self.log_info('Found plugin: ' + p)
+                self.log_info('Loading plugin: ' + p.split(sep)[-2])
                 plugin_sources.append(p)
 
         self.plugins = Plugins(plugin_sources)
-
-        #self.hooks = {
-        #    ''
-        #}
 
 
     def add_broken_page_deps_to_build_list(self):
@@ -86,7 +93,7 @@ class Site(Common):
         if self.dep_graph.deps == {}:
             self.log_warning('Dependency graph cache is empty')
 
-        print('PLUGIN page_dep_check: Chance for plugin to check if any pages need to be rebuilt, the plugin probably maintains its own cache for this purpose')
+        self.exec_hooks('page_dep_check')
 
         # A page depends on one template, so add that, and also all dependencies that that template has
         # Check that any pages that depend on templates are newer than the templates
@@ -119,10 +126,10 @@ class Site(Common):
 
         # Generate pages
         for src, tgt in self.pages_build_list.items():
-            print('PLUGIN pre_page_build: before page is generated plugin can inspect and do stuff')
-            p = Page(src, tgt, settings=self.settings)
 
-            print('PLUGIN page_generate_pipline_step: add a step in the pipleine')
+            self.exec_hooks('pre_page_build')
+
+            p = Page(src, tgt, settings=self.settings)
 
             template_path = join(self.theme_template_dir, p.headers['template'] + '.mako')
             td = template_deps.deps[template_path]
@@ -132,7 +139,8 @@ class Site(Common):
             # Add page dependencies
             self.dep_graph.add(p.source_path, td)
 
-            print('PLUGIN post_page_build: after page is generated plugin can inspect page and do stuff, e.g update any caches or such')
+            self.exec_hooks('post_page_build')
+
             p.write()
 
         # Copy assets
@@ -156,7 +164,7 @@ class Site(Common):
 
         self.log_info(f'Making build lists {self.build_dir}')
 
-        print('PLUGIN pre_build_lists')
+        self.exec_hooks('pre_build_lists')
 
         # content_dir
         for content_path in self.content_dir_list:
@@ -192,7 +200,7 @@ class Site(Common):
                         self.log_info(f'Adding to page_build_list: {content_path}')
                         self.pages_build_list[content_path] = build_path
 
-        print('PLUGIN post_build_lists')
+        self.exec_hooks('post_build_lists')
 
 
     def prune_build_dir(self):

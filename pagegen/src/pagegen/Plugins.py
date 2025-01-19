@@ -6,47 +6,48 @@ from pathlib import Path
 
 class Plugins():
     '''
-    Loads plugins from source files
+    Loads plugins from source files and adds plugin hook functions to hook lists
     '''
 
     def __init__(self, plugins_list):
         self.plugins = []
         self.hooks = {}
 
+        # Load plugin modules
         for path in plugins_list:
             plugin_name = path.split(sep)[-2] # ie .../plugins/NAME/class.py
-            print('loading: ' + plugin_name)
-            plugin = self.import_source_file(path, f'pagegen_plugin_{plugin_name}')
+            plugin = self.import_module_from_source(path, f'pgn_plugin_{plugin_name}')
+
             self.plugins.append(plugin)
 
+        # Add any plugin hook functions to the hook methods
+        for h in [
+                'pre_build',
+                'pre_build_lists',
+                'post_build_lists',
+                'page_dep_check',
+                'pre_page_build',
+                'post_page_build',
+                'post_build'
+            ]:
+            self.hooks[h] = []
 
-    def import_source_file(self, fname, modname):
-        """
-        Import a Python source file and return the loaded module.
+            # Add hook methods to hooks list
+            for p in self.plugins:
+                for func in dir(p):
+                    if func == f'pgn_hook_{h}':
+                        self.hooks[h].append(getattr(p, func))
+                        break
 
-        Args:
-            fname: The full path to the source file.  It may container characters like `.`
-                or `-`.
-            modname: The name for the loaded module.  It may contain `.` and even characters
-                that would normally not be allowed (e.g., `-`).
-        Return:
-            The imported module
 
-        Raises:
-            ImportError: If the file cannot be imported (e.g, if it's not a `.py` file or if
-                it does not exist).
-            Exception: Any exception that is raised while executing the module (e.g.,
-                :exc:`SyntaxError).  These are errors made by the author of the module!
-        """
-        # https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
+    def import_module_from_source(self, fname, modname):
+        '''
+        Import a Python source file and return the loaded module
+        '''
+
         spec = importlib.util.spec_from_file_location(modname, fname)
-        if spec is None:
-            raise ImportError(f"Could not load spec for module '{modname}' at: {fname}")
-        module = importlib.util.module_from_spec(spec)
-        sys.modules[modname] = module
-        try:
-            spec.loader.exec_module(module)
-        except FileNotFoundError as e:
-            raise ImportError(f"{e.strerror}: {fname}") from e
-        return module
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["module.name"] = mod
+        spec.loader.exec_module(mod)
 
+        return mod.Plugin()

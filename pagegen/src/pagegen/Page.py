@@ -17,9 +17,6 @@ class Page(Common):
 
         self.log_info(f'Generating page {source_path}')
 
-        print('PLUGIN add_template_functions')
-        print('PLUGIN page_generate, if exists then use plugin function instead of builtin one, make it easy to use something other than markdown, builtin just copies page content verbatim')
-
         if source_path == '/home/oliver/Documents/pgn4/mysite/content/index':
             self.headers['template'] = 'home_page'
         else:
