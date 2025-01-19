@@ -72,7 +72,6 @@ class Site(Common):
         plugin_sources = []
 
         print('TODO get latest mtime from plugins files, if the mtime is less than the plugin class pickle, then load pickle and return, else load plugins from files and save pickle')
-        print(plugins_list)
 
         for p in self.get_file_list(self.plugin_dir):
             if p.endswith(f'{sep}class.py'):
