@@ -40,6 +40,7 @@ if __name__ == '__main__':
         p.add_argument('-V', '--verbose', action='store_true', help='Increase verbosity')
         p.add_argument('-d', '--dry-run', action='store_true', help='Do not write to disk')
         p.add_argument('-i', '--ignore-lock', action='store_true', help='Ignore lock file')
+        p.add_argument('-c', '--clear-cache', action='store_true', help='Clear caches before building')
         a = p.parse_args()
 
         settings = {
