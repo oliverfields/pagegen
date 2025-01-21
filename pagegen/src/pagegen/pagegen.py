@@ -39,11 +39,12 @@ if __name__ == '__main__':
         p.add_argument('-g', '--generate', action='store_true', help='Generate site')
         p.add_argument('-V', '--verbose', action='store_true', help='Increase verbosity')
         p.add_argument('-d', '--dry-run', action='store_true', help='Do not write to disk')
+        p.add_argument('-i', '--ignore-lock', action='store_true', help='Ignore lock file')
         a = p.parse_args()
 
         settings = {
             'verbose': a.verbose,
-            'dry_run': a.dry_run
+            'dry_run': a.dry_run,
         }
 
         c = Common(settings=settings)
@@ -58,7 +59,8 @@ if __name__ == '__main__':
             if isfile(lock_file):
                 c.log_warning(f'Lock file found: {lock_file}')
 
-                if stdout.isatty() and input('Delete lock file and continue? [N|y] ') == 'y':
+                if a.ignore_lock == False and stdout.isatty() and input('Delete lock file and continue? [N|y] ') == 'y':
+
                     remove(lock_file)
                 else:
                     exit()

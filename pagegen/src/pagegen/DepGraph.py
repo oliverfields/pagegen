@@ -1,4 +1,5 @@
 from pickle import load, dump
+from pathlib import Path
 
 
 class DepGraph():
@@ -34,5 +35,11 @@ class DepGraph():
 
 
     def save(self):
-        with open(self.cache_file, 'wb') as f:
-            dump(self.deps, f)
+        try:
+            with open(self.cache_file, 'wb') as f:
+                dump(self.deps, f)
+        except FileNotFoundError:
+            p = Path(self.cache_file)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.cache_file, 'wb') as f:
+                dump(self.deps, f)
