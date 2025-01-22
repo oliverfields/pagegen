@@ -3,6 +3,7 @@ from sys import stderr, stdout
 from os.path import isdir, isfile, join
 from os import system, remove, makedirs, walk
 from shutil import copyfile, rmtree
+from pickle import dump
 
 
 DRYRUNMSG = f'{ESCAPECODES["yellow"]}DRY RUN{ESCAPECODES["default"]}'
@@ -89,7 +90,7 @@ class Common:
                 try:
                     makedirs(dir_path)
                 except Exception as e:
-                    log_error(f'Unable to create directory {dir_path}): {str(e)}')
+                    self.log_error(f'Unable to create directory {dir_path}): {str(e)}')
                     raise
 
 
@@ -131,4 +132,14 @@ class Common:
         return l
 
 
+    def pickle_object(self, cache_dir, cache_file, obj):
+        self.make_dir(cache_dir)
+        path = join(cache_dir, cache_file)
 
+        if self.settings['dry_run']:
+            self.log_notice(f'{DRYRUNMSG}: Would create cache: {path}')
+        else:
+            if self.settings['verbose']:
+                self.log_info(f'Writing cache {path}')
+            with open(path, 'wb') as f:
+                dump(obj, f)

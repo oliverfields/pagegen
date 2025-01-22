@@ -8,9 +8,7 @@ from DepGraph import DepGraph
 from TemplateDeps import TemplateDeps
 from sys import path as syspath, modules
 from importlib import import_module
-
-
-PLUGINS_CACHE_FILE = 'plugins'
+from Plugins import Plugins
 
 
 class Site(Common):
@@ -33,14 +31,20 @@ class Site(Common):
         self.cache_dir = join(self.site_dir, CACHE_DIR, self.__class__.__name__)
         self.theme_dir = join(self.get_theme_dir())
         self.theme_template_dir = join(self.theme_dir, THEME_TEMPLATE_DIR)
-        self.site_plugin_dir = join(self.site_dir, PLUGIN_DIR)
-        self.pgn_plugin_dir = join(dirname(abspath(__file__)), PLUGIN_DIR)
 
         self.log_info(f'site_dir: {self.site_dir}')
         self.log_info(f'content_dir: {self.content_dir}')
         self.log_info(f'build_dir: {self.build_dir}')
 
-        self.load_plugin_hooks()
+        self.plugins = Plugins(
+            join(self.site_dir, PLUGIN_DIR), # Site plugins dir
+            join(dirname(abspath(__file__)), PLUGIN_DIR), # pagegen plugins dir
+            join(self.site_dir, CACHE_DIR), # Cache dir
+            settings=self.settings,
+            env=self.env
+        )
+
+        self.plugins.load_plugin_hooks()
 
         self.exec_hooks('pre_build')
 
@@ -58,19 +62,9 @@ class Site(Common):
 
         # Write caches
         self.dep_graph.save()
-        self.write_cache(PLUGINS_CACHE_FILE, self.hooks)
+        self.plugins.write_cache()
 
         self.exec_hooks('post_build')
-
-
-    def write_cache(self, filename, obj):
-        self.make_dir(self.cache_dir)
-        path = join(self.cache_dir, filename)
-
-        self.log_info('Writing cache: ' + path)
-
-        with open(path, 'wb') as f:
-            dump(obj, f)
 
 
     def exec_hooks(self, hook_name):
@@ -80,94 +74,8 @@ class Site(Common):
 
         self.log_info('Executing hooks: ' + hook_name)
 
-        for h in self.hooks[hook_name]:
+        for h in self.plugins.hooks[hook_name]:
             h()
-
-
-    def load_plugin_hooks(self):
-        '''
-        Load plugins from cache if exists, only load plugins that are defined in .pgn_env
-        '''
-        plugins_cache = join(self.cache_dir, PLUGINS_CACHE_FILE)
-
-        # First look for builtin plugins
-        pgn_plugins = self.find_plugins(self.pgn_plugin_dir)
-        site_plugins = self.find_plugins(self.site_plugin_dir)
-
-        # Make list of plugins that only exist in pgn or site, if in both choose site ones
-
-        all_plugins_dict = {}
-        for pp in pgn_plugins:
-            name = basename(pp).replace('.py', '')
-            all_plugins_dict[name] = pp
-
-        for sp in site_plugins:
-            name = basename(sp).replace('.py', '')
-            all_plugins_dict[name] = sp
-
-        all_plugins = []
-        for k, v in all_plugins_dict.items():
-            all_plugins.append(v)
-
-        if all_plugins == []:
-            self.log_info('No plugins found')
-            return
-
-        # Get most recent changed time for plugin files
-        for src in all_plugins:
-            for subdir, dirs, files in walk(dirname(src)):
-                for file in files:
-                    f = join(subdir, file)
-                    fmtime = getmtime(f)
-
-                    try:
-                        if last_plugins_change < fmtime:
-                            last_plugins_change = fmtime
-                    except UnboundLocalError:
-                        last_plugins_change = fmtime
-
-
-        # Add plugin dirs to, site first, then pgn
-        for d in site_plugins:
-            syspath.append(dirname(d))
-
-        for d in pgn_plugins:
-            syspath.append(dirname(d))
-
-
-        try:
-            if getmtime(plugins_cache) >= last_plugins_change:
-                self.log_info('Loading plugins from cache')
-
-                with open(plugins_cache, 'rb') as f:
-                    self.hooks = load(f)
-            else:
-                self.log_info('Plugin cache stale: Initalizing plugins')
-                self.plugins = self.load_plugins(all_plugins)
-        except FileNotFoundError:
-            self.log_info('No plugin cache found: Initalizing plugins')
-            self.plugins = self.load_plugins(all_plugins)
-        except EOFError:
-            self.log_info('Corrupted plugin cache: Initalizing plugins')
-            self.plugins = self.load_plugins(all_plugins)
-
-
-    def find_plugins(self, dir_name):
-
-        plugin_sources = []
-
-        try:
-            for p in listdir(dir_name):
-                full_path = join(dir_name,p)
-                if isdir(full_path) and not p.startswith('__'):
-                    # Check plugin enabled in env
-                    if f'plugin_{p}' in self.env.sections():
-                        plugin_path = join(full_path, p) + '.py'
-                        plugin_sources.append(plugin_path)
-        except FileNotFoundError:
-            pass
-
-        return plugin_sources
 
 
     def add_broken_page_deps_to_build_list(self):
@@ -318,54 +226,4 @@ class Site(Common):
 
             if delete_path:
                 self.delete_path(build_path)
-
-
-    def load_plugins(self, plugins):
-        self.plugins = []
-        self.hooks = {}
-
-        # Load plugin modules
-        for path in plugins:
-            plugin_name = basename(path).replace('.py', '')
-
-            self.log_info('Loading plugin: ' + path)
-
-            module = import_module(plugin_name)
-            plugin_class = getattr(module, 'Plugin')
-            plugin_instance = plugin_class()
-
-            self.plugins.append(plugin_instance)
-
-        # Add any plugin hook functions to the hook methods
-        for h in [
-                'pre_build',
-                'pre_build_lists',
-                'post_build_lists',
-                'page_dep_check',
-                'pre_page_build',
-                'post_page_build',
-                'post_build'
-            ]:
-            self.hooks[h] = []
-
-            # Add hook methods to hooks list
-            for p in self.plugins:
-                for func in dir(p):
-                    if func == f'pgn_hook_{h}':
-                        self.hooks[h].append(getattr(p, func))
-                        break
-
-
-    def import_module_from_source(self, fname, modname):
-        '''
-        Import a Python source file and return the loaded module
-        '''
-
-        spec = importlib.util.spec_from_file_location(modname, fname)
-        mod = importlib.util.module_from_spec(spec)
-        #modules["module.name"] = mod
-        spec.loader.exec_module(mod)
-        modules[modname] = mod
-
-        return mod.Plugin()
 
