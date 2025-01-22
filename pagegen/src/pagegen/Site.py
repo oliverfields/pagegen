@@ -46,7 +46,7 @@ class Site(Common):
 
         self.plugins.load_plugin_hooks()
 
-        self.exec_hooks('pre_build')
+        self.exec_hooks('pre_build', site=self)
 
         self.content_dir_list = self.get_file_list(self.content_dir)
 
@@ -67,7 +67,7 @@ class Site(Common):
         self.exec_hooks('post_build')
 
 
-    def exec_hooks(self, hook_name):
+    def exec_hooks(self, hook_name, site=False, page=False):
         '''
         Run plugin hooks
         '''
@@ -75,7 +75,16 @@ class Site(Common):
         self.log_info('Executing hooks: ' + hook_name)
 
         for h in self.plugins.hooks[hook_name]:
-            h()
+            try:
+                if site != False and page != False:
+                    h(site, page)
+                elif site != False:
+                    h(site)
+                else:
+                    h()
+            except TypeError as e:
+                self.log_error(f'Plugin hook {hook_name} failed: {h}')
+                raise
 
 
     def add_broken_page_deps_to_build_list(self):

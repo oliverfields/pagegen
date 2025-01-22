@@ -137,6 +137,8 @@ class Plugins(Common):
                 'post_build_lists',
                 'page_dep_check',
                 'pre_page_build',
+                'page_convert_html',
+                'page_apply_template',
                 'post_page_build',
                 'post_build'
             ]:
