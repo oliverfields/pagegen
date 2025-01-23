@@ -41,14 +41,13 @@ class Site(Common):
         logger.info(f'content_dir: {self.content_dir}')
         logger.info(f'build_dir: {self.build_dir}')
 
-        self.plugins = Plugins(
+        plugin_module = Plugins(
             join(self.site_dir, PLUGIN_DIR), # Site plugins dir
             join(dirname(abspath(__file__)), PLUGIN_DIR), # pagegen plugins dir
             join(self.site_dir, CACHE_DIR), # Cache dir
             conf=self.conf
         )
-
-        self.plugins.load_plugin_hooks()
+        self.plugins = plugin_module.plugins
 
         self.exec_hooks(HOOK_PRE_BUILD, {'site': self})
 
@@ -68,7 +67,7 @@ class Site(Common):
 
         # Write caches
         self.dep_graph.write_cache()
-        self.plugins.write_cache()
+        plugin_module.write_cache()
 
 
     def exec_hooks(self, hook_name, objects):
@@ -78,11 +77,15 @@ class Site(Common):
 
         logger.info('Executing hooks: ' + hook_name)
 
-        for h in self.plugins.hooks[hook_name]:
+        for p in self.plugins:
+            p_type = type(p)
             try:
-                h(objects)
+                getattr(p, f'{hook_name}')(objects)
+                logger.info(f'{type(p)}: Running hook {hook_name}')
+            except AttributeError:
+                pass
             except TypeError as e:
-                logger.error(f'Plugin hook {hook_name} failed: {h}')
+                logger.error(f'{p_type}: {hook_name} failed')
                 raise
 
 

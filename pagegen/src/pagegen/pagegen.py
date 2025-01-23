@@ -3,10 +3,11 @@ from sys import exit, stdout
 from os import system, open, O_CREAT, O_EXCL, remove, environ
 from os.path import join, isfile
 from traceback import print_exception
-from constants import SITE_CONF, LOCK_FILE
+from constants import SITE_CONF, LOCK_FILE, CACHE_DIR, BUILD_DIR, DRYRUNMSG
 from Site import Site
 from pathlib import Path
 from Config import Config
+from shutil import rmtree
 import logger_setup
 import logging
 
@@ -56,6 +57,25 @@ if __name__ == '__main__':
 
         if a.dry_run:
             environ['PGN_DRY_RUN'] = 'yes'
+
+        if a.clear_cache:
+            cache_dir = join(site_dir, CACHE_DIR)
+            build_dir = join(site_dir, BUILD_DIR)
+            if a.dry_run:
+                logger.info(f'{DRYRUNMSG}: Would delete {cache_dir}')
+                logger.info(f'{DRYRUNMSG}: Would delete {build_dir}')
+            else:
+                try:
+                    rmtree(cache_dir)
+                    logger.warning(f'Deleting {cache_dir}')
+                except FileNotFoundError:
+                    pass
+
+                try:
+                    rmtree(build_dir)
+                    logger.warning(f'Deleting {build_dir}')
+                except FileNotFoundError:
+                    pass
 
         if a.generate:
 

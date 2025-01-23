@@ -1,4 +1,4 @@
-from constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES
+from constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES, DRYRUNMSG
 from sys import stderr, stdout
 from os.path import isdir, isfile, join
 from os import system, remove, makedirs, walk, environ
@@ -9,7 +9,6 @@ import logging
 
 logger = logging.getLogger('pagegen.' + __name__)
 
-DRYRUNMSG = f'{ESCAPECODES["yellow"]}DRY RUN{ESCAPECODES["default"]}'
 DRY_RUN = environ.get('PGN_DRY_RUN', False)
 
 class Common:

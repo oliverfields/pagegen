@@ -4,7 +4,6 @@ from Common import Common
 from pickle import load
 from sys import path as syspath, modules
 from importlib import import_module
-from constants import HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER_MARKUP, HOOK_PAGE_RENDER_TEMPLATE, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD
 import logger_setup
 import logging
 
@@ -19,16 +18,17 @@ class Plugins(Common):
         self.site_plugin_dir = site_plugin_dir
         self.pgn_plugin_dir = pgn_plugin_dir
         self.cache_dir = join(site_cache_dir, self.__class__.__name__)
-        self.hooks_cache_file_name = 'hooks'
-        self.hooks_cache_path = join(self.cache_dir, self.hooks_cache_file_name)
+        self.plugin_cache_file_name = 'plugins'
+        self.plugin_cache_path = join(self.cache_dir, self.plugin_cache_file_name)
         self.conf = conf
+        self.load_plugins()
 
 
     def write_cache(self):
-        self.pickle_object(self.cache_dir, self.hooks_cache_file_name, self.hooks)
+        self.pickle_object(self.cache_dir, self.plugin_cache_file_name, self.plugins)
 
 
-    def load_plugin_hooks(self):
+    def load_plugins(self):
         '''
         Load plugins from cache if exists, only load plugins that are defined in site config
         '''
@@ -53,7 +53,7 @@ class Plugins(Common):
             all_plugins.append(v)
 
         if all_plugins == []:
-            logger.info('No plugins found')
+            logger.warning('No plugins found')
             return
 
         # Get most recent changed time for plugin files
@@ -78,26 +78,25 @@ class Plugins(Common):
             syspath.append(dirname(d))
 
         try:
-            if getmtime(self.hooks_cache_path) >= last_plugins_change:
+            if getmtime(self.plugin_cache_path) >= last_plugins_change:
                 logger.info('Loading plugins from cache')
 
-                with open(self.hooks_cache_path, 'rb') as f:
-                    self.hooks = load(f)
+                with open(self.plugin_cache_path, 'rb') as f:
+                    self.plugins = load(f)
+
+                return
             else:
                 logger.info('Plugin cache stale: Initalizing plugins')
-                self.plugins = self.load_plugins(all_plugins)
         except NotADirectoryError:
             logger.warning('No plugin directory found: Initalizing plugins')
-            self.plugins = self.load_plugins(all_plugins)
         except ModuleNotFoundError:
             logger.warning('Plugin module not found: Initalizing plugins')
-            self.plugins = self.load_plugins(all_plugins)
         except FileNotFoundError:
             logger.warning('No plugin cache found: Initalizing plugins')
-            self.plugins = self.load_plugins(all_plugins)
         except EOFError:
             logger.warning('Corrupted plugin cache: Initalizing plugins')
-            self.plugins = self.load_plugins(all_plugins)
+
+        self.find_and_load_plugins(all_plugins)
 
 
     def find_plugins(self, dir_name):
@@ -118,12 +117,11 @@ class Plugins(Common):
         return plugin_sources
 
 
-    def load_plugins(self, plugins):
+    def find_and_load_plugins(self, plugin_paths):
         self.plugins = []
-        self.hooks = {}
 
         # Load plugin modules
-        for path in plugins:
+        for path in plugin_paths:
             plugin_name = basename(path).replace('.py', '')
 
             logger.info('Loading plugin: ' + path)
@@ -133,30 +131,6 @@ class Plugins(Common):
             plugin_instance = plugin_class()
 
             self.plugins.append(plugin_instance)
-
-        # Add any plugin hook functions to the hook methods
-        for h in [
-                HOOK_PRE_BUILD,
-                HOOK_PRE_BUILD_LISTS,
-                HOOK_POST_BUILD_LISTS,
-                HOOK_PAGE_DEPS,
-                HOOK_PAGE_PRE_BUILD,
-                HOOK_PAGE_RENDER_MARKUP,
-                HOOK_PAGE_RENDER_TEMPLATE,
-                HOOK_PAGE_POST_BUILD,
-                HOOK_POST_BUILD
-            ]:
-            self.hooks[h] = []
-
-            # Add hook methods to hooks list
-            print(self.hooks)
-            print('TODO try to remove self.plugin, think this is self referential..')
-            for p in self.plugins:
-                print(p)
-                for func in dir(p):
-                    if func == f'pgn_hook_{h}':
-                        self.hooks[h].append(getattr(p, func))
-                        break
 
 
     def import_module_from_source(self, fname, modname):
