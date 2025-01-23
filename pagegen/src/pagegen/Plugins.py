@@ -4,31 +4,32 @@ from Common import Common
 from pickle import load
 from sys import path as syspath, modules
 from importlib import import_module
+import logger_setup
+import logging
 
+logger = logging.getLogger('pagegen.' + __name__)
 
 class Plugins(Common):
     '''
     Load plugins using caching
     '''
 
-    def __init__(self, site_plugin_dir, pgn_plugin_dir, site_cache_dir, settings={}, env={}):
+    def __init__(self, site_plugin_dir, pgn_plugin_dir, site_cache_dir, conf={}):
         self.site_plugin_dir = site_plugin_dir
         self.pgn_plugin_dir = pgn_plugin_dir
         self.cache_dir = join(site_cache_dir, self.__class__.__name__)
         self.hooks_cache_file_name = 'hooks'
         self.hooks_cache_path = join(self.cache_dir, self.hooks_cache_file_name)
-        self.settings = settings
-        self.env = env
+        self.conf = conf
 
 
     def write_cache(self):
         self.pickle_object(self.cache_dir, self.hooks_cache_file_name, self.hooks)
-        #self.pickle_object(self.cache_dir, 'plugins', self.plugins)
 
 
     def load_plugin_hooks(self):
         '''
-        Load plugins from cache if exists, only load plugins that are defined in .pgn_env
+        Load plugins from cache if exists, only load plugins that are defined in site config
         '''
 
         # First look for builtin plugins
@@ -51,7 +52,7 @@ class Plugins(Common):
             all_plugins.append(v)
 
         if all_plugins == []:
-            self.log_info('No plugins found')
+            logger.info('No plugins found')
             return
 
         # Get most recent changed time for plugin files
@@ -78,21 +79,21 @@ class Plugins(Common):
 
         try:
             if getmtime(self.hooks_cache_path) >= last_plugins_change:
-                self.log_info('Loading plugins from cache')
+                logger.info('Loading plugins from cache')
 
                 with open(self.hooks_cache_path, 'rb') as f:
                     self.hooks = load(f)
             else:
-                self.log_info('Plugin cache stale: Initalizing plugins')
+                logger.info('Plugin cache stale: Initalizing plugins')
                 self.plugins = self.load_plugins(all_plugins)
         except NotADirectoryError:
-            self.log_info('No plugin directory found: Initalizing plugins')
+            logger.info('No plugin directory found: Initalizing plugins')
             self.plugins = self.load_plugins(all_plugins)
         except FileNotFoundError:
-            self.log_info('No plugin cache found: Initalizing plugins')
+            logger.info('No plugin cache found: Initalizing plugins')
             self.plugins = self.load_plugins(all_plugins)
         except EOFError:
-            self.log_info('Corrupted plugin cache: Initalizing plugins')
+            logger.info('Corrupted plugin cache: Initalizing plugins')
             self.plugins = self.load_plugins(all_plugins)
 
 
@@ -104,8 +105,8 @@ class Plugins(Common):
             for p in listdir(dir_name):
                 full_path = join(dir_name,p)
                 if isdir(full_path) and not p.startswith('__'):
-                    # Check plugin enabled in env
-                    if f'plugin_{p}' in self.env.sections():
+                    # Check plugin enabled in conf
+                    if f'plugin_{p}' in self.conf.sections():
                         plugin_path = join(full_path, p) + '.py'
                         plugin_sources.append(plugin_path)
         except FileNotFoundError:
@@ -122,7 +123,7 @@ class Plugins(Common):
         for path in plugins:
             plugin_name = basename(path).replace('.py', '')
 
-            self.log_info('Loading plugin: ' + path)
+            logger.info('Loading plugin: ' + path)
 
             module = import_module(plugin_name)
             plugin_class = getattr(module, 'Plugin')

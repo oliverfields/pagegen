@@ -1,6 +1,10 @@
 from os import listdir
 from os.path import join
 from mako import util, lexer
+import logger_setup
+import logging
+
+logger = logging.getLogger('pagegen.' + __name__)
 #from mako.parsetree import InheritTag, BlockTag, IncludeTag
 
 # Thanks! https://groups.google.com/g/mako-discuss/c/rNj6Vxc984k/m/dVM08xaUAmoJ

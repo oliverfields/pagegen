@@ -6,7 +6,7 @@ ESCAPECODES = {
   "default": "\033[0m"
 }
 
-SITE_ENV = '.pgn_env'
+SITE_CONF = 'site.conf'
 CONTENT_DIR = 'content'
 BUILD_DIR = 'build'
 ASSET_DIR = 'assets'

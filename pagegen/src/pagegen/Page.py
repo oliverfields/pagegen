@@ -1,4 +1,8 @@
 from Common import Common
+import logger_setup
+import logging
+
+logger = logging.getLogger('pagegen.' + __name__)
 
 
 class Page(Common):
@@ -15,7 +19,7 @@ class Page(Common):
         self.settings = settings
         self.headers = {}
 
-        self.log_info(f'Generating page {source_path}')
+        logger.info(f'Generating page {source_path}')
 
         if source_path == '/home/oliver/Documents/pgn4/mysite/content/index':
             self.headers['template'] = 'home_page'

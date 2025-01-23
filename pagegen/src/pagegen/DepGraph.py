@@ -1,6 +1,9 @@
 from pickle import load, dump
 from pathlib import Path
+import logger_setup
+import logging
 
+logger = logging.getLogger('pagegen.' + __name__)
 
 class DepGraph():
     '''
@@ -12,6 +15,7 @@ class DepGraph():
         self.cache_file = cache_file
 
         try:
+            logger.info('Loading dependency graph from file: ' + self.cache_file)
             with open(self.cache_file, 'rb') as f:
                 self.deps = load(f)
         except FileNotFoundError:
@@ -34,7 +38,7 @@ class DepGraph():
                 self.deps[dep_path].append(dep)
 
 
-    def save(self):
+    def write_cache(self):
         try:
             with open(self.cache_file, 'wb') as f:
                 dump(self.deps, f)

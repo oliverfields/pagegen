@@ -1,11 +1,14 @@
 from configparser import ConfigParser
 import codecs
 from os import environ
+import logger_setup
+import logging
 
+logger = logging.getLogger('pagegen.' + __name__)
 
-class Environment():
+class Config():
     '''
-    Load environment settings from environment variables first else from file
+    Load config from environment variables first else from config file
     '''
 
     def __init__(self, env_file):
@@ -28,4 +31,6 @@ class Environment():
                 if env_name in environ.keys(): 
                     c[section][name] = environ[env_name]
 
-        self.env = c
+        self.configparser = c
+
+        logger.info('Config loaded')
