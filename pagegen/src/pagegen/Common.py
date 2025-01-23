@@ -3,7 +3,7 @@ from sys import stderr, stdout
 from os.path import isdir, isfile, join
 from os import system, remove, makedirs, walk, environ
 from shutil import copyfile, rmtree
-from pickle import dump
+from pickle import dump, load
 import logger_setup
 import logging
 
@@ -120,3 +120,10 @@ class Common:
             logger.info(f'Writing cache {path}')
             with open(path, 'wb') as f:
                 dump(obj, f)
+
+
+    def load_pickle(self, path):
+        with open(path, 'rb') as f:
+            obj = load(f)
+
+        return obj

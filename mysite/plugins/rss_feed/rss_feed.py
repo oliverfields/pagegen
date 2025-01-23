@@ -5,5 +5,5 @@ class Plugin():
         print('site pre building rss feed man')
 
 
-    def pgn_hook_post_build(self):
+    def pgn_hook_post_build(self, site):
         print('site post building rss feed man')

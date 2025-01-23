@@ -64,7 +64,7 @@ class Site(Common):
 
         self.build_site()
 
-        self.exec_hooks('post_build')
+        self.exec_hooks('post_build', site=self)
 
         # Write caches
         self.dep_graph.write_cache()
@@ -97,12 +97,9 @@ class Site(Common):
         '''
 
         logger.info('Analyzing dependencies')
-        self.dep_graph = DepGraph(join(self.cache_dir, 'dep_graph'))
+        self.dep_graph = DepGraph(self.cache_dir, 'dep_graph')
 
-        if self.dep_graph.deps == {}:
-            logger.warning('Dependency graph cache is empty')
-
-        self.exec_hooks('page_dep_check')
+        self.exec_hooks('page_dep_check', site=self)
 
         # A page depends on one template, so add that, and also all dependencies that that template has
         # Check that any pages that depend on templates are newer than the templates
@@ -136,9 +133,13 @@ class Site(Common):
         # Generate pages
         for src, tgt in self.pages_build_list.items():
 
-            self.exec_hooks('pre_page_build')
+            self.exec_hooks('pre_page_build', site=self)
 
-            p = Page(src, tgt, settings=self.settings)
+            p = Page(src, tgt)
+
+            self.exec_hooks('page_generate_html', site=self, page=p)
+
+            self.exec_hooks('page_apply_template', site=self, page=p)
 
             template_path = join(self.theme_template_dir, p.headers['template'] + '.mako')
             td = template_deps.deps[template_path]
@@ -148,7 +149,7 @@ class Site(Common):
             # Add page dependencies
             self.dep_graph.add(p.source_path, td)
 
-            self.exec_hooks('post_page_build')
+            self.exec_hooks('post_page_build', site=self, page=p)
 
             p.write()
 
@@ -173,7 +174,7 @@ class Site(Common):
 
         logger.info(f'Making build lists {self.build_dir}')
 
-        self.exec_hooks('pre_build_lists')
+        self.exec_hooks('pre_build_lists', site=self)
 
         # content_dir
         for content_path in self.content_dir_list:
@@ -209,7 +210,7 @@ class Site(Common):
                         logger.info(f'Adding to page_build_list: {content_path}')
                         self.pages_build_list[content_path] = build_path
 
-        self.exec_hooks('post_build_lists')
+        self.exec_hooks('post_build_lists', site=self)
 
 
     def prune_build_dir(self):

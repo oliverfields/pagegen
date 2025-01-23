@@ -87,13 +87,13 @@ class Plugins(Common):
                 logger.info('Plugin cache stale: Initalizing plugins')
                 self.plugins = self.load_plugins(all_plugins)
         except NotADirectoryError:
-            logger.info('No plugin directory found: Initalizing plugins')
+            logger.warning('No plugin directory found: Initalizing plugins')
             self.plugins = self.load_plugins(all_plugins)
         except FileNotFoundError:
-            logger.info('No plugin cache found: Initalizing plugins')
+            logger.warning('No plugin cache found: Initalizing plugins')
             self.plugins = self.load_plugins(all_plugins)
         except EOFError:
-            logger.info('Corrupted plugin cache: Initalizing plugins')
+            logger.warning('Corrupted plugin cache: Initalizing plugins')
             self.plugins = self.load_plugins(all_plugins)
 
 
@@ -138,7 +138,7 @@ class Plugins(Common):
                 'post_build_lists',
                 'page_dep_check',
                 'pre_page_build',
-                'page_convert_html',
+                'page_generate_html',
                 'page_apply_template',
                 'post_page_build',
                 'post_build'
