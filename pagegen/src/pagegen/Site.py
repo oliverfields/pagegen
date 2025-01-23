@@ -1,6 +1,6 @@
 from os.path import basename, getmtime, join, isfile, isdir, sep, abspath, dirname
 from os import walk, listdir, environ
-from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR, SITE_CONF
+from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR, SITE_CONF, HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER_MARKUP, HOOK_PAGE_RENDER_TEMPLATE, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD
 from Common import Common
 from Page import Page
 from pickle import load, dump
@@ -50,7 +50,7 @@ class Site(Common):
 
         self.plugins.load_plugin_hooks()
 
-        self.exec_hooks('pre_build', site=self)
+        self.exec_hooks(HOOK_PRE_BUILD, {'site': self})
 
         self.content_dir_list = self.get_file_list(self.content_dir)
 
@@ -64,14 +64,14 @@ class Site(Common):
 
         self.build_site()
 
-        self.exec_hooks('post_build', site=self)
+        self.exec_hooks(HOOK_POST_BUILD, {'site': self})
 
         # Write caches
         self.dep_graph.write_cache()
         self.plugins.write_cache()
 
 
-    def exec_hooks(self, hook_name, site=False, page=False):
+    def exec_hooks(self, hook_name, objects):
         '''
         Run plugin hooks
         '''
@@ -80,12 +80,7 @@ class Site(Common):
 
         for h in self.plugins.hooks[hook_name]:
             try:
-                if site != False and page != False:
-                    h(site, page)
-                elif site != False:
-                    h(site)
-                else:
-                    h()
+                h(objects)
             except TypeError as e:
                 logger.error(f'Plugin hook {hook_name} failed: {h}')
                 raise
@@ -99,7 +94,7 @@ class Site(Common):
         logger.info('Analyzing dependencies')
         self.dep_graph = DepGraph(self.cache_dir, 'dep_graph')
 
-        self.exec_hooks('page_dep_check', site=self)
+        self.exec_hooks(HOOK_PAGE_DEPS, {'site': self})
 
         # A page depends on one template, so add that, and also all dependencies that that template has
         # Check that any pages that depend on templates are newer than the templates
@@ -133,13 +128,13 @@ class Site(Common):
         # Generate pages
         for src, tgt in self.pages_build_list.items():
 
-            self.exec_hooks('page_pre_build', site=self)
+            self.exec_hooks(HOOK_PAGE_PRE_BUILD, {'site': self})
 
             p = Page(src, tgt)
 
-            self.exec_hooks('page_render_markup', site=self, page=p)
+            self.exec_hooks(HOOK_PAGE_RENDER_MARKUP, {'site': self, 'page': p})
 
-            self.exec_hooks('page_render_template', site=self, page=p)
+            self.exec_hooks(HOOK_PAGE_RENDER_TEMPLATE, {'site': self, 'page': p})
 
             template_path = join(self.theme_template_dir, p.headers['template'] + '.mako')
             td = template_deps.deps[template_path]
@@ -149,7 +144,7 @@ class Site(Common):
             # Add page dependencies
             self.dep_graph.add(p.source_path, td)
 
-            self.exec_hooks('page_post_build', site=self, page=p)
+            self.exec_hooks(HOOK_PAGE_POST_BUILD, {'site': self, 'page': p})
 
             p.write()
 
@@ -174,7 +169,7 @@ class Site(Common):
 
         logger.info(f'Making build lists {self.build_dir}')
 
-        self.exec_hooks('pre_build_lists', site=self)
+        self.exec_hooks(HOOK_PRE_BUILD_LISTS, {'site': self})
 
         # content_dir
         for content_path in self.content_dir_list:
@@ -210,7 +205,7 @@ class Site(Common):
                         logger.info(f'Adding to page_build_list: {content_path}')
                         self.pages_build_list[content_path] = build_path
 
-        self.exec_hooks('post_build_lists', site=self)
+        self.exec_hooks(HOOK_POST_BUILD_LISTS, {'site': self})
 
 
     def prune_build_dir(self):

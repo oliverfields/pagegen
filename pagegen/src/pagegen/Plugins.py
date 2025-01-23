@@ -4,6 +4,7 @@ from Common import Common
 from pickle import load
 from sys import path as syspath, modules
 from importlib import import_module
+from constants import HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER_MARKUP, HOOK_PAGE_RENDER_TEMPLATE, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD
 import logger_setup
 import logging
 
@@ -134,22 +135,24 @@ class Plugins(Common):
             self.plugins.append(plugin_instance)
 
         # Add any plugin hook functions to the hook methods
-        print('Make hooks as constants, used in multiple places')
         for h in [
-                'pre_build',
-                'pre_build_lists',
-                'post_build_lists',
-                'page_dep_check',
-                'page_pre_build',
-                'page_render_markup',
-                'page_render_template',
-                'page_post_build',
-                'post_build'
+                HOOK_PRE_BUILD,
+                HOOK_PRE_BUILD_LISTS,
+                HOOK_POST_BUILD_LISTS,
+                HOOK_PAGE_DEPS,
+                HOOK_PAGE_PRE_BUILD,
+                HOOK_PAGE_RENDER_MARKUP,
+                HOOK_PAGE_RENDER_TEMPLATE,
+                HOOK_PAGE_POST_BUILD,
+                HOOK_POST_BUILD
             ]:
             self.hooks[h] = []
 
             # Add hook methods to hooks list
+            print(self.hooks)
+            print('TODO try to remove self.plugin, think this is self referential..')
             for p in self.plugins:
+                print(p)
                 for func in dir(p):
                     if func == f'pgn_hook_{h}':
                         self.hooks[h].append(getattr(p, func))
