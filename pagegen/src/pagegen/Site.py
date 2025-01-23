@@ -133,13 +133,13 @@ class Site(Common):
         # Generate pages
         for src, tgt in self.pages_build_list.items():
 
-            self.exec_hooks('pre_page_build', site=self)
+            self.exec_hooks('page_pre_build', site=self)
 
             p = Page(src, tgt)
 
-            self.exec_hooks('page_generate_html', site=self, page=p)
+            self.exec_hooks('page_render_markup', site=self, page=p)
 
-            self.exec_hooks('page_apply_template', site=self, page=p)
+            self.exec_hooks('page_render_template', site=self, page=p)
 
             template_path = join(self.theme_template_dir, p.headers['template'] + '.mako')
             td = template_deps.deps[template_path]
@@ -149,7 +149,7 @@ class Site(Common):
             # Add page dependencies
             self.dep_graph.add(p.source_path, td)
 
-            self.exec_hooks('post_page_build', site=self, page=p)
+            self.exec_hooks('page_post_build', site=self, page=p)
 
             p.write()
 

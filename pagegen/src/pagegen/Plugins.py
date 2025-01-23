@@ -76,7 +76,6 @@ class Plugins(Common):
         for d in pgn_plugins:
             syspath.append(dirname(d))
 
-
         try:
             if getmtime(self.hooks_cache_path) >= last_plugins_change:
                 logger.info('Loading plugins from cache')
@@ -88,6 +87,9 @@ class Plugins(Common):
                 self.plugins = self.load_plugins(all_plugins)
         except NotADirectoryError:
             logger.warning('No plugin directory found: Initalizing plugins')
+            self.plugins = self.load_plugins(all_plugins)
+        except ModuleNotFoundError:
+            logger.warning('Plugin module not found: Initalizing plugins')
             self.plugins = self.load_plugins(all_plugins)
         except FileNotFoundError:
             logger.warning('No plugin cache found: Initalizing plugins')
@@ -132,15 +134,16 @@ class Plugins(Common):
             self.plugins.append(plugin_instance)
 
         # Add any plugin hook functions to the hook methods
+        print('Make hooks as constants, used in multiple places')
         for h in [
                 'pre_build',
                 'pre_build_lists',
                 'post_build_lists',
                 'page_dep_check',
-                'pre_page_build',
-                'page_generate_html',
-                'page_apply_template',
-                'post_page_build',
+                'page_pre_build',
+                'page_render_markup',
+                'page_render_template',
+                'page_post_build',
                 'post_build'
             ]:
             self.hooks[h] = []
