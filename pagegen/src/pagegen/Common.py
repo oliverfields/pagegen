@@ -3,6 +3,7 @@ from sys import stderr, stdout
 from os.path import isdir, isfile, join
 from os import system, remove, makedirs, walk, environ
 from shutil import copyfile, rmtree
+import codecs
 from pickle import dump, load
 import logger_setup
 import logging
@@ -15,6 +16,15 @@ class Common:
     '''
     Base class that contains common functionality
     '''
+
+    def read_file(self, path):
+        try:
+            with codecs.open (path, "r", 'utf-8') as f:
+                return f.read()
+        except Exception as e:
+            logger.error('Unable to load file %s: %s' % (file, e))
+            raise
+
 
     def delete_path(self, path):
         '''
@@ -49,7 +59,7 @@ class Common:
             try:
                 copyfile(source, target)
             except Exception as e:
-                log_error(f'Unable to copy {source} to {target}): {str(e)}')
+                logger.error(f'Unable to copy {source} to {target}): {str(e)}')
                 raise
 
 

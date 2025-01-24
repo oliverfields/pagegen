@@ -11,7 +11,7 @@ class Config():
     Load config from environment variables first else from config file
     '''
 
-    def __init__(self, env_file):
+    def __init__(self, conf_file):
         ds = 'site' # Default section
 
         c = ConfigParser(default_section=ds)
@@ -21,7 +21,7 @@ class Config():
         }
 
         # Open the file with the correct encoding
-        with codecs.open(env_file, 'r', encoding='utf-8') as f:
+        with codecs.open(conf_file, 'r', encoding='utf-8') as f:
             c.readfp(f)
 
         # Overwrite any settings from environment variables
@@ -33,4 +33,4 @@ class Config():
 
         self.configparser = c
 
-        logger.info('Config loaded')
+        logger.info('Config loaded from: ' + conf_file)

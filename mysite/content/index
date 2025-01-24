@@ -1,7 +1,20 @@
 Title: Tides of Sea
-Template: home_page.mako
+Template: home_page
+Tags: Hot, Stuff, Wake and bake
 Link chain exclude: True
 Search index exclude: True
 Sitemap exclude: True
 Description: A dying pine wood fire, struggeling against the darkness and cold of night. The sea swells yet somehow a comfort, whilst talk about what can't be said.
+
+So this is xmas
+
+<!-- more -->
+
+And what have we done?
+
+# Give heading
+
+Get bedding. *Slop slop*
+
+[Take me away](https://tidesofsea.com)
 

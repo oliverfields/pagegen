@@ -1,4 +1,6 @@
 from Common import Common
+from os import linesep
+from re import search
 import logger_setup
 import logging
 
@@ -21,12 +23,106 @@ class Page(Common):
 
         logger.info(f'Generating page {source_path}')
 
-        if source_path == '/home/oliver/Documents/pgn4/mysite/content/index':
-            self.headers['template'] = 'home_page'
-        else:
-            self.headers['template'] = 'pages'
+        self.parse()
 
 
     def write(self):
-        self.write_file(self.target_path, 'fantasthtml')
+        self.write_file(self.target_path, self.output)
+
+
+    def __str__(self):
+        return '<page: ' + self.title + ' ' + self.url_path + '>'
+
+
+    def __repr__(self):
+        r = '{\n'
+
+        for attribute in sorted(self.__dict__):
+            value = self.__dict__[attribute]
+            if isinstance(value, str) or isinstance(value, bool) or isinstance(value, int):
+                r += "\t'" + attribute + "': " + str(value) + ",\n"
+            elif isinstance(value, list):
+                if len(value) > 0:
+                    r += "\t'" + attribute + "': [\n"
+                    for i in value:
+                        r += "\t\t" + str(i) + ",\n"
+                    r = r.rstrip(",\n")
+                    r += "\n\t]\n"
+                else:
+                    r += "\t'" + attribute + "': []\n"
+            elif isinstance(value, dict):
+                if len(value.keys()):
+                    r += "\t'" + attribute + "': {\n"
+                    for k, v in value.items():
+                        r += "\t\t'" + k + "': " + str(v) + ",\n"
+                    r = r.rstrip("\n,")
+                    r += "\n\t},\n"
+                else:
+                    r += "\t'" + attribute + "': {}\n"
+
+        r = r.rstrip("\n,")
+        r += "\n}"
+
+        return r
+
+
+    def is_header(self, line):
+        if ':' in line:
+            potential_header=line.partition(':')
+            potential_name=potential_header[0].lower().strip()
+            potential_value=potential_header[2]
+
+            if isinstance(potential_name, str) and isinstance(potential_value, str):
+                return True
+            else:
+                report_warning("Unknown header in '%s': %s" % (self.source_path, line))
+                return False
+        else:
+            return False
+
+
+    def set_header(self, line):
+        try:
+            result = search('([^:]*):(.*)', line)
+            header = result.group(1).lower().strip()
+            value = result.group(2).strip()
+
+            self.headers[header] = value
+
+            return True
+        except AttributeError:
+            return False
+        except Exception as e:
+            print(type(e))
+            raise
+
+
+    def parse(self):
+        '''
+        Parse source and save headers and body attributes
+        Format:
+            <header>: <value>    <- Optional
+                                <-Blanke line, if headers
+            <content>
+
+        First line must either be header or content
+        '''
+
+        self.raw = self.read_file(self.source_path)
+        self.headers = {}
+        self.body = ''
+
+        in_headers = None
+        for line in self.raw.split(linesep):
+            # As long as we can set header values do so, after that add raw content to body property
+
+            if in_headers == None or in_headers:
+                in_headers = self.set_header(line)
+
+            if not in_headers:
+                self.body += line + linesep
+
+        # Strip empty first or last new lines
+        self.body = self.body.lstrip(linesep)
+        self.body = self.body.rstrip(linesep)
 

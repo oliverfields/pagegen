@@ -25,8 +25,6 @@ class Site(Common):
 
     def __init__(self, site_dir=None, site_conf=None):
 
-        logger.info('Site logger working')
-
         self.site_dir = site_dir
         self.conf = site_conf
 
