@@ -1,1 +1,27 @@
-fantasthtml
+<div style="text-align: center;">
+
+  <img src="/assets/mugshot.jpg" style="width: 20%; border-radius: 50%; margin: 0 auto 1em auto;" />
+
+  <p style="margin: 1em 2em; font-family: var(--font-serif); font-style: italic;">Power springs from the sun and the moon,<br />united in the universial eternal<br />Like day loves night, thru space and time<br />Eternity is all our hearts can bear<br />Faith alone trusts the unknown<br />
+  &mdash; Druid Allanon</a></p>
+
+  <p style="clear: both;">Donations will be accepted, humbly and with gratitude🙏</p>
+
+  <div id="donate-button-container" style="text-align: center; margin-bottom: 2em;">
+    <div id="donate-button"></div>
+    <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js" charset="UTF-8"></script>
+    <script>
+PayPal.Donation.Button({
+env:'production',
+hosted_button_id:'DKFQKNXNLB78S',
+image: {
+src:'https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif',
+alt:'Donate with PayPal button',
+title:'PayPal - The safer, easier way to pay online!',
+}
+}).render('#donate-button');
+    </script>
+  </div>
+
+
+</div>

@@ -1,1 +1,37 @@
-fantasthtml
+AddDefaultCharset utf-8
+DirectoryIndex index
+ErrorDocument 404 /404
+
+# Force text/html for all files without a file extension
+<FilesMatch "^[^.]+$">
+  ForceType text/html
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine on
+
+  # Redirect to https
+  RewriteCond %{HTTPS} off
+  RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+  Redirect /favicon.ico /assets/theme/favicon/favicon.ico
+  Redirect /apple-touch-icon.png /assets/theme/favicon/apple-touch-icon.png
+
+</IfModule>
+
+ExpiresActive On
+ExpiresDefault "access plus 60 seconds"
+#ExpiresByType text/html "now plus 1 day"
+ExpiresByType image/x-icon "now plus 1 month"
+ExpiresByType image/gif "now plus 1 month"
+ExpiresByType image/jpeg "now plus 1 month"
+ExpiresByType image/png "now plus 1 month"
+ExpiresByType image/svg "now plus 1 month"
+ExpiresByType text/css "now plus 1 month"
+#ExpiresByType multipart/x-gzip "now plus 1 month"
+ExpiresByType text/javascript "now plus 1 month"
+ExpiresByType application/javascript "now plus 1 month"
+ExpiresByType application/xml "now plus 1 day"
+ExpiresByType application/rss+xml "now plus 1 day"
+
+' # Part of echo ^

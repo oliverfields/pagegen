@@ -1,7 +1,11 @@
-<p>So this is xmas</p>
+So this is xmas
+
 <!-- more -->
 
-<p>And what have we done?</p>
-<h1>Give heading</h1>
-<p>Get bedding. <em>Slop slop</em></p>
-<p><a href="https://tidesofsea.com">Take me away</a></p>
+And what have we done?
+
+# Give heading
+
+Get bedding. *Slop slop*
+
+[Take me away](https://tidesofsea.com)

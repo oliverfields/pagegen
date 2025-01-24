@@ -27,7 +27,10 @@ class Page(Common):
 
 
     def write(self):
-        self.write_file(self.target_path, self.output)
+        try:
+            self.write_file(self.target_path, self.output)
+        except AttributeError:
+            self.write_file(self.target_path, self.body)
 
 
     def __str__(self):

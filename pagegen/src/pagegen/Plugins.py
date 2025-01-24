@@ -1,4 +1,5 @@
 from os.path import basename, getmtime, join, isdir, dirname
+from constants import SITE_CONF
 from os import walk, listdir
 from Common import Common
 from pickle import load
@@ -14,18 +15,24 @@ class Plugins(Common):
     Load plugins using caching
     '''
 
-    def __init__(self, site_plugin_dir, pgn_plugin_dir, site_cache_dir, conf={}):
+    def __init__(self, site_plugin_dir, pgn_plugin_dir, site_cache_dir, site_dir, conf={}):
         self.site_plugin_dir = site_plugin_dir
         self.pgn_plugin_dir = pgn_plugin_dir
         self.cache_dir = join(site_cache_dir, self.__class__.__name__)
         self.plugin_cache_file_name = 'plugins'
         self.plugin_cache_path = join(self.cache_dir, self.plugin_cache_file_name)
+        self.site_conf_path = join(site_dir, SITE_CONF)
         self.conf = conf
         self.load_plugins()
 
 
     def write_cache(self):
-        self.pickle_object(self.cache_dir, self.plugin_cache_file_name, self.plugins)
+        try:
+            if self.cache_dirty:
+                logger.info('Saving plugin cache')
+                self.pickle_object(self.cache_dir, self.plugin_cache_file_name, self.plugins)
+        except AttributeError:
+            pass
 
 
     def load_plugins(self):
@@ -62,13 +69,11 @@ class Plugins(Common):
                 for file in files:
                     f = join(subdir, file)
                     fmtime = getmtime(f)
-
                     try:
                         if last_plugins_change < fmtime:
                             last_plugins_change = fmtime
                     except UnboundLocalError:
                         last_plugins_change = fmtime
-
 
         # Add plugin dirs to, site first, then pgn
         for d in site_plugins:
@@ -77,16 +82,35 @@ class Plugins(Common):
         for d in pgn_plugins:
             syspath.append(dirname(d))
 
+        # Check if cache needs reloading
         try:
-            if getmtime(self.plugin_cache_path) >= last_plugins_change:
-                logger.info('Loading plugins from cache')
+
+            if getmtime(self.plugin_cache_path) > last_plugins_change:
+                print('cach_path newer than plugin change')
+            else:
+                print('cach_path older than plugin change')
+
+
+            if getmtime(self.site_conf_path) > last_plugins_change:
+                print('site_conf newer than plugin change')
+            else:
+                print('site_conf older than plugin change')
+
+            print('plugin change ' + str(last_plugins_change))
+            print('cach_path     ' + str(getmtime(self.plugin_cache_path)))
+            print('site_conf     ' + str(getmtime(self.site_conf_path)))
+            if getmtime(self.plugin_cache_path) < last_plugins_change and getmtime(self.site_conf_path) < last_plugins_change:
+                logger.warning('Loading plugins from cache')
+
+                self.cache_dirty = True
 
                 with open(self.plugin_cache_path, 'rb') as f:
                     self.plugins = load(f)
 
                 return
             else:
-                logger.info('Plugin cache stale: Initalizing plugins')
+                self.cache_dirty = False
+                logger.warning('Plugin cache stale: Initalizing plugins')
         except NotADirectoryError:
             logger.warning('No plugin directory found: Initalizing plugins')
         except ModuleNotFoundError:

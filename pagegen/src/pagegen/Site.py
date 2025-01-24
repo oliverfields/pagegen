@@ -32,8 +32,7 @@ class Site(Common):
         self.build_dir = join(self.site_dir, BUILD_DIR)
         self.asset_dir = join(self.content_dir, ASSET_DIR)
         self.cache_dir = join(self.site_dir, CACHE_DIR, self.__class__.__name__)
-        self.theme_dir = join(self.get_theme_dir())
-        self.theme_template_dir = join(self.theme_dir, THEME_TEMPLATE_DIR)
+        self.theme_dir = join(self.site_dir, 'themes', self.conf['site']['theme'])
 
         logger.info(f'site_dir: {self.site_dir}')
         logger.info(f'content_dir: {self.content_dir}')
@@ -43,6 +42,7 @@ class Site(Common):
             join(self.site_dir, PLUGIN_DIR), # Site plugins dir
             join(dirname(abspath(__file__)), PLUGIN_DIR), # pagegen plugins dir
             join(self.site_dir, CACHE_DIR), # Cache dir
+            self.site_dir,
             conf=self.conf
         )
         self.plugins = plugin_module.plugins
@@ -97,8 +97,7 @@ class Site(Common):
 
         self.exec_hooks(HOOK_PAGE_DEPS, {'site': self})
 
-        # A page depends on one template, so add that, and also all dependencies that that template has
-        # Check that any pages that depend on templates are newer than the templates
+        # Add path to build list whene source is newer than its dependancies
         for content_path, depends_on_paths in self.dep_graph.deps.items():
             relative_path = content_path[len(self.content_dir):].lstrip(sep)
             build_path = join(self.build_dir, relative_path)
@@ -107,10 +106,6 @@ class Site(Common):
                     logger.info(dep_path +' is newer than dependency ' + build_path)
 
                     self.pages_build_list[content_path] = build_path
-
-
-    def get_theme_dir(self):
-        return join(self.site_dir, 'themes', self.conf['site']['theme'])
 
 
     def build_site(self):
@@ -124,8 +119,6 @@ class Site(Common):
         for target_path in self.directories_build_list:
             self.make_dir(target_path)
 
-        template_deps = TemplateDeps(self.theme_template_dir)
-
         # Generate pages
         for src, tgt in self.pages_build_list.items():
 
@@ -133,29 +126,26 @@ class Site(Common):
 
             p = Page(src, tgt)
 
-            self.exec_hooks(HOOK_PAGE_RENDER_MARKUP, {'site': self, 'page': p})
+            try:
+                if p.headers['Render markup'] != 'False':
+                    self.exec_hooks(HOOK_PAGE_RENDER_MARKUP, {'site': self, 'page': p})
+            except KeyError:
+                pass
 
-            self.exec_hooks(HOOK_PAGE_RENDER_TEMPLATE, {'site': self, 'page': p})
+            try:
+                if p.headers['Render template'] != 'False':
+                    self.exec_hooks(HOOK_PAGE_RENDER_TEMPLATE, {'site': self, 'page': p})
+            except KeyError:
+                pass
 
-            template_path = join(self.theme_template_dir, p.headers['template'] + '.mako')
-            td = template_deps.deps[template_path]
-            # Add header template too
-            td.insert(0, template_path)
-
-            # Add page dependencies
-            self.dep_graph.add(p.source_path, td)
+            p.write()
 
             self.exec_hooks(HOOK_PAGE_POST_BUILD, {'site': self, 'page': p})
 
-            p.write()
 
         # Copy assets
         for src, tgt in self.assets_build_list.items():
             self.copy_path(src, tgt)
-
-
-    def path_relative_to(self, path, relative_to):
-        return path[len(relative_to):]
 
 
     def set_build_lists(self):
@@ -175,7 +165,7 @@ class Site(Common):
         # content_dir
         for content_path in self.content_dir_list:
 
-            relative_path = self.path_relative_to(content_path, self.content_dir)
+            relative_path =  content_path[len(self.content_dir):]
             build_path = f'{self.build_dir}{relative_path}'
 
             path_type = False
