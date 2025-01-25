@@ -26,15 +26,6 @@ class Plugins(Common):
         self.load_plugins()
 
 
-    def write_cache(self):
-        try:
-            if self.cache_dirty:
-                logger.info('Saving plugin cache')
-                self.pickle_object(self.cache_dir, self.plugin_cache_file_name, self.plugins)
-        except AttributeError:
-            pass
-
-
     def load_plugins(self):
         '''
         Load plugins from cache if exists, only load plugins that are defined in site config
@@ -82,45 +73,30 @@ class Plugins(Common):
         for d in pgn_plugins:
             syspath.append(dirname(d))
 
-        # Check if cache needs reloading
+        # Use cache if it is newer than both mtimes of site conf and plugin files
         try:
-
-            if getmtime(self.plugin_cache_path) > last_plugins_change:
-                print('cach_path newer than plugin change')
-            else:
-                print('cach_path older than plugin change')
-
-
-            if getmtime(self.site_conf_path) > last_plugins_change:
-                print('site_conf newer than plugin change')
-            else:
-                print('site_conf older than plugin change')
-
-            print('plugin change ' + str(last_plugins_change))
-            print('cach_path     ' + str(getmtime(self.plugin_cache_path)))
-            print('site_conf     ' + str(getmtime(self.site_conf_path)))
-            if getmtime(self.plugin_cache_path) < last_plugins_change and getmtime(self.site_conf_path) < last_plugins_change:
-                logger.warning('Loading plugins from cache')
-
-                self.cache_dirty = True
+            cache_mtime = getmtime(self.plugin_cache_path)
+            if cache_mtime >= last_plugins_change and cache_mtime >= getmtime(self.site_conf_path):
+                logger.info('Loading plugins from cache')
 
                 with open(self.plugin_cache_path, 'rb') as f:
                     self.plugins = load(f)
 
                 return
             else:
-                self.cache_dirty = False
-                logger.warning('Plugin cache stale: Initalizing plugins')
+                logger.info('Plugin cache stale: Initalizing plugins')
         except NotADirectoryError:
-            logger.warning('No plugin directory found: Initalizing plugins')
+            logger.info('No plugin directory found: Initalizing plugins')
         except ModuleNotFoundError:
-            logger.warning('Plugin module not found: Initalizing plugins')
+            logger.info('Plugin module not found: Initalizing plugins')
         except FileNotFoundError:
-            logger.warning('No plugin cache found: Initalizing plugins')
+            logger.info('No plugin cache found: Initalizing plugins')
         except EOFError:
-            logger.warning('Corrupted plugin cache: Initalizing plugins')
+            logger.info('Corrupted plugin cache: Initalizing plugins')
 
         self.find_and_load_plugins(all_plugins)
+
+        self.pickle_object(self.cache_dir, self.plugin_cache_file_name, self.plugins)
 
 
     def find_plugins(self, dir_name):

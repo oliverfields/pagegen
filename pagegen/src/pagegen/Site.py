@@ -63,9 +63,7 @@ class Site(Common):
 
         self.exec_hooks(HOOK_POST_BUILD, {'site': self})
 
-        # Write caches
         self.dep_graph.write_cache()
-        plugin_module.write_cache()
 
 
     def exec_hooks(self, hook_name, objects):
