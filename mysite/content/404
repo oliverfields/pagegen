@@ -1,5 +1,5 @@
 Title: Page not found
-Template: regular_pages.mako
+Template: regular_pages
 Menu title: 404
 Sitemap exclude: True
 Menu exclude: True

@@ -1,6 +1,6 @@
 from constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES, DRYRUNMSG
 from sys import stderr, stdout
-from os.path import isdir, isfile, join
+from os.path import isdir, isfile, join, getmtime
 from os import system, remove, makedirs, walk, environ
 from shutil import copyfile, rmtree
 import codecs
@@ -136,3 +136,21 @@ class Common:
             obj = load(f)
 
         return obj
+
+    def is_newer_than(self, file_path, dir_path):
+        '''
+        Check if a file mtmie is newer than the files in a specific directory
+        '''
+
+        file_path_mtime = getmtime(file_path)
+
+        for subdir, dirs, files in walk(dir_path):
+            for file in files:
+                f = join(subdir, file)
+                f_mtime = getmtime(f)
+
+                if file_path_mtime < f_mtime:
+                    return False
+
+        return True
+

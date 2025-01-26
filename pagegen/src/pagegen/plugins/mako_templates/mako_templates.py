@@ -1,6 +1,8 @@
 from os import listdir
-from os.path import join
+from constants import CACHE_DIR
+from os.path import join, getmtime
 from mako import util, lexer
+from Common import Common
 import logger_setup
 import logging
 
@@ -9,7 +11,7 @@ logger = logging.getLogger('pagegen.' + __name__)
 
 # Thanks! https://groups.google.com/g/mako-discuss/c/rNj6Vxc984k/m/dVM08xaUAmoJ
 
-class Plugin():
+class Plugin(Common):
 
     def pgn_hook_pre_build(self, objects):
         '''
@@ -18,9 +20,22 @@ class Plugin():
 
         self.theme_template_dir = join(objects['site'].theme_dir, 'templates')
         self.template_deps = {}
+        self.cache_dir = join(objects['site'].site_dir, CACHE_DIR, 'mako_templates')
+        self.plugin_cache_file_name = 'template_deps'
+        self.plugin_cache_path = join(self.cache_dir, self.plugin_cache_file_name)
 
-        print('TODO if no changes to templates since cache then load cache, else reload template deps and write to cache')
+        try:
+            if self.is_newer_than(self.plugin_cache_path, self.theme_template_dir):
+                logger.info('Loading plugins from cache')
 
+                self.template_deps = self.load_pickle(self.plugin_cache_path)
+                return
+        except FileNotFoundError:
+            pass
+
+        logger.info('Template dependency cache not found: Initalizing')
+
+        # Collect dependencies between templates
         for t in listdir(self.theme_template_dir):
             t_path = join(self.theme_template_dir, t)
 
@@ -37,6 +52,8 @@ class Plugin():
                     for nn in n.nodes:
                         if getattr(nn, 'keyword', None) == 'include': #if isinstance(nn, IncludeTag):
                             self.template_deps[t_path].append(join(self.theme_template_dir, nn.attributes['file']))
+
+        self.pickle_object(self.cache_dir, self.plugin_cache_file_name, self.template_deps)
 
 
     def pgn_hook_render_template(self, objects):
@@ -55,11 +72,16 @@ class Plugin():
         try:
             template_name = objects['page'].headers['template']
         except KeyError:
-            template_name = 'pages'
+            # Skip applying template if none defined
+            return
 
         template_path = join(self.theme_template_dir, template_name + '.mako')
 
-        td = self.template_deps[template_path]
+        try:
+            td = self.template_deps[template_path]
+        except KeyError:
+            logging.error(f'Template header path {template_path} not found, referenced in in page {objects["page"]}')
+            raise
 
         # Add header template too
         td.insert(0, template_path)

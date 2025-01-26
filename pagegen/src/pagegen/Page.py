@@ -34,7 +34,7 @@ class Page(Common):
 
 
     def __str__(self):
-        return '<page: ' + self.title + ' ' + self.url_path + '>'
+        return '<page: ' + self.source_path + '>'
 
 
     def __repr__(self):

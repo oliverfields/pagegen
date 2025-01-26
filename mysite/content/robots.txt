@@ -6,7 +6,6 @@ Menu exclude: True
 Link chain exclude: True
 Search index exclude: True
 Preserve file name: True
-Template: whatever
 
 User-agent: *
 Disallow: /?tracking=on

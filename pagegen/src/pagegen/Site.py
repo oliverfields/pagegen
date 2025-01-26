@@ -75,14 +75,10 @@ class Site(Common):
 
         for p in self.plugins:
             p_type = type(p)
-            try:
-                getattr(p, f'{hook_name}')(objects)
+
+            if hasattr(p, hook_name):
+                getattr(p, hook_name)(objects)
                 logger.info(f'{type(p)}: Running hook {hook_name}')
-            except AttributeError:
-                pass
-            except TypeError as e:
-                logger.error(f'{p_type}: {hook_name} failed')
-                raise
 
 
     def add_broken_page_deps_to_build_list(self):

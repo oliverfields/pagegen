@@ -1,7 +1,7 @@
 Menu exclude: True
 Title: About
 Link chain exclude: True
-Template: regular_pages.mako
+Template: regular_pages
 Sitemap exclude: True
 
 <div style="text-align: center;">

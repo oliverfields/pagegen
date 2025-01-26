@@ -1,4 +1,4 @@
-Template: archive.mako
+Template: archive
 Search index exclude: True
 Sitemap exclude: True
 Title: Archive
