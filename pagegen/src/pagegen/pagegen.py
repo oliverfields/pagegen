@@ -8,6 +8,7 @@ from Site import Site
 from pathlib import Path
 from Config import Config
 from shutil import rmtree
+from live_reload import live_reload
 import logger_setup
 import logging
 
@@ -49,6 +50,7 @@ if __name__ == '__main__':
         p.add_argument('-d', '--dry-run', action='store_true', help='Do not write to disk')
         p.add_argument('-i', '--ignore-lock', action='store_true', help='Ignore lock file')
         p.add_argument('-c', '--clear-cache', action='store_true', help='Clear caches before building')
+        p.add_argument('-l', '--live-reload', action='store_true', help='Serve site on localhost and rebuild on change')
         a = p.parse_args()
 
 
@@ -77,6 +79,8 @@ if __name__ == '__main__':
                 except FileNotFoundError:
                     pass
 
+        site_conf_file = join(site_dir, SITE_CONF)
+
         if a.generate:
 
             if isfile(lock_file):
@@ -93,9 +97,33 @@ if __name__ == '__main__':
             else:
                 open(lock_file, O_CREAT | O_EXCL)
 
-            c = Config(join(site_dir, SITE_CONF))
-
+            c = Config(site_conf_file)
             s = Site(site_dir=site_dir, site_conf=c.configparser)
+            s.build_site()
+
+        if a.live_reload:
+            c = Config(site_conf_file)
+            s = Site(site_dir=site_dir, site_conf=c.configparser)
+            s.build_site()
+
+            exclude_hooks=['deploy','post_deploy']
+            serve_base_url='http://localhost'
+            serve_port = '8000'
+
+            watch_elements = [
+                s.content_dir,
+                s.asset_source_dir,
+                s.theme_dir,
+                site_conf_file,
+                join(s.site_dir, 'shortcodes.py'),
+            ]
+
+            live_reload(
+                s,
+                watch_elements,
+                serve_base_url,
+                serve_port
+            )
 
         try:
             remove(lock_file)

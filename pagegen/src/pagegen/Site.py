@@ -23,7 +23,6 @@ class Site(Common):
     '''
 
     def __init__(self, site_dir=None, site_conf=None):
-
         self.site_dir = site_dir
         self.conf = site_conf
 
@@ -41,6 +40,9 @@ class Site(Common):
         logger.info(f'site_dir: {self.site_dir}')
         logger.info(f'content_dir: {self.content_dir}')
         logger.info(f'build_dir: {self.build_dir}')
+
+
+    def build_site(self):
 
         plugin_module = Plugins(
             join(self.site_dir, PLUGIN_DIR), # Site plugins dir
@@ -65,7 +67,7 @@ class Site(Common):
 
         self.add_broken_page_deps_to_build_list()
 
-        self.build_site()
+        self.build_pages()
 
         self.exec_hooks(HOOK_POST_BUILD, {'site': self})
 
@@ -139,9 +141,9 @@ class Site(Common):
                     self.pages_build_list[content_path] = build_path
 
 
-    def build_site(self):
+    def build_pages(self):
         '''
-        Build according to build_list
+        Build pages according to build_list
         '''
 
         logger.info(f'Building content {self.build_dir}')

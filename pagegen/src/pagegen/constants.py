@@ -18,6 +18,7 @@ THEME_TEMPLATE_DIR = 'templates'
 PLUGIN_DIR = 'plugins'
 LOCK_FILE = '.pgn_lock'
 DRYRUNMSG = 'DRY RUN'
+LIVE_RELOAD_HASH_FILE = 'pagegen_site_hash'
 
 # Hooks
 HOOK_PRE_BUILD = 'hook_pre_build'
