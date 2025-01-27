@@ -33,5 +33,3 @@ ExpiresByType text/javascript "now plus 1 month"
 ExpiresByType application/javascript "now plus 1 month"
 ExpiresByType application/xml "now plus 1 day"
 ExpiresByType application/rss+xml "now plus 1 day"
-
-' # Part of echo ^

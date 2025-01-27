@@ -80,13 +80,16 @@ if __name__ == '__main__':
         if a.generate:
 
             if isfile(lock_file):
-                logger.warning(f'Lock file found: {lock_file}')
-
-                if a.ignore_lock == False and stdout.isatty() and input('Delete lock file and continue? [N|y] ') == 'y':
-
+                if a.ignore_lock:
                     remove(lock_file)
                 else:
-                    exit()
+                    logger.warning(f'Lock file found: {lock_file}')
+
+                    if stdout.isatty() and input('Delete lock file and continue? [N|y] ') == 'y':
+
+                        remove(lock_file)
+                    else:
+                        exit()
             else:
                 open(lock_file, O_CREAT | O_EXCL)
 

@@ -108,7 +108,7 @@ class Plugins(Common):
                 full_path = join(dir_name,p)
                 if isdir(full_path) and not p.startswith('__'):
                     # Check plugin enabled in conf
-                    if f'plugin_{p}' in self.conf.sections():
+                    if p in self.conf['site']['enabled_plugins']:
                         plugin_path = join(full_path, p) + '.py'
                         plugin_sources.append(plugin_path)
         except FileNotFoundError:
@@ -118,7 +118,7 @@ class Plugins(Common):
 
 
     def find_and_load_plugins(self, plugin_paths):
-        self.plugins = []
+        self.plugins = {}
 
         # Load plugin modules
         for path in plugin_paths:
@@ -130,7 +130,7 @@ class Plugins(Common):
             plugin_class = getattr(module, 'Plugin')
             plugin_instance = plugin_class()
 
-            self.plugins.append(plugin_instance)
+            self.plugins[plugin_name] = plugin_instance
 
 
     def import_module_from_source(self, fname, modname):

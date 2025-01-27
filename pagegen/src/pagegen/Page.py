@@ -15,11 +15,13 @@ class Page(Common):
     Page consists of optional headers (key: value) if first line is not header then it is considered content
     '''
 
-    def __init__(self, source_path, target_path, settings={}):
+    def __init__(self, source_path, target_path, site):
         self.source_path = source_path
         self.target_path = target_path
-        self.settings = settings
         self.headers = {}
+
+        self.relative_url = self.source_path[len(site.content_dir):].rstrip('/')
+        self.absolute_url = f'{site.base_url.rstrip("/")}{self.relative_url}'
 
         logger.info(f'Generating page {source_path}')
 
@@ -28,13 +30,13 @@ class Page(Common):
 
     def write(self):
         try:
-            self.write_file(self.target_path, self.output)
+            self.write_file(self.target_path, self.out)
         except AttributeError:
             self.write_file(self.target_path, self.body)
 
 
     def __str__(self):
-        return '<page: ' + self.source_path + '>'
+        return f'<page: {self.relative_url}: {self.source_path}>'
 
 
     def __repr__(self):
@@ -88,7 +90,13 @@ class Page(Common):
         try:
             result = search('([^:]*):(.*)', line)
             header = result.group(1).lower().strip()
-            value = result.group(2).strip()
+            value = result.group(2).lower().strip()
+
+            if value == 'yes' or value == 'true':
+                value = True
+
+            if value == 'no' or value == 'false':
+                value = False
 
             self.headers[header] = value
 
@@ -128,4 +136,7 @@ class Page(Common):
         # Strip empty first or last new lines
         self.body = self.body.lstrip(linesep)
         self.body = self.body.rstrip(linesep)
+
+        # Set output to body, typically plugins will process the out before it is saved
+        self.out = self.body
 

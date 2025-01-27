@@ -1,8 +1,9 @@
 from constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES, DRYRUNMSG
 from sys import stderr, stdout
-from os.path import isdir, isfile, join, getmtime
+from os.path import isdir, isfile, join, getmtime, relpath, exists
+from filecmp import cmp
 from os import system, remove, makedirs, walk, environ
-from shutil import copyfile, rmtree
+from shutil import copyfile, rmtree, copy2
 import codecs
 from pickle import dump, load
 import logger_setup
@@ -153,4 +154,46 @@ class Common:
                     return False
 
         return True
+
+
+    def dir_sync(self, src_dir, tgt_dir):
+        '''
+        Sync from src to tgt
+
+        Thanks! https://developer-service.blog/synchronizing-files-between-two-directories-using-python/
+        '''
+
+        logger.info(f'Syncing {src_dir} -> {tgt_dir}')
+
+        if not isdir(src_dir):
+            return False
+
+        if not isdir(tgt_dir):
+            makedirs(tgt_dir)
+
+        files_to_sync = []
+        for root, dirs, files in walk(src_dir):
+            for directory in dirs:
+                files_to_sync.append(join(root, directory))
+            for file in files:
+                files_to_sync.append(join(root, file))
+
+        # Iterate over each file in the source directory
+        for source_path in files_to_sync:
+            # Get the corresponding path in the replica directory
+            replica_path = join(tgt_dir, relpath(source_path, src_dir))
+
+            # Check if path is a directory and create it in the replica directory if it does not exist
+            if isdir(source_path):
+                if not exists(replica_path):
+                    logger.info(f"Creating directory {replica_path}")
+                    makedirs(replica_path)
+            # Copy all files from the source directory to the replica directory
+            else:
+                # Check if the file exists in the replica directory and if it is different from the source file
+                if not exists(replica_path) or not cmp(source_path, replica_path, shallow=False):
+                    logger.info(f"Copying {source_path} to {replica_path}")
+
+                    # Copy the file from the source directory to the replica directory
+                    copy2(source_path, replica_path)
 

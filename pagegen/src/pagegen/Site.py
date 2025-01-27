@@ -1,11 +1,10 @@
 from os.path import basename, getmtime, join, isfile, isdir, sep, abspath, dirname
 from os import walk, listdir, environ
-from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR, SITE_CONF, HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER_MARKUP, HOOK_PAGE_RENDER_TEMPLATE, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD
+from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR, SITE_CONF, HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD, THEME_ASSET_SOURCE_DIR, THEME_ASSET_TARGET_DIR
 from Common import Common
 from Page import Page
 from pickle import load, dump
 from DepGraph import DepGraph
-from TemplateDeps import TemplateDeps
 from sys import path as syspath, modules
 from importlib import import_module
 from Plugins import Plugins
@@ -30,9 +29,14 @@ class Site(Common):
 
         self.content_dir = join(self.site_dir, CONTENT_DIR)
         self.build_dir = join(self.site_dir, BUILD_DIR)
-        self.asset_dir = join(self.content_dir, ASSET_DIR)
+        self.asset_source_dir = join(self.site_dir, ASSET_DIR)
+        self.asset_target_dir = join(self.build_dir, ASSET_DIR)
         self.cache_dir = join(self.site_dir, CACHE_DIR, self.__class__.__name__)
+
+        self.base_url = self.conf['site']['base_url']
         self.theme_dir = join(self.site_dir, 'themes', self.conf['site']['theme'])
+        self.theme_asset_source_dir = join(self.theme_dir, THEME_ASSET_SOURCE_DIR)
+        self.theme_asset_target_dir = join(self.build_dir, THEME_ASSET_TARGET_DIR)
 
         logger.info(f'site_dir: {self.site_dir}')
         logger.info(f'content_dir: {self.content_dir}')
@@ -48,6 +52,8 @@ class Site(Common):
         self.plugins = plugin_module.plugins
 
         self.exec_hooks(HOOK_PRE_BUILD, {'site': self})
+
+        self.sync_asset_dirs()
 
         self.content_dir_list = self.get_file_list(self.content_dir)
 
@@ -66,6 +72,20 @@ class Site(Common):
         self.dep_graph.write_cache()
 
 
+    def sync_asset_dirs(self):
+        '''
+        Ensure assets dir in content dir is synced to assets dir in build. Same for theme asset dir.
+        '''
+
+        print('TODO warn if content dir contains asset or theme directiries')
+
+        for sync_dirs in [
+            (self.asset_source_dir, self.asset_target_dir),
+            (self.theme_asset_source_dir, self.theme_asset_target_dir)
+        ]:
+            self.dir_sync(sync_dirs[0], sync_dirs[1])
+
+
     def exec_hooks(self, hook_name, objects):
         '''
         Run plugin hooks
@@ -73,12 +93,23 @@ class Site(Common):
 
         logger.info('Executing hooks: ' + hook_name)
 
-        for p in self.plugins:
-            p_type = type(p)
+        # If hook queue specified in site conf then execute according to it
+        if hook_name in self.conf['site'].keys():
+            for plugin_name in self.conf['site'][hook_name].split(','):
+                plugin_name = plugin_name.strip()
+                if plugin_name in self.plugins.keys():
+                    if hasattr(self.plugins[plugin_name], hook_name):
+                        getattr(self.plugins[plugin_name], hook_name)(objects)
+                        logger.info(f'{plugin_name}: Executing hook: {hook_name}')
+                else:
+                    logger.warning(f'Config setting site[{hook_name}] references {plugin_name}, but this plugin is not enabled, add it to site[enabled_plugins]?')
 
-            if hasattr(p, hook_name):
-                getattr(p, hook_name)(objects)
-                logger.info(f'{type(p)}: Running hook {hook_name}')
+        # If no queue/sequence specified then execute all plugins in whatever order they where loaded
+        else:
+            for plugin_name, plugin_module in self.plugins.items():
+                if hasattr(plugin_module, hook_name):
+                    getattr(plugin_module, hook_name)(objects)
+                    logger.info(f'{plugin_name}: Executing hook: {hook_name}')
 
 
     def add_broken_page_deps_to_build_list(self):
@@ -118,28 +149,13 @@ class Site(Common):
 
             self.exec_hooks(HOOK_PAGE_PRE_BUILD, {'site': self})
 
-            p = Page(src, tgt)
+            p = Page(src, tgt, self)
 
-            try:
-                if p.headers['Render markup'] != 'False':
-                    self.exec_hooks(HOOK_PAGE_RENDER_MARKUP, {'site': self, 'page': p})
-            except KeyError:
-                pass
-
-            try:
-                if p.headers['Render template'] != 'False':
-                    self.exec_hooks(HOOK_PAGE_RENDER_TEMPLATE, {'site': self, 'page': p})
-            except KeyError:
-                pass
+            self.exec_hooks(HOOK_PAGE_RENDER, {'site': self, 'page': p})
 
             p.write()
 
             self.exec_hooks(HOOK_PAGE_POST_BUILD, {'site': self, 'page': p})
-
-
-        # Copy assets
-        for src, tgt in self.assets_build_list.items():
-            self.copy_path(src, tgt)
 
 
     def set_build_lists(self):
@@ -147,9 +163,8 @@ class Site(Common):
         Populates various lists of content that needs to be built
         '''
 
-        # page and asset list is used many places and best use dict so duplicate values are not added
+        # page list is used many places and best use dict so duplicate values are not added
         self.pages_build_list = {}
-        self.assets_build_list = {}
         self.directories_build_list = []
 
         logger.info(f'Making build lists {self.build_dir}')
@@ -164,12 +179,13 @@ class Site(Common):
 
             path_type = False
 
+            # Ignore asset and theme directories
+            if content_path.startswith(self.asset_source_dir) or content_path.startswith(self.theme_asset_source_dir):
+                continue
+
             # Set path type
             if isfile(content_path):
-                if content_path.startswith(self.asset_dir):
-                    path_type = 'asset'
-                else:
-                    path_type = 'page'
+                path_type = 'page'
             else:
                 path_type = 'dir'
 
@@ -183,10 +199,7 @@ class Site(Common):
 
                 if not isfile(build_path) or getmtime(content_path) > getmtime(build_path):
 
-                    if path_type == 'asset':
-                        logger.info(f'Adding to assets_build_list: {content_path}')
-                        self.assets_build_list[content_path] = build_path
-                    elif path_type == 'page':
+                    if path_type == 'page':
                         logger.info(f'Adding to page_build_list: {content_path}')
                         self.pages_build_list[content_path] = build_path
 
@@ -205,12 +218,16 @@ class Site(Common):
         len_content_dir = len(self.content_dir)
 
         for build_path in self.build_dir_list:
-            # Delete all files that only exist in build_dir, but not in content_dir
+
+            # Ignore asset and theme directories
+            if build_path.startswith(self.asset_target_dir) or build_path.startswith(self.theme_asset_target_dir):
+                continue
 
             relative_build_path = build_path[len_build_dir:]
 
             delete_path = True
 
+            # Delete all files that only exist in build_dir, but not in content_dir
             for content_path in self.content_dir_list:
                 relative_content_path = content_path[len_content_dir:]
 

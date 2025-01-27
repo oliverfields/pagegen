@@ -8,21 +8,21 @@ class Plugin():
     Convert page markdown content to html
     '''
 
-    def pgn_hook_page_render_markup(self, objects):
+    def hook_page_render(self, objects):
         p = objects['page']
 
-        try:
-            md = markdown.Markdown(
-                extensions = [
-                    'tables',
-                    'admonition',
-                    markdown_inline_graphviz.makeExtension(),
-                    markdown_inline_convo.makeExtension()
-                ]
-            )
+        # Pages may use render markup: false header to skip rendering
+        if 'render markup' in p.headers.keys() and not p.headers['render markup']:
+            return
 
-            p.output = md.convert(p.body)
-        except Exception as e:
-            print(type(e))
-            raise
+        md = markdown.Markdown(
+            extensions = [
+                'tables',
+                'admonition',
+                markdown_inline_graphviz.makeExtension(),
+                markdown_inline_convo.makeExtension()
+            ]
+        )
+
+        p.out = md.convert(p.out)
 

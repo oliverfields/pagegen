@@ -1,7 +1,10 @@
 from os import listdir
 from constants import CACHE_DIR
+from datetime import date
 from os.path import join, getmtime
 from mako import util, lexer
+from mako.template import Template
+from mako.lookup import TemplateLookup
 from Common import Common
 import logger_setup
 import logging
@@ -13,8 +16,9 @@ logger = logging.getLogger('pagegen.' + __name__)
 
 class Plugin(Common):
 
-    def pgn_hook_pre_build(self, objects):
+    def hook_pre_build(self, objects):
         '''
+        Create mako template lookup for use when rendering
         Parse each template and work out its dependencies
         '''
 
@@ -24,9 +28,23 @@ class Plugin(Common):
         self.plugin_cache_file_name = 'template_deps'
         self.plugin_cache_path = join(self.cache_dir, self.plugin_cache_file_name)
 
+        self.mako_lookup = TemplateLookup(
+            directories=[self.theme_template_dir],
+            module_directory=self.cache_dir,
+            collection_size=500 # Caching
+        )
+
+        self.template_context = {
+            'site': objects['site'],
+            'year': date.today().strftime('%Y'),
+            'month': date.today().strftime('%m'),
+            'day': date.today().strftime('%d'),
+        }
+
+        # Work out template deps
         try:
             if self.is_newer_than(self.plugin_cache_path, self.theme_template_dir):
-                logger.info('Loading plugins from cache')
+                logger.info('Loading template dependencies from cache')
 
                 self.template_deps = self.load_pickle(self.plugin_cache_path)
                 return
@@ -56,15 +74,22 @@ class Plugin(Common):
         self.pickle_object(self.cache_dir, self.plugin_cache_file_name, self.template_deps)
 
 
-    def pgn_hook_render_template(self, objects):
+    def hook_page_render(self, objects):
         '''
         Apply the templates to the page content
         '''
-        print('TODO actually apply templates here?')
+
+        p = objects['page']
+
+        # If page has template header use it to render template
+        if 'template' in p.headers.keys():
+            self.template_context['page'] = p
+
+            t = self.mako_lookup.get_template(p.headers['template'] + '.mako')
+            p.out = t.render(**self.template_context)
 
 
-
-    def pgn_hook_page_post_build(self, objects):
+    def hook_page_post_build(self, objects):
         '''
         After page is built add add its templates as dependencies, so in future changing a dependent template will trigger the page to rebuild
         '''
