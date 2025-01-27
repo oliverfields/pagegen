@@ -4,6 +4,16 @@ from inspect import getmembers, isfunction
 import shortcodes_built_in
 import re
 from inspect import getargspec, signature
+import logger_setup
+import logging
+
+logger = logging.getLogger('pagegen.' + __name__)
+
+
+class UndefinedShortcodeError(Exception):
+    '''
+    Exception raised when a shortcode is found but no definition exists
+    '''
 
 
 class Plugin:
@@ -85,22 +95,18 @@ class Plugin:
                 shortcode_arguments = '(objects["site"], p, ' + sc_tmp[1] # Need to add back the ( split char
 
             # Try to run shortcode
-            if shortcode_name in self.shortcodes.keys():
+            try:
                 sc_function_call = 'self.shortcodes["' + shortcode_name + '"]' + shortcode_arguments
-
                 shortcode_result = eval(sc_function_call)
-                #raise Exception('Unable to run shortcode ' + shortcode_name + shortcode_arguments + ': ' + sc_function_call + ': ' + str(e))
+            except KeyError:
+                raise KeyError(f'{p}: Undefined shortcode: {shortcode_name}')
+            #raise Exception('Unable to run shortcode ' + shortcode_name + shortcode_arguments + ': ' + sc_function_call + ': ' + str(e))
 
-                if not isinstance(shortcode_result, str):
-                    raise Exception('Shortcode ' + shortcode_name + ' did not return a string, it returned a ' + str(type(shortcode_result)))
+            if not isinstance(shortcode_result, str):
+                raise Exception('Shortcode ' + shortcode_name + ' did not return a string, it returned a ' + str(type(shortcode_result)))
 
-            else:
-                raise Exception('Shortcode "' + shortcode_name + '" is not defined')
 
             shortcode_string = '<sc>' + function + '</sc>'
-            print(shortcode_string)
-            print(shortcode_result)
 
             p.out = p.out.replace(shortcode_string, shortcode_result)
 
-            print(p.out)

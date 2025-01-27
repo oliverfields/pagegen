@@ -1,4 +1,4 @@
-from os.path import basename, getmtime, join, isfile, isdir, sep, abspath, dirname
+from os.path import basename, getmtime, join, isfile, isdir, sep, abspath, dirname, exists
 from os import walk, listdir, environ
 from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR, SITE_CONF, HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD, THEME_ASSET_SOURCE_DIR, THEME_ASSET_TARGET_DIR
 from Common import Common
@@ -77,7 +77,13 @@ class Site(Common):
         Ensure assets dir in content dir is synced to assets dir in build. Same for theme asset dir.
         '''
 
-        print('TODO warn if content dir contains asset or theme directiries')
+        wrong_asset_dir = join(self.content_dir, ASSET_DIR)
+        if exists(self.asset_source_dir) and exists(wrong_asset_dir):
+            logger.warning(f'Asset path exists, it will not be copied to build directory: {wrong_asset_dir}')
+
+        wrong_theme_asset_dir = join(self.content_dir, THEME_ASSET_TARGET_DIR)
+        if exists(self.theme_asset_source_dir) and exists(wrong_theme_asset_dir):
+            logger.warning(f'Asset path exists, it will not be copied to build directory: {wrong_theme_asset_dir}')
 
         for sync_dirs in [
             (self.asset_source_dir, self.asset_target_dir),
