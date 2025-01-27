@@ -1,9 +1,8 @@
 from constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES, DRYRUNMSG
 from sys import stderr, stdout
 from os.path import isdir, isfile, join, getmtime, relpath, exists
-from filecmp import cmp
 from os import system, remove, makedirs, walk, environ
-from shutil import copyfile, rmtree, copy2
+from shutil import copyfile, rmtree
 import codecs
 from pickle import dump, load
 import logger_setup
@@ -191,9 +190,9 @@ class Common:
             # Copy all files from the source directory to the replica directory
             else:
                 # Check if the file exists in the replica directory and if it is different from the source file
-                if not exists(replica_path) or not cmp(source_path, replica_path, shallow=False):
+                if not exists(replica_path) or getmtime(source_path) > getmtime(replica_path):
                     logger.info(f"Copying {source_path} to {replica_path}")
 
                     # Copy the file from the source directory to the replica directory
-                    copy2(source_path, replica_path)
+                    copyfile(source_path, replica_path)
 
