@@ -1,0 +1,76 @@
+from htmlmin import minify
+from jsmin import jsmin
+from rcssmin import cssmin
+from glob import glob
+import logger_setup
+import logging
+
+logger = logging.getLogger('pagegen.' + __name__)
+
+
+class Plugin():
+    '''
+    Minify page html, css and javascript files
+    '''
+
+    def hook_page_render(self, objects):
+        '''
+        Minify page html
+        '''
+        s = objects['site']
+
+        try:
+            minify_html = s.conf['minify']['minify_html']
+        except KeyError:
+            minify_html = 'yes'
+
+        if minify_html != 'yes':
+            return
+
+        p = objects['page']
+        exclude_header = 'exclude html minify'
+
+        if not exclude_header in p.headers.keys() or not p.headers[exclude_header]:
+            logger.info(f'Minifying: {p}')
+            p.out = minify(p.out)
+
+
+    def hook_post_build(self, objects):
+        '''
+        Minify any css or javascript in build asset and build theme dirs
+        '''
+        s = objects['site']
+
+        try:
+            minify_css = s.conf['minify']['minify_css']
+        except KeyError:
+            minify_css = 'yes'
+
+        try:
+            minify_js = s.conf['minify']['minify_js']
+        except KeyError:
+            minify_js = 'yes'
+
+
+        for d in [s.asset_target_dir, s.theme_asset_target_dir]:
+            pathname = d + '/**/*'
+            files = glob(pathname, recursive=True)
+
+            for f in files:
+                is_css = True if f.endswith('.css') else False
+                is_js = True if f.endswith('.js') else False
+
+                if is_css and minify_css != 'yes':
+                    continue
+
+                if is_js and minify_js != 'yes':
+                    continue
+
+                if is_css or is_js:
+                    logger.info(f'Minifying: {f}')
+                    with open(f, 'r+') as ff:
+                        text = cssmin(ff.read()) if is_css else jsmin(ff.read())
+                        ff.seek(0)
+                        ff.write(text)
+                        ff.truncate()
+
