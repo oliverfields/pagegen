@@ -37,6 +37,9 @@ class Site(Common):
         self.theme_asset_source_dir = join(self.theme_dir, THEME_ASSET_SOURCE_DIR)
         self.theme_asset_target_dir = join(self.build_dir, THEME_ASSET_TARGET_DIR)
 
+        self.index_cache_file_name = 'index'
+        self.index_cache_path = join(self.cache_dir, self.index_cache_file_name)
+
         logger.info(f'site_dir: {self.site_dir}')
         logger.info(f'content_dir: {self.content_dir}')
         logger.info(f'build_dir: {self.build_dir}')
@@ -53,11 +56,15 @@ class Site(Common):
         )
         self.plugins = plugin_module.plugins
 
+        self.load_index()
+
         self.exec_hooks(HOOK_PRE_BUILD, {'site': self})
 
         self.sync_asset_dirs()
 
         self.content_dir_list = self.get_file_list(self.content_dir)
+
+        self.prune_index()
 
         self.build_dir_list = self.get_file_list(self.build_dir)
 
@@ -69,9 +76,39 @@ class Site(Common):
 
         self.build_pages()
 
-        self.exec_hooks(HOOK_POST_BUILD, {'site': self})
+        # Sanity check that index and content list are equal
+        if list(self._index.keys()) != self.content_dir_list:
+            logger.error('Index does not match content list, maybe clear cache and try again?')
+            raise
+
+        self.exec_hooks(HOOK_POST_BUILD, {'site': self, 'index': self._index})
 
         self.dep_graph.write_cache()
+        self.pickle_object(self.cache_dir, self.index_cache_file_name, self._index)
+
+
+    def prune_index(self):
+        '''
+        The index must contain same items as content list, remove any from index that no longer exist
+        '''
+
+        for p_path in self._index.copy().keys():
+            if not p_path in self.content_dir_list:
+                logger.info(f'Deleting from index: {p_path}')
+                del self._index[p_path]
+
+
+    def load_index(self):
+        '''
+        Site index is meta data of all pages, it is only garuanteed to be complete AFTER all pages have been generated, and as such is only made available to plugins in the hooks after page generation
+        '''
+
+        try:
+            logger.info('Loading index from cache')
+            self._index = self.load_pickle(self.index_cache_path)
+        except FileNotFoundError:
+            logger.info('rss index cache not found')
+            self._index = {}
 
 
     def sync_asset_dirs(self):
@@ -107,8 +144,8 @@ class Site(Common):
                 plugin_name = plugin_name.strip()
                 if plugin_name in self.plugins.keys():
                     if hasattr(self.plugins[plugin_name], hook_name):
-                        getattr(self.plugins[plugin_name], hook_name)(objects)
                         logger.info(f'{plugin_name}: Executing hook: {hook_name}')
+                        getattr(self.plugins[plugin_name], hook_name)(objects)
                 else:
                     logger.warning(f'Config setting site[{hook_name}] references {plugin_name}, but this plugin is not enabled, add it to site[enabled_plugins]?')
 
@@ -116,8 +153,8 @@ class Site(Common):
         else:
             for plugin_name, plugin_module in self.plugins.items():
                 if hasattr(plugin_module, hook_name):
-                    getattr(plugin_module, hook_name)(objects)
                     logger.info(f'{plugin_name}: Executing hook: {hook_name}')
+                    getattr(plugin_module, hook_name)(objects)
 
 
     def add_broken_page_deps_to_build_list(self):
@@ -164,6 +201,11 @@ class Site(Common):
             p.write()
 
             self.exec_hooks(HOOK_PAGE_POST_BUILD, {'site': self, 'page': p})
+
+            self._index[p.source_path] = {
+                'url': p.absolute_url,
+                'headers': p.headers
+            }
 
 
     def set_build_lists(self):

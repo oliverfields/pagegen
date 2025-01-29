@@ -2,9 +2,10 @@ Menu exclude: True
 Title: About
 Link chain exclude: True
 Template: regular_pages
-Sitemap exclude: True
+Sitemap exclude: False
 Description: About a man
-exclude rss: yes
+rss exclude: no
+date: 2025-11-03
 
 <div style="text-align: center;">
 

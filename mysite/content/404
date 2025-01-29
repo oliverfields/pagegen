@@ -1,5 +1,5 @@
 Title: Page not found
-exclude rss: True
+rss exclude: True
 Template: regular_pages
 Menu title: 404
 Sitemap exclude: True
