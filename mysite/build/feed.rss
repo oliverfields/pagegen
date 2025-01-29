@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
 <channel>
+<title>The RSS feed title</title>
+<link>http://localhost</link>
+<description>Testing things out here, for furtheranse of humanities spirits</description>
 <item>
 <title>What is Mysticism</title>
 <link>http://localhost/what-is-mysticism</link>

@@ -29,6 +29,19 @@ class Plugin(Common):
                 feed_pages.append(p)
 
         feed = ''
+
+        # Feed channel info
+        try:
+            feed += f'<title>{s.conf["rss"]["title"]}</title>\n'
+            feed += f'<link>{s.base_url}</link>\n'
+            feed += f'<description>{s.conf["rss"]["description"]}</description>\n'
+
+        except KeyError as e:
+            logger.error(f'RSS config is missing mandatory setting: {e.args[0]}')
+            raise
+
+
+        # Feed items
         for p in sorted(feed_pages, key=lambda p: p['headers']['date']):
             feed += '<item>\n'
             try:
