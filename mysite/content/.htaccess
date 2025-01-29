@@ -1,6 +1,7 @@
 Render markup: False
 Exclude HTML minify: True
 Search index exclude: True
+Exclude rss: True
 Sitemap exclude: True
 Menu exclude: True
 Link chain exclude: True

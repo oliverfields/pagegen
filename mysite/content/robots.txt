@@ -1,4 +1,5 @@
 Preserve file name: True
+exclude rss: True
 Generate HTML: False
 Exclude HTML minify: True
 Sitemap exclude: True

@@ -3,6 +3,8 @@ Title: About
 Link chain exclude: True
 Template: regular_pages
 Sitemap exclude: True
+Description: About a man
+exclude rss: yes
 
 <div style="text-align: center;">
 

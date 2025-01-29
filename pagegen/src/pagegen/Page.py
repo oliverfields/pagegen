@@ -90,12 +90,13 @@ class Page(Common):
         try:
             result = search('([^:]*):(.*)', line)
             header = result.group(1).lower().strip()
-            value = result.group(2).lower().strip()
+            value = result.group(2).strip()
+            value_lower = value.lower()
 
-            if value == 'yes' or value == 'true':
+            if value_lower == 'yes' or value_lower == 'true':
                 value = True
 
-            if value == 'no' or value == 'false':
+            if value_lower == 'no' or value_lower == 'false':
                 value = False
 
             self.headers[header] = value

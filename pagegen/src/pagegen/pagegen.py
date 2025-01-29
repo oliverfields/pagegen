@@ -137,6 +137,6 @@ if __name__ == '__main__':
         exit(1)
     except Exception as e:
         print('cache could be inconsistent, delete it?')
-        logger.error('Unknown failure')
+        logger.error('Unhandeld exception:')
         print_exception(type(e), e, e.__traceback__)
         exit(1)

@@ -1,5 +1,6 @@
 Template: archive
 Search index exclude: True
 Sitemap exclude: True
+Exclude rss: yes
 Title: Archive
 

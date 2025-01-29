@@ -1,48 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="http://localhost" />
-    <link rel="canonical" href="http://localhost/about" />
-    <meta name="copyright" content="Copyright &#169; 2025" />
-    <meta name="Generator" content="Pagegen" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/theme/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/theme/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/theme/favicon/favicon-16x16.png">
-    <link rel="manifest" href="/assets/theme/favicon/site.webmanifest">
-    <link rel="mask-icon" href="/assets/theme/favicon/safari-pinned-tab.svg" color="#5bbad5">
-    <link rel="shortcut icon" href="/assets/theme/favicon/favicon.ico">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="msapplication-config" content="/assets/theme/favicon/browserconfig.xml">
-    <meta name="theme-color" content="#ffffff">
-    <link rel="stylesheet" href="/assets/theme/site.css" type="text/css" />
-  </head>
-  <body>
-    <header>
-      <div class="logo">
-        <a class="page-logo-link" href="http://localhost" aria-label="Site home">
-        </a>
-      </div>
-      <nav>
-      </nav>
-    </header>
-    <main>
-      
-	<div style="text-align: center;">
-
-  <img src="/assets/mugshot.jpg" style="width: 20%; border-radius: 50%; margin: 0 auto 1em auto;" />
-
-  <p style="margin: 1em 2em; font-family: var(--font-serif); font-style: italic;">Power springs from the sun and the moon,<br />united in the universial eternal<br />Like day loves night, thru space and time<br />Eternity is all our hearts can bear<br />Faith alone trusts the unknown<br />
-  &mdash; Druid Allanon</a></p>
-
-  <p style="clear: both;">Donations will be accepted, humbly and with gratitude🙏</p>
-
-  <div id="donate-button-container" style="text-align: center; margin-bottom: 2em;">
-    <div id="donate-button"></div>
-    <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js" charset="UTF-8"></script>
-    <script>
+<!DOCTYPE html><html lang=en> <head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><base href=http://localhost><link rel=canonical href=http://localhost/about><meta name=copyright content="Copyright © 2025"><meta name=Generator content=Pagegen><link rel=apple-touch-icon sizes=180x180 href=/assets/theme/favicon/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/assets/theme/favicon/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/assets/theme/favicon/favicon-16x16.png><link rel=manifest href=/assets/theme/favicon/site.webmanifest><link rel=mask-icon href=/assets/theme/favicon/safari-pinned-tab.svg color=#5bbad5><link rel="shortcut icon" href=/assets/theme/favicon/favicon.ico><meta name=msapplication-TileColor content=#da532c><meta name=msapplication-config content=/assets/theme/favicon/browserconfig.xml><meta name=theme-color content=#ffffff><link rel=stylesheet href=/assets/theme/site.css type=text/css></head> <body> <header> <div class=logo> <a class=page-logo-link href=http://localhost aria-label="Site home"> </a> </div> <nav> </nav> </header> <main> <div style="text-align: center;"> <img src=/assets/mugshot.jpg style="width: 20%; border-radius: 50%; margin: 0 auto 1em auto;"> <p style="margin: 1em 2em; font-family: var(--font-serif); font-style: italic;">Power springs from the sun and the moon,<br>united in the universial eternal<br>Like day loves night, thru space and time<br>Eternity is all our hearts can bear<br>Faith alone trusts the unknown<br> &mdash; Druid Allanon</a></p> <p style="clear: both;">Donations will be accepted, humbly and with gratitude🙏</p> <div id=donate-button-container style="text-align: center; margin-bottom: 2em;"> <div id=donate-button></div> <script src=https://www.paypalobjects.com/donate/sdk/donate-sdk.js charset=UTF-8></script> <script>
 PayPal.Donation.Button({
 env:'production',
 hosted_button_id:'DKFQKNXNLB78S',
@@ -52,14 +8,4 @@ alt:'Donate with PayPal button',
 title:'PayPal - The safer, easier way to pay online!',
 }
 }).render('#donate-button');
-    </script>
-  </div>
-
-
-</div>
-
-    </main>
-    <footer><hr />Copyright &#169; 2022 - 2025</footer>
-    <script src="/assets/theme/site.js"></script>
-  </body>
-</html>
+    </script> </div> </div> </main> <footer><hr>Copyright &#169; 2022 - 2025</footer> <script src=/assets/theme/site.js></script> </body> </html> 
