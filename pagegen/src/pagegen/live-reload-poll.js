@@ -1,7 +1,4 @@
-<p>User-agent: *
-Disallow: /?tracking=on
-Disallow: /?tracking=off
-Sitemap: https://tidesofsea.com/sitemap.xml</p><script>var sleep = time => new Promise(resolve => setTimeout(resolve, time))
+var sleep = time => new Promise(resolve => setTimeout(resolve, time))
 var poll = (promiseFn, time) => promiseFn().then(
   sleep(time).then(() => poll(promiseFn, time))
 )
@@ -25,4 +22,3 @@ poll(() => new Promise(() => {
   };
   http.send();
 }), poll_intervall)
-</script>

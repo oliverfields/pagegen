@@ -1,4 +1,4 @@
-from constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES, DRYRUNMSG
+from constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES, DRY_RUN_MSG, PGN_DRY_RUN
 from sys import stderr, stdout
 from os.path import isdir, isfile, join, getmtime, relpath, exists
 from os import system, remove, makedirs, walk, environ
@@ -10,7 +10,7 @@ import logging
 
 logger = logging.getLogger('pagegen.' + __name__)
 
-DRY_RUN = environ.get('PGN_DRY_RUN', False)
+DRY_RUN = environ.get(PGN_DRY_RUN, False)
 
 class Common:
     '''
@@ -32,7 +32,7 @@ class Common:
         '''
 
         if DRY_RUN:
-            logger.notice(f'{DRYRUNMSG}: Would delete: {path}')
+            logger.notice(f'{DRY_RUN_MSG}: Would delete: {path}')
         else:
             logger.info(f'Deleting {path}')
 
@@ -52,7 +52,7 @@ class Common:
         '''
 
         if DRY_RUN:
-            logger.notice(f'{DRYRUNMSG}: Would copy: {source} to {target}')
+            logger.notice(f'{DRY_RUN_MSG}: Would copy: {source} to {target}')
         else:
             logger.info(f'Copying {source} to {target}')
 
@@ -69,7 +69,7 @@ class Common:
         '''
 
         if DRY_RUN:
-            logger.notice(f'{DRYRUNMSG}: Would write: {file_path}')
+            logger.notice(f'{DRY_RUN_MSG}: Would write: {file_path}')
         else:
             logger.info(f'Writing {file_path}')
 
@@ -87,7 +87,7 @@ class Common:
         '''
         if not isdir(dir_path):
             if DRY_RUN:
-                logger.notice(f'{DRYRUNMSG}: Would make {dir_path}')
+                logger.notice(f'{DRY_RUN_MSG}: Would make {dir_path}')
             else:
                 logger.info(f'Making {dir_path}')
 
@@ -124,7 +124,7 @@ class Common:
         path = join(cache_dir, cache_file)
 
         if DRY_RUN:
-            logger.notice(f'{DRYRUNMSG}: Would create cache: {path}')
+            logger.notice(f'{DRY_RUN_MSG}: Would create cache: {path}')
         else:
             logger.info(f'Writing cache {path}')
             with open(path, 'wb') as f:

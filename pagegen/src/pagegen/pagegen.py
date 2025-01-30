@@ -3,7 +3,7 @@ from sys import exit, stdout
 from os import system, open, O_CREAT, O_EXCL, remove, environ
 from os.path import join, isfile
 from traceback import print_exception
-from constants import SITE_CONF, LOCK_FILE, CACHE_DIR, BUILD_DIR, DRYRUNMSG
+from constants import SITE_CONF, LOCK_FILE, CACHE_DIR, BUILD_DIR, DRY_RUN_MSG, PGN_LIVE_RELOAD, PGN_DRY_RUN
 from Site import Site
 from pathlib import Path
 from Config import Config
@@ -58,14 +58,14 @@ if __name__ == '__main__':
             logger.setLevel(logging.INFO)
 
         if a.dry_run:
-            environ['PGN_DRY_RUN'] = 'yes'
+            environ[PGN_DRY_RUN] = 'yes'
 
         if a.clear_cache:
             cache_dir = join(site_dir, CACHE_DIR)
             build_dir = join(site_dir, BUILD_DIR)
             if a.dry_run:
-                logger.info(f'{DRYRUNMSG}: Would delete {cache_dir}')
-                logger.info(f'{DRYRUNMSG}: Would delete {build_dir}')
+                logger.info(f'{DRY_RUN_MSG}: Would delete {cache_dir}')
+                logger.info(f'{DRY_RUN_MSG}: Would delete {build_dir}')
             else:
                 try:
                     rmtree(cache_dir)
@@ -102,6 +102,7 @@ if __name__ == '__main__':
             s.build_site()
 
         if a.live_reload:
+            environ[PGN_LIVE_RELOAD] = 'yes'
             c = Config(site_conf_file)
             s = Site(site_dir=site_dir, site_conf=c.configparser)
             s.build_site()

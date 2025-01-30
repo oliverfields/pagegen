@@ -17,8 +17,10 @@ THEME_DIR = 'themes'
 THEME_TEMPLATE_DIR = 'templates'
 PLUGIN_DIR = 'plugins'
 LOCK_FILE = '.pgn_lock'
-DRYRUNMSG = 'DRY RUN'
+DRY_RUN_MSG = 'DRY RUN'
 LIVE_RELOAD_HASH_FILE = 'pagegen_site_hash'
+PGN_LIVE_RELOAD='PGN_LIVE_RELOAD'
+PGN_DRY_RUN='PGN_DRY_RUN'
 
 # Hooks
 HOOK_PRE_BUILD = 'hook_pre_build'

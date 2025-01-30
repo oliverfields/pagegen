@@ -1,7 +1,7 @@
 import hashlib
 import glob
 from os import remove, kill
-from os.path import join, isdir, getmtime
+from os.path import join, isdir, getmtime, dirname, abspath
 import time
 from constants import LIVE_RELOAD_HASH_FILE
 import subprocess
@@ -20,11 +20,14 @@ def get_time_stamp():
 
 
 def kill_http_server():
+    print('killing')
+    http_server_process.kill()
     if http_server_pid is None:
         pass
     else:
         remove(hash_file)
-        kill(http_server_pid, signal.SIGTERM)
+        http_server_process.kill()
+        #kill(http_server_pid, signal.SIGTERM)
 
 
 def write_file(file, content):
@@ -37,16 +40,20 @@ def write_file(file, content):
 
 def live_reload(site, watch_elements, serve_base_url, serve_port):
 
+    http_server_script = join(dirname(abspath(__file__)), 'http_server.py')
+    print(http_server_script)
+
     try:
         global hash_file
         hash_file = join(site.build_dir, LIVE_RELOAD_HASH_FILE)
-        http_server_process = subprocess.Popen(["python3", "-m", "http.server", serve_port, "-d", site.build_dir], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        global http_server_process
+        http_server_process = subprocess.Popen(["python3", http_server_script, site.build_dir], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
         global http_server_pid
         http_server_pid = http_server_process.pid
         atexit.register(kill_http_server)
 
-        print('[' + get_time_stamp() + '] Serving from: ' + site.build_dir)
-        print('[' + get_time_stamp() + '] Serving to: ' + serve_base_url + ':' + serve_port)
+        #print('[' + get_time_stamp() + '] Serving from: ' + site.build_dir)
+        #print('[' + get_time_stamp() + '] Serving to: ' + serve_base_url + ':' + serve_port)
 
         print('[' + get_time_stamp() + '] Watching changes to: ')
         for we in watch_elements:
@@ -77,7 +84,7 @@ def live_reload(site, watch_elements, serve_base_url, serve_port):
                 site.build_site()
 
                 # Update timestamp to signal to live reaload js poll script to reload
-                write_file(HASH_FILE)
+                write_file(hash_file, this_hash)
                 print('[' + get_time_stamp() + '] Serving..')
             else:
                 write_status('[' + get_time_stamp() + '] Watching.. (Ctrl+C to quit)')
