@@ -1,5 +1,4 @@
 import socket
-#import SimpleHTTPServer
 from http.server import SimpleHTTPRequestHandler
 import socketserver
 from sys import argv

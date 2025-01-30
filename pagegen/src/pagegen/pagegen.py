@@ -1,18 +1,43 @@
 import argparse
 from sys import exit, stdout
-from os import system, open, O_CREAT, O_EXCL, remove, environ
-from os.path import join, isfile
+from os import system, open, O_CREAT, O_EXCL, remove, environ, getcwd, listdir
+from os.path import join, isfile, dirname, abspath
 from traceback import print_exception
 from constants import SITE_CONF, LOCK_FILE, CACHE_DIR, BUILD_DIR, DRY_RUN_MSG, PGN_LIVE_RELOAD, PGN_DRY_RUN
 from Site import Site
 from pathlib import Path
 from Config import Config
 from shutil import rmtree
+from Common import Common
 from live_reload import live_reload
 import logger_setup
 import logging
 
 logger = logging.getLogger('pagegen')
+
+
+def init_pgn_dir():
+    '''
+    Copy skeleton directory to current directory for basic setup
+    '''
+
+    skel_dir = dirname(abspath(__file__)) + '/skel'
+    root_dir=getcwd()
+
+    if listdir(root_dir):
+        logger.error("Cannot init non empty directory '%s'" % root_dir)
+        exit(1)
+
+    try:
+        if PGN_DRY_RUN in environ.keys() and environ[PGN_DRY_RUN] == 'yes':
+            logger.info(f'{DRY_RUN_MSG} Would copy directory {skel_dir} to {root_dir}')
+        else:
+            c = Common()
+            c.dir_sync(skel_dir, root_dir)
+    except:
+        logger.error("Unable to copy '%s' to '%s'" % (skel_dir, root_dir))
+        exit(1)
+
 
 def find_site_dir(path=False):
     '''
@@ -49,6 +74,7 @@ if __name__ == '__main__':
         p.add_argument('-V', '--verbose', action='store_true', help='Increase verbosity')
         p.add_argument('-d', '--dry-run', action='store_true', help='Do not write to disk')
         p.add_argument('-i', '--ignore-lock', action='store_true', help='Ignore lock file')
+        p.add_argument('-n', '--init', action='store_true', help='Initiate current directory as pagegen site')
         p.add_argument('-c', '--clear-cache', action='store_true', help='Clear caches before building')
         p.add_argument('-l', '--live-reload', action='store_true', help='Serve site on localhost and rebuild on change')
         a = p.parse_args()
@@ -59,6 +85,9 @@ if __name__ == '__main__':
 
         if a.dry_run:
             environ[PGN_DRY_RUN] = 'yes'
+
+        if a.init:
+            init_pgn_dir()
 
         if a.clear_cache:
             cache_dir = join(site_dir, CACHE_DIR)
