@@ -1,3 +1,5 @@
+// Pagegen live reload trigger
+
 var sleep = time => new Promise(resolve => setTimeout(resolve, time))
 var poll = (promiseFn, time) => promiseFn().then(
   sleep(time).then(() => poll(promiseFn, time))
