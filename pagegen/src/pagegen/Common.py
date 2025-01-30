@@ -1,11 +1,11 @@
-from constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES, DRY_RUN_MSG, PGN_DRY_RUN
+from pagegen.constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES, DRY_RUN_MSG, PGN_DRY_RUN
 from sys import stderr, stdout
 from os.path import isdir, isfile, join, getmtime, relpath, exists
 from os import system, remove, makedirs, walk, environ
 from shutil import copyfile, rmtree
 import codecs
 from pickle import dump, load
-import logger_setup
+import pagegen.logger_setup
 import logging
 
 logger = logging.getLogger('pagegen.' + __name__)

@@ -1,6 +1,6 @@
-from Common import Common
+from pagegen.Common import Common
 from os.path import join
-import logger_setup
+import pagegen.logger_setup
 import logging
 
 logger = logging.getLogger('pagegen.' + __name__)

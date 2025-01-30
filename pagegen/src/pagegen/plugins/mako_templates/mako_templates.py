@@ -1,12 +1,12 @@
 from os import listdir
-from constants import CACHE_DIR
+from pagegen.constants import CACHE_DIR
 from datetime import date
 from os.path import join, getmtime
 from mako import util, lexer
 from mako.template import Template
 from mako.lookup import TemplateLookup
-from Common import Common
-import logger_setup
+from pagegen.Common import Common
+import pagegen.logger_setup
 import logging
 
 logger = logging.getLogger('pagegen.' + __name__)

@@ -1,7 +1,7 @@
-from Common import Common
+from pagegen.Common import Common
 from os import linesep
 from re import search
-import logger_setup
+import pagegen.logger_setup
 import logging
 
 logger = logging.getLogger('pagegen.' + __name__)
@@ -93,10 +93,10 @@ class Page(Common):
             value = result.group(2).strip()
             value_lower = value.lower()
 
-            if value_lower == 'yes' or value_lower == 'true':
+            if value_lower == 'yes' or value_lower == 'true' or value_lower == '1':
                 value = True
 
-            if value_lower == 'no' or value_lower == 'false':
+            if value_lower == 'no' or value_lower == 'false' or value_lower == '0':
                 value = False
 
             self.headers[header] = value

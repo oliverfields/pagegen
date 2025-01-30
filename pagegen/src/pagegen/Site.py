@@ -1,14 +1,14 @@
 from os.path import basename, getmtime, join, isfile, isdir, sep, abspath, dirname, exists
 from os import walk, listdir, environ
-from constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR, SITE_CONF, HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD, THEME_ASSET_SOURCE_DIR, THEME_ASSET_TARGET_DIR, PGN_LIVE_RELOAD
-from Common import Common
-from Page import Page
+from pagegen.constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR, SITE_CONF, HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD, THEME_ASSET_SOURCE_DIR, THEME_ASSET_TARGET_DIR, PGN_LIVE_RELOAD
+from pagegen.Common import Common
+from pagegen.Page import Page
 from pickle import load, dump
-from DepGraph import DepGraph
+from pagegen.DepGraph import DepGraph
 from sys import path as syspath, modules
 from importlib import import_module
-from Plugins import Plugins
-import logger_setup
+from pagegen.Plugins import Plugins
+import pagegen.logger_setup
 import logging
 
 logger = logging.getLogger('pagegen.' + __name__)

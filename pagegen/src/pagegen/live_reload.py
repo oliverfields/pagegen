@@ -3,7 +3,7 @@ import glob
 from os import remove, kill
 from os.path import join, isdir, getmtime, dirname, abspath
 import time
-from constants import LIVE_RELOAD_HASH_FILE
+from pagegen.constants import LIVE_RELOAD_HASH_FILE
 import subprocess
 import sys
 import signal

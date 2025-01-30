@@ -1,10 +1,10 @@
 from os.path import isfile, join
 import importlib.util
 from inspect import getmembers, isfunction
-import shortcodes_built_in
+import pagegen.shortcodes_built_in
 import re
 from inspect import getargspec, signature
-import logger_setup
+import pagegen.logger_setup
 import logging
 
 logger = logging.getLogger('pagegen.' + __name__)

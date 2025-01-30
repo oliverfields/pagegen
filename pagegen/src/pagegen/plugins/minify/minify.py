@@ -2,7 +2,7 @@ from htmlmin import minify
 from jsmin import jsmin
 from rcssmin import cssmin
 from glob import glob
-import logger_setup
+import pagegen.logger_setup
 import logging
 
 logger = logging.getLogger('pagegen.' + __name__)
@@ -20,11 +20,11 @@ class Plugin():
         s = objects['site']
 
         try:
-            minify_html = s.conf['minify']['minify_html']
+            minify_html = s.conf.getboolean('minify', 'minify_html')
         except KeyError:
-            minify_html = 'yes'
+            minify_html = True
 
-        if minify_html != 'yes':
+        if not minify_html:
             return
 
         p = objects['page']
@@ -42,14 +42,14 @@ class Plugin():
         s = objects['site']
 
         try:
-            minify_css = s.conf['minify']['minify_css']
+            minify_css = s.conf.getboolean('minify', 'minify_css')
         except KeyError:
-            minify_css = 'yes'
+            minify_css = True
 
         try:
-            minify_js = s.conf['minify']['minify_js']
+            minify_js = s.conf.getboolean('minify', 'minify_js')
         except KeyError:
-            minify_js = 'yes'
+            minify_js = True
 
 
         for d in [s.asset_target_dir, s.theme_asset_target_dir]:
@@ -60,10 +60,10 @@ class Plugin():
                 is_css = True if f.endswith('.css') else False
                 is_js = True if f.endswith('.js') else False
 
-                if is_css and minify_css != 'yes':
+                if is_css and not minify_css:
                     continue
 
-                if is_js and minify_js != 'yes':
+                if is_js and not minify_js:
                     continue
 
                 if is_css or is_js:

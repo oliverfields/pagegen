@@ -1,11 +1,11 @@
 from os.path import basename, getmtime, join, isdir, dirname
-from constants import SITE_CONF
+from pagegen.constants import SITE_CONF
 from os import walk, listdir
-from Common import Common
+from pagegen.Common import Common
 from pickle import load
 from sys import path as syspath, modules
 from importlib import import_module
-import logger_setup
+import pagegen.logger_setup
 import logging
 
 logger = logging.getLogger('pagegen.' + __name__)

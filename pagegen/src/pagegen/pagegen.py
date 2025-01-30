@@ -3,14 +3,14 @@ from sys import exit, stdout
 from os import system, open, O_CREAT, O_EXCL, remove, environ, getcwd, listdir
 from os.path import join, isfile, dirname, abspath
 from traceback import print_exception
-from constants import SITE_CONF, LOCK_FILE, CACHE_DIR, BUILD_DIR, DRY_RUN_MSG, PGN_LIVE_RELOAD, PGN_DRY_RUN
-from Site import Site
+from pagegen.constants import SITE_CONF, LOCK_FILE, CACHE_DIR, BUILD_DIR, DRY_RUN_MSG, PGN_LIVE_RELOAD, PGN_DRY_RUN, PAGEGEN_VERSION
+from pagegen.Site import Site
 from pathlib import Path
-from Config import Config
+from pagegen.Config import Config
 from shutil import rmtree
-from Common import Common
-from live_reload import live_reload
-import logger_setup
+from pagegen.Common import Common
+from pagegen.live_reload import live_reload
+import pagegen.logger_setup
 import logging
 
 logger = logging.getLogger('pagegen')
@@ -55,39 +55,43 @@ def find_site_dir(path=False):
         return find_site_dir(path.parent)
 
 
-if __name__ == '__main__':
+def main():
 
     site_dir = find_site_dir()
+
+    lock_file = join(site_dir, LOCK_FILE)
+
+    system('') # Enable ansi escape codes
+
+    p = argparse.ArgumentParser()
+
+    p.add_argument('-g', '--generate', action='store_true', help='Generate site')
+    p.add_argument('-V', '--verbose', action='store_true', help='Increase verbosity')
+    p.add_argument('-d', '--dry-run', action='store_true', help='Do not write to disk')
+    p.add_argument('-i', '--ignore-lock', action='store_true', help='Ignore lock file')
+    p.add_argument('-n', '--init', action='store_true', help='Initiate current directory as pagegen site')
+    p.add_argument('-c', '--clear-cache', action='store_true', help='Clear caches before building')
+    p.add_argument('-l', '--live-reload', action='store_true', help='Serve site on localhost and rebuild on change')
+    p.add_argument('-v', '--version', action='store_true', help='Show version')
+    a = p.parse_args()
+
+    if a.version:
+        print(PAGEGEN_VERSION)
+
+    if a.verbose:
+        logger.setLevel(logging.INFO)
+
+    if a.dry_run:
+        environ[PGN_DRY_RUN] = 'yes'
+
+    if a.init:
+        init_pgn_dir()
 
     if site_dir is None:
         logger.error(f'Unable to find {SITE_CONF}')
         exit(1)
 
     try:
-        lock_file = join(site_dir, LOCK_FILE)
-
-        system('') # Enable ansi escape codes
-
-        p = argparse.ArgumentParser()
-
-        p.add_argument('-g', '--generate', action='store_true', help='Generate site')
-        p.add_argument('-V', '--verbose', action='store_true', help='Increase verbosity')
-        p.add_argument('-d', '--dry-run', action='store_true', help='Do not write to disk')
-        p.add_argument('-i', '--ignore-lock', action='store_true', help='Ignore lock file')
-        p.add_argument('-n', '--init', action='store_true', help='Initiate current directory as pagegen site')
-        p.add_argument('-c', '--clear-cache', action='store_true', help='Clear caches before building')
-        p.add_argument('-l', '--live-reload', action='store_true', help='Serve site on localhost and rebuild on change')
-        a = p.parse_args()
-
-
-        if a.verbose:
-            logger.setLevel(logging.INFO)
-
-        if a.dry_run:
-            environ[PGN_DRY_RUN] = 'yes'
-
-        if a.init:
-            init_pgn_dir()
 
         if a.clear_cache:
             cache_dir = join(site_dir, CACHE_DIR)
@@ -125,6 +129,7 @@ if __name__ == '__main__':
                         exit()
             else:
                 open(lock_file, O_CREAT | O_EXCL)
+
 
             c = Config(site_conf_file)
             s = Site(site_dir=site_dir, site_conf=c.configparser)
@@ -173,3 +178,7 @@ if __name__ == '__main__':
             print_exception(type(e), e, e.__traceback__)
 
         exit(1)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,7 +1,7 @@
 from configparser import ConfigParser
 import codecs
 from os import environ
-import logger_setup
+import pagegen.logger_setup
 import logging
 
 logger = logging.getLogger('pagegen.' + __name__)
@@ -32,5 +32,4 @@ class Config():
                     c[section][name] = environ[env_name]
 
         self.configparser = c
-
         logger.info('Config loaded from: ' + conf_file)
