@@ -87,8 +87,8 @@
         <li><a href="where">Link 2</a></li>
       </menu>
       <ol>
-        <li>🐞 <a href="https://github.com/oliverfields/pagegen_site/issues">Issue tracker</a></li>
         <li>✉️ <a href="mailto:pagegen@phnd.net">pagegen@phnd.net</a></li>
+        <li>🐞 <a href="https://github.com/oliverfields/pagegen_site/issues">Issue tracker</a></li>
       </ol>
       <div class="github-button-container"><a class="github-button" href="https://github.com/oliverfields/pagegen" data-show-count="true" data-size="large" aria-label="Star oliverfields/pagegen on GitHub">Star</a></div>
 

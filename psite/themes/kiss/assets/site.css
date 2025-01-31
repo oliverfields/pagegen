@@ -211,6 +211,12 @@ border: none;
 background-color: var(--cbg);
 }
 
+#menu menu {
+max-width: 80%;
+margin: 1rem auto;
+display: block;
+}
+
 #menu ol {
 list-style-type: none;
 padding: 0;
