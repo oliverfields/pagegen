@@ -32,7 +32,12 @@ class Site(Common):
         self.asset_target_dir = join(self.build_dir, ASSET_DIR)
         self.cache_dir = join(self.site_dir, CACHE_DIR, self.__class__.__name__)
 
-        self.base_url = self.conf['site']['base_url']
+        try:
+            self.base_url = self.conf['site']['base_url']
+        except KeyError:
+            logger.error('Unable to get mandatory base_url setting from site section. Ensure it is defined')
+            raise
+
         self.theme_dir = join(self.site_dir, 'themes', self.conf['site']['theme'])
         self.theme_asset_source_dir = join(self.theme_dir, THEME_ASSET_SOURCE_DIR)
         self.theme_asset_target_dir = join(self.build_dir, THEME_ASSET_TARGET_DIR)

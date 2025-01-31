@@ -1,0 +1,3 @@
+include README.md CHANGELOG.md
+recursive-include src/pagegen/skel *
+include src/pagegen/live-reload.js

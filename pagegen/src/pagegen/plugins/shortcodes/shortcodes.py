@@ -1,7 +1,7 @@
 from os.path import isfile, join
 import importlib.util
 from inspect import getmembers, isfunction
-import pagegen.shortcodes_built_in
+import shortcodes_built_in
 import re
 from inspect import getargspec, signature
 import pagegen.logger_setup

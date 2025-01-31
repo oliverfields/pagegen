@@ -59,8 +59,6 @@ def main():
 
     site_dir = find_site_dir()
 
-    lock_file = join(site_dir, LOCK_FILE)
-
     system('') # Enable ansi escape codes
 
     p = argparse.ArgumentParser()
@@ -75,8 +73,10 @@ def main():
     p.add_argument('-v', '--version', action='store_true', help='Show version')
     a = p.parse_args()
 
+
     if a.version:
         print(PAGEGEN_VERSION)
+        exit(0)
 
     if a.verbose:
         logger.setLevel(logging.INFO)
@@ -86,10 +86,13 @@ def main():
 
     if a.init:
         init_pgn_dir()
+        exit(0)
 
     if site_dir is None:
         logger.error(f'Unable to find {SITE_CONF}')
         exit(1)
+
+    lock_file = join(site_dir, LOCK_FILE)
 
     try:
 
