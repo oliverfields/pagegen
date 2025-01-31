@@ -18,7 +18,7 @@ Table of Contents:
 	--border: 1px solid var(--cmed);
 	--ornament: "‹‹‹ ›››";
 	/* foreground   | background color */
-	--cfg:   #433;    --cbg:    #fff;
+	--cfg:   #433;    --cbg:    ##FCFDFF;
 	--cdark: #888;    --clight: #f5f6f7;
 	--cmed:  #d1d1d1;
 	--clink: #07c;
@@ -35,7 +35,6 @@ ul, ol, dl, fieldset, pre, pre > code, caption {
 	display: block;
 	margin: 0.5rem 0rem 1rem;
 	width: 100%;
-	overflow: auto hidden;
 	text-align: left;
 }
 video, summary, input, select { outline:none; }
@@ -199,3 +198,30 @@ cursor: pointer;
 }
 }
 
+#search-form {
+text-align: center;
+}
+
+#search-form {
+text-align: center;
+}
+
+#search-submit {
+border: none;
+background-color: var(--cbg);
+}
+
+#menu ol {
+list-style-type: none;
+padding: 0;
+}
+
+#menu ol li {
+white-space: nowrap;
+text-align: center;
+font-size: .8rem;
+}
+
+.github-button-container {
+text-align: center;
+}

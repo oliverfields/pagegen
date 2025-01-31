@@ -60,6 +60,7 @@
     <meta name="Generator" content="Pagegen" />
     <link rel="shortcut icon" href="${site.base_url}/theme/favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="/theme/site.css" type="text/css" />
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
   </head>
   <body>
     <div id="content">
@@ -75,10 +76,22 @@
         <h2>Every page is a file</h2>
         <em>Static site generator</em>
       </header>
+      <div id="search-form">
+        <form action="${site.base_url}/search-results" method="GET">
+          <input type="text" id="search-query" name="q" />
+          <input type="submit" id="search-submit" value="🔍️" />
+        </form>
+      </div><!-- /search-form -->
       <menu>
         <li><a href="some">Link 1</a></li>
         <li><a href="where">Link 2</a></li>
       </menu>
+      <ol>
+        <li>🐞 <a href="https://github.com/oliverfields/pagegen_site/issues">Issue tracker</a></li>
+        <li>✉️ <a href="mailto:pagegen@phnd.net">pagegen@phnd.net</a></li>
+      </ol>
+      <div class="github-button-container"><a class="github-button" href="https://github.com/oliverfields/pagegen" data-show-count="true" data-size="large" aria-label="Star oliverfields/pagegen on GitHub">Star</a></div>
+
     </div><!-- /menu -->
     <div id="menu-toggle">
       <svg id="menu-open" width="2rem" height="2rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
