@@ -196,7 +196,7 @@ class Site(Common):
 
         # If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated
         if PGN_LIVE_RELOAD in environ.keys() and environ[PGN_LIVE_RELOAD] == 'yes':
-            js_reload_poll_script = self.read_file(join(dirname(__file__), 'live-reload-poll.js'))
+            js_reload_poll_script = self.read_file(join(dirname(__file__), 'live-reload.js'))
 
         # Generate pages
         for src, tgt in self.pages_build_list.items():

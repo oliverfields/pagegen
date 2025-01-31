@@ -125,13 +125,6 @@ hr { border: 0; border-top: 0.1rem solid var(--cmed); }
 
 
 /* 4. Layout ––––––––––––––––––––––––––––––––––––––– */
-header {
-background-color: lime;
-}
-
-#menu {
-background-color: pink;
-}
 
 article h1:first-child {
 margin-top: 0;
@@ -139,6 +132,23 @@ margin-top: 0;
 
 article {
 padding: 1rem 2rem;
+}
+
+header {
+text-align: center;
+}
+
+header img {
+margin-top: 2rem;
+}
+
+header h2 {
+margin: .4rem 0 0;
+font-size: 1.3rem;
+}
+
+header em {
+font-size: .8rem;
 }
 
 @media (min-width: 600px) {

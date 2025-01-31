@@ -2,6 +2,7 @@ from htmlmin import minify
 from jsmin import jsmin
 from rcssmin import cssmin
 from glob import glob
+from configparser import NoSectionError
 import pagegen.logger_setup
 import logging
 
@@ -21,6 +22,8 @@ class Plugin():
 
         try:
             minify_html = s.conf.getboolean('minify', 'minify_html')
+        except NoSectionError:
+            minify_html = True
         except KeyError:
             minify_html = True
 
@@ -45,10 +48,14 @@ class Plugin():
             minify_css = s.conf.getboolean('minify', 'minify_css')
         except KeyError:
             minify_css = True
+        except NoSectionError:
+            minify_css = True
 
         try:
             minify_js = s.conf.getboolean('minify', 'minify_js')
         except KeyError:
+            minify_js = True
+        except NoSectionError:
             minify_js = True
 
 

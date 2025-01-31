@@ -1,6 +1,6 @@
 import markdown
-import pagegen.markdown_inline_graphviz
-import pagegen.markdown_inline_convo
+import markdown_inline_graphviz
+import markdown_inline_convo
 
 
 class Plugin():

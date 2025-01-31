@@ -1,0 +1,26 @@
+Title: Pagegen static site generator
+Description: Pagegen is a static web site generator, it creates web sites from text files and directories. Manage your site from the command line.
+Date: 2025-01-31
+Template: pages
+
+<div class="side-content">
+<h2>Get Pagegen</h2>
+<pre>$ pip install pagegen</pre>
+<p>Then checkout the <br /><a href="/quick-start">quick start</a></p>
+</div>
+
+Pagegen takes content found in a bunch of regular plain text files and folders and wraps them up nicely as a website. You can focus on writing content, and pagegen will do it up for web.
+
+* Pages are text files with [Markdown](https://daringfireball.net/projects/markdown/) or [reStructuredText](http://docutils.sourceforge.net/rst.html) markup
+* Fast and lightweight [Mako](https://www.makotemplates.org/) templates
+* Unlimited site hierarchy defined by files and directories
+* Auto site rebuild for easier development
+* Javascript site search
+* Web friendly URLs, sitemap, RSS feed and tags
+* Page content can be output from any executable/scripts
+* Hooks for running custom scripts during generation
+* Shortcodes support
+* Minify HTML, CSS and/or Javascript
+* Suitable for build pipelines and CI/CD
+
+

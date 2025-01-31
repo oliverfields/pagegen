@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang=en> <head><meta charset=UTF-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><base href=http://localhost:8000><link rel=canonical href=http://localhost:8000/index><title>Pagegen static site generator</title><meta name=description content="Pagegen is a static web site generator, it creates web sites from text files and directories. Manage your site from the command line."><meta name=copyright content="Copyright © 2025"><meta property=og:image content=http://localhost:8000/assets/theme/hero.png><meta property=og:image:secure_url content=http://localhost:8000/assets/theme/hero.png><meta property=og:image:width content=1200><meta property=og:image:height content=630><meta property=og:image:alt content=Pagegen><meta property=og:image:type content=image/png><meta property=og:site_name content=pagegen.phnd.net><meta property=og:title content="Pagegen static site generator"><meta property=og:url content=http://localhost:8000/index><meta property=og:type content=website><meta property=og:description content="Pagegen is a static web site generator, it creates web sites from text files and directories. Manage your site from the command line."><meta name=description content="Pagegen is a static web site generator, it creates web sites from text files and directories. Manage your site from the command line."><link rel=alternate type=application/rss+xml title="Pagegen static site generator" href=/feed.rss><meta name=Generator content=Pagegen><link rel="shortcut icon" href=http://localhost:8000/theme/favicon.ico type=image/x-icon><link rel=stylesheet href=/theme/site.css type=text/css></head> <body> <div id=content> <article> <h1>Pagegen static site generator</h1> <div class=side-content> <h2>Get Pagegen</h2> <pre>$ pip install pagegen</pre> <p>Then checkout the <br><a href=/quick-start>quick start</a></p> </div> <p>Pagegen takes content found in a bunch of regular plain text files and folders and wraps them up nicely as a website. You can focus on writing content, and pagegen will do it up for web.</p> <ul> <li>Pages are text files with <a href=https://daringfireball.net/projects/markdown/ >Markdown</a> or <a href=http://docutils.sourceforge.net/rst.html>reStructuredText</a> markup</li> <li>Fast and lightweight <a href=https://www.makotemplates.org/ >Mako</a> templates</li> <li>Unlimited site hierarchy defined by files and directories</li> <li>Auto site rebuild for easier development</li> <li>Javascript site search</li> <li>Web friendly URLs, sitemap, RSS feed and tags</li> <li>Page content can be output from any executable/scripts</li> <li>Hooks for running custom scripts during generation</li> <li>Shortcodes support</li> <li>Minify HTML, CSS and/or Javascript</li> <li>Suitable for build pipelines and CI/CD</li> </ul> </article> <footer>Copyright &#169; 2022 - 2025</footer> </div><!-- /content --> <div id=menu> <header> <img width=120 height=66 src=/theme/pgn-logo.svg> <h2>Every page is a file</h2> <em>Static site generator</em> </header> <menu> <li><a href=some>Link 1</a></li> <li><a href=where>Link 2</a></li> </menu> </div><!-- /menu --> <div id=menu-toggle> <svg id=menu-open width=2rem height=2rem viewbox="0 0 24 24" fill=none xmlns=http://www.w3.org/2000/svg> <path fill=#1F2328 d="M5 6.5H19V8H5V6.5Z"/> <path fill=#1F2328 d="M5 16.5H19V18H5V16.5Z"/> <path fill=#1F2328 d="M5 11.5H19V13H5V11.5Z"/> </svg> <svg id=menu-close style="display: none;" width=2rem height=2rem viewbox="0 0 24 24" fill=none xmlns=http://www.w3.org/2000/svg> <path fill-rule=evenodd clip-rule=evenodd fill=#1F2328 d="M12 10.9394L16.9697 5.96961L18.0304 7.03027L13.0606 12L18.0303 16.9697L16.9697 18.0304L12 13.0607L7.03045 18.0302L5.96979 16.9696L10.9393 12L5.96973 7.03042L7.03039 5.96976L12 10.9394Z"/> </svg> </div><!-- /menu-toggle --> <script src=/theme/site.js></script> </body> </html> <script>// Pagegen live reload trigger
+
+var sleep = time => new Promise(resolve => setTimeout(resolve, time))
+var poll = (promiseFn, time) => promiseFn().then(
+  sleep(time).then(() => poll(promiseFn, time))
+)
+
+var page_loaded_at = new Date();
+var url = 'http://localhost:8000/pagegen_site_hash';
+console.log(url)
+var poll_intervall = 1000 // ms
+
+poll(() => new Promise(() => {
+  var http = new XMLHttpRequest();
+  http.open('HEAD', url);
+  http.onreadystatechange = function() {
+    if (this.readyState == this.DONE) {
+      var last_modified = new Date(this.getResponseHeader("Last-Modified"));
+      console.log(url + ' modified ' + last_modified);
+      if (last_modified > page_loaded_at) {
+        window.location.reload();
+      }
+    }
+  };
+  http.send();
+}), poll_intervall)
+</script>
