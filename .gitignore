@@ -7,5 +7,6 @@ lib/
 __pycache__/
 *.py[cod]
 venv
+pgn4venv
 .cache/
 build/
