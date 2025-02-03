@@ -1,0 +1,12 @@
+#!/bin/bash
+
+command -v pgn &> /dev/null &&
+_pagegen_complete()
+{
+  local cur=${COMP_WORDS[$COMP_CWORD]}
+
+  COMPREPLY=( $(compgen -W "-g --generate -V --verbose -h --help -v --version -i --ignore-lock -n --init -c --clear-cache -l --live-reload" -- $cur) )
+
+} &&
+complete -F _pagegen_complete pgn
+

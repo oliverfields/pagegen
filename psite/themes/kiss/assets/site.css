@@ -44,14 +44,15 @@ a, button, select, summary { color: var(--clink); cursor: pointer; }
 
 
 /* 3. Base Style ––––––––––––––––––––––––––––––––––––––– */
-html { font-size: var(--rem); background: var(--cbg); }
+html { font-size: var(--rem); }
 body {
 margin: auto;
 font: var(--font-p);
 color: var(--cfg);
 padding: 0;
+background-color: var(--cbg);
 }
-footer { margin: 2rem 0rem 0rem; font-size: 90%; }
+footer { margin: 2rem 0rem 3rem; font-size: 90%; opacity: .8;}
 p { margin: .6em 0; }
 
 /* links */
@@ -67,10 +68,10 @@ li:not(:last-child), dd:not(:last-child) { margin-bottom: 0.5rem; }
 dt { font-weight: bold; }
 
 /* headings */
-h1, h2, h3, h4, h5 { margin: 1.5em 0 .5rem; font: var(--font-h); line-height: 1.2em; clear: both; }
+h1, h2, h3, h4, h5 { margin: 1.5em 0 2rem; font: var(--font-h); line-height: 1.2em; clear: both; }
 h1+h2, h2+h3, h3+h4, h4+h5 { margin-top: .5em; padding-top: 0; }  /* non-clashing headings */
-h1 { font-size: 2.2em; font-weight: 300; }
-h2 { font-size: 2.0em; font-weight: 300; font-variant: small-caps; }
+h1 { font-size: 2.2em; font-weight: 300; font-variant: small-caps; }
+h2 { font-size: 2.0em; font-weight: 300; }
 h3 { font-size: 1.5em; font-weight: 400; }
 h4 { font-size: 1.1em; font-weight: 700; }
 h5 { font-size: 1.2em; font-weight: 400; color: var(--cfg); }
@@ -130,34 +131,51 @@ margin-top: 0;
 }
 
 article {
-padding: 1rem 2rem;
+padding: 1rem 0;
 }
 
 header {
 text-align: center;
+margin-bottom: .8rem;
 }
 
 header img {
 margin-top: 2rem;
+opacity: .7;
 }
 
 header h2 {
-margin: .4rem 0 0;
-font-size: 1.3rem;
+margin: .7rem 0 0;
+font-size: 1rem;
+text-transform: uppercase;
 }
 
 header em {
 font-size: .8rem;
 }
 
+.side-content {
+width: 100%;
+background-color: whitesmoke;
+float: right;
+padding: 1rem;
+margin: 0 0 1rem 1rem;
+text-align: center;
+}
+
+@media (min-width: 900px) {
+.side-content {
+width: 40%;
+}
+}
+
 @media (min-width: 600px) {
 #content {
-background-color: lime;
 margin-left: 31vw;
-max-width: 800px;
+max-width: 700px;
 }
 #menu {
-background-color: pink;
+background-color: whitesmoke;
 position: fixed;
 top: 0;
 left: 0;
@@ -185,6 +203,7 @@ left: 0;
 height: 100%;
 overflow: auto;
 width: 100%;
+background-color: whitesmoke;
 }
 .menu-show {
 display: block !important;
@@ -194,14 +213,21 @@ line-height: 1rem;
 display: block;
 position: fixed;
 height: 2rem;
-top: 0;
-right: 0;
+top: .2rem;
+right: .2rem;
 cursor: pointer;
+}
+article {
+padding: 1rem;
 }
 }
 
 #search-form {
 text-align: center;
+}
+
+#search-query {
+width: 70%;
 }
 
 #search-form {
@@ -211,10 +237,11 @@ text-align: center;
 #search-submit {
 border: none;
 background-color: var(--cbg);
+cursor: pointer;
 }
 
 #menu menu {
-max-width: 80%;
+max-width: 70%;
 margin: 1rem auto;
 display: block;
 list-style-type: none;
@@ -223,12 +250,13 @@ list-style-type: none;
 #menu ol {
 list-style-type: none;
 padding: 0;
+margin: 1.5rem 0;
 }
 
 #menu > ol li {
 white-space: nowrap;
 text-align: center;
-font-size: .8rem;
+font-size: .9rem;
 }
 
 #site-menu ol {
@@ -237,7 +265,6 @@ display: none;
 
 #site-menu li {
 white-space: nowrap;
-font-size: .8rem;
 }
 
 #site-menu ol {
@@ -253,4 +280,14 @@ cursor: pointer;
 
 .github-button-container {
 text-align: center;
+}
+
+.side-content h2 {
+margin: 0 0 1rem 0;
+font-size: 1rem;
+text-transform: uppercase;
+}
+
+.side-content kbd {
+white-space: nowrap;
 }

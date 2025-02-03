@@ -1,26 +1,26 @@
 conf = {
-    "menu": {
-        "/index": "Home",
-        "Manual": {
-            "Content management": {
-                "/manual/content-management/page-markup": "Page markup"
+    'menu': {
+        'Manual': {
+            'Content management': {
+                '/manual/content-management/page-markup': 'Page markup'
              },
-            "/manual/installation": "Installation",
-            "Design and layout": {
-                "/manual/design-and-layout/templates-and-themes": "Templates and themes"
+            '/manual/installation': 'Installation',
+            'Design and layout': {
+                '/manual/design-and-layout/templates-and-themes': 'Templates and themes'
             },
-            "/manual/shortcodes": "Shortcodes",
+            '/manual/shortcodes': 'Shortcodes',
         },
-        "Articles": {
-            "/articles/pipleline-with-github-actions": "Pipeline with Github Actions"
+        'Articles': {
+            '/articles/pipleline-with-github-actions': 'Pipeline with Github Actions'
         },
-        "/quick-start": "Quick start"
+        '/quick-start': 'Quick start'
     },
-    "ignore": [
-        "/404",
-        "/manual/installation",
-        "/manual/shortcodes",
-        "/quick-start",
-        "/articles/pipleline-with-github-actions"
+    'ignore': [
+        '/index',
+        '/404',
+        '/manual/installation',
+        '/manual/shortcodes',
+        '/quick-start',
+        '/articles/pipleline-with-github-actions'
     ]
 }

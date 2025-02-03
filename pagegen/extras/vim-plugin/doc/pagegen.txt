@@ -1,0 +1,115 @@
+*pagegen.txt* pagegen for vim
+
+                    pagegen - helpers for pagegen sites
+
+==============================================================================
+
+Contents                                                     *pagegenContents*
+
+1. Usage............................|pagegenUsage|
+  1.1 Redaction.....................|pagegenRedaction|
+  1.2 Figure........................|pagegenFigure|
+  1.3 Link..........................|pagegenLink|
+  1.4 Append........................|pagegenAppend|
+  1.5 Tags..........................|pagegenTags|
+  1.6 Open..........................|pagegenOpen|
+  1.7 Suggest keywords..............|pagegenKeywords|
+  1.8 Vim scripts...................|pagegenVimscripts|
+  1.9 Backlinks.....................|pagegenBacklinks|
+
+
+==============================================================================
+
+1. Usage                                                        *pagegenUsage*
+
+The pagegen plugin provides an eclectic bunch of stuff for managing threads.
+
+
+------------------------------------------------------------------------------
+1.1 Redaction                                               *pagegenRedaction*
+
+Assist redacting a document.
+
+1.1.1 One word
+
+To redact the word under the cursor '<leader>r'
+
+
+1.1.2 All words matching current word
+
+To redact all occurrences of the word under the cursor '<leader>ra'
+
+
+------------------------------------------------------------------------------
+1.2 Figure                                                     *pagegenFigure*
+
+Select file from media directory and add shortcode '<leader>f'
+
+
+------------------------------------------------------------------------------
+1.3 Link                                                         *pagegenLink*
+
+Select file from content directory and add Markdown link '<leader>l'
+
+
+------------------------------------------------------------------------------
+1.4 Append                                                     *pagegenAppend*
+
+Append new lines and enter insert mode '<leader>a'
+
+
+------------------------------------------------------------------------------
+1.5 Tags                                                         *pagegenTags*
+
+Select and add tags.
+
+
+1.5.1 Add tag
+
+Select tag and add '<leader>t'
+
+
+1.5.2 Refresh tags database
+
+Trawl content and make tags.txt '<leader>tr'
+
+
+------------------------------------------------------------------------------
+1.6 Open                                                         *pagegenOpen*
+
+1.6.1 Open page
+
+Open content page for editing from Markdown link, e.g. [My file](/link). Cursor must be between the parenthesis  '<leader>o'
+
+1.6.2 Refresh URL to page database
+
+Make map from relative URL to page path in url_map.csv '<leader>or'
+
+
+------------------------------------------------------------------------------
+1.7 Suggest Keywords                                         *pagegenKeywords*
+
+Analyze current document, count word frequency and discard any words from stoplist.txt. Append suggestions to Tag: line '<leader>k'
+
+
+------------------------------------------------------------------------------
+1.8 Vim scripts                                            *pagegenVimscripts*
+
+Select and execute vim scripts/commands '<leader>v'
+
+Scripts are saved to 'vim-scripts' file, where the syntax is "<name>=<vim commands to execute>".
+
+E.g. the line "quote=normal! i<q></q>" will allow selecting quote from the vim script menu and the string "<q></q>" will be inserted into the document.
+
+To pass multiple commands to vim using this functionality, separate them with a pipe (|).
+
+The following example inserts Markdown admonition markup and leaves user in insert mode
+
+admonition=normal! i!!! note ""|normal! o|normal! o    |startinsert
+
+
+------------------------------------------------------------------------------
+1.9 Backlinks                                               *pagegenBacklinks*
+
+Select any pages that link to the current page, and open in new tag '<leader>b'
+

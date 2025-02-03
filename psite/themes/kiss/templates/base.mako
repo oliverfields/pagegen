@@ -72,7 +72,9 @@
     </div><!-- /content -->
     <div id="menu">
       <header>
-        <img width="120" height="66" src="/theme/pgn-logo.svg">
+        <a href="/">
+          <img width="120" height="66" src="/theme/pgn-logo.svg">
+        </a>
         <h2>Every page is a file</h2>
         <em>Static site generator</em>
       </header>

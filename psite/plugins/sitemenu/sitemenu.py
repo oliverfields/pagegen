@@ -22,22 +22,15 @@ class Plugin():
                 yield '<li><span class="toggle-expand">{} <span>▼</span></span>\n<ol>\n{}</ol>\n</li>'.format(a, "\n".join(self.to_html(b)))
 
 
-    def find_dict_key(self, var, key):
+    def get_all_keys(self, dictionary):
         '''
-        Recursively search for a key in a dict of dicts
-        Thanks! https://stackoverflow.com/a/29652561/2078761
+        Recursively get all keys in a nested directory structure
         '''
-        if hasattr(var,'items'):
-            for k, v in var.items():
-                if k == key:
-                    yield v
-                if isinstance(v, dict):
-                    for result in gen_dict_extract(key, v):
-                        yield result
-                elif isinstance(v, list):
-                    for d in v:
-                        for result in gen_dict_extract(key, d):
-                            yield result
+        for key, value in dictionary.items():
+            if type(value) is dict:
+                yield from self.get_all_keys(value)
+            else:
+                yield (key, value)
 
 
     def hook_post_build_lists(self, objects):
@@ -47,17 +40,22 @@ class Plugin():
         self.ignore = conf['ignore']
         self.menu = conf['menu']
 
+        defined_keys = []
+        for key, value in self.get_all_keys(self.menu):
+            defined_keys.append(key)
+
+
         # Strip dirs
         content_file_list = []
         for i in objects['site'].content_dir_list:
             if not isdir(i):
                 content_file_list.append(i)
 
-
+        # Check for pages that are not defined in the menu
         for c_abs_path in content_file_list:
             c_rel_path = c_abs_path[len(self.content_dir):]
             if not c_rel_path in self.ignore:
-                if not self.find_dict_key(self.menu, c_rel_path):
+                if not c_rel_path in defined_keys:
                     logger.warning('Page not defined in site menu: ' + c_rel_path)
 
             else:
