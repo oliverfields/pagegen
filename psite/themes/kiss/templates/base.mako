@@ -82,10 +82,7 @@
           <input type="submit" id="search-submit" value="🔍️" />
         </form>
       </div><!-- /search-form -->
-      <menu>
-        <li><a href="some">Link 1</a></li>
-        <li><a href="where">Link 2</a></li>
-      </menu>
+      ${site.cache['sitemenu']}
       <ol>
         <li>✉️ <a href="mailto:pagegen@phnd.net">pagegen@phnd.net</a></li>
         <li>🐞 <a href="https://github.com/oliverfields/pagegen_site/issues">Issue tracker</a></li>

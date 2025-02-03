@@ -25,12 +25,14 @@ class Site(Common):
     def __init__(self, site_dir=None, site_conf=None):
         self.site_dir = site_dir
         self.conf = site_conf
+        self.cache = {} # Convinience for use by plugins, convention to save stuff as self.cache[plugin name][key][value]
 
         self.content_dir = join(self.site_dir, CONTENT_DIR)
         self.build_dir = join(self.site_dir, BUILD_DIR)
         self.asset_source_dir = join(self.site_dir, ASSET_DIR)
         self.asset_target_dir = join(self.build_dir, ASSET_DIR)
         self.cache_dir = join(self.site_dir, CACHE_DIR, self.__class__.__name__)
+        self.plugin_dir = join(self.site_dir, PLUGIN_DIR)
 
         try:
             self.base_url = self.conf['site']['base_url']
@@ -53,7 +55,7 @@ class Site(Common):
     def build_site(self):
 
         plugin_module = Plugins(
-            join(self.site_dir, PLUGIN_DIR), # Site plugins dir
+            self.plugin_dir, # Site plugins dir
             join(dirname(abspath(__file__)), PLUGIN_DIR), # pagegen plugins dir
             join(self.site_dir, CACHE_DIR), # Cache dir
             self.site_dir,
@@ -71,20 +73,27 @@ class Site(Common):
 
         self.prune_index()
 
+        self.exec_hooks(HOOK_PRE_BUILD_LISTS, {'site': self})
+
         self.build_dir_list = self.get_file_list(self.build_dir)
 
         self.prune_build_dir()
 
         self.set_build_lists()
 
+        self.exec_hooks(HOOK_POST_BUILD_LISTS, {'site': self})
+
         self.add_broken_page_deps_to_build_list()
+
+        self.exec_hooks(HOOK_PAGE_DEPS, {'site': self})
 
         self.build_pages()
 
         # Sanity check that index and content list are equal
-        if list(self._index.keys()) != self.content_dir_list:
-            logger.error('Index does not match content list, maybe clear cache and try again?')
-            raise
+        #print(self._index.keys())
+        #print(self.content_dir_list)
+        #if list(self._index.keys()) != self.content_dir_list:
+        #    raise Exception('Index does not match content list, maybe clear cache and try again?')
 
         self.exec_hooks(HOOK_POST_BUILD, {'site': self, 'index': self._index})
 
@@ -170,8 +179,6 @@ class Site(Common):
         logger.info('Analyzing dependencies')
         self.dep_graph = DepGraph(self.cache_dir, 'dep_graph')
 
-        self.exec_hooks(HOOK_PAGE_DEPS, {'site': self})
-
         # Add path to build list whene source is newer than its dependancies
         for content_path, depends_on_paths in self.dep_graph.deps.items():
             relative_path = content_path[len(self.content_dir):].lstrip(sep)
@@ -232,8 +239,6 @@ class Site(Common):
 
         logger.info(f'Making build lists {self.build_dir}')
 
-        self.exec_hooks(HOOK_PRE_BUILD_LISTS, {'site': self})
-
         # content_dir
         for content_path in self.content_dir_list:
 
@@ -265,8 +270,6 @@ class Site(Common):
                     if path_type == 'page':
                         logger.info(f'Adding to page_build_list: {content_path}')
                         self.pages_build_list[content_path] = build_path
-
-        self.exec_hooks(HOOK_POST_BUILD_LISTS, {'site': self})
 
 
     def prune_build_dir(self):

@@ -152,6 +152,7 @@ def main():
                 s.content_dir,
                 s.asset_source_dir,
                 s.theme_dir,
+                s.plugin_dir,
                 site_conf_file,
                 join(s.site_dir, 'shortcodes.py'),
             ]

@@ -38,6 +38,7 @@ def write_file(file, content):
     except Exception as e:
         raise (Exception('Unable to write file %s: %s' % (file, e)))
 
+
 def live_reload(site, watch_elements, serve_base_url, serve_port):
 
     http_server_script = join(dirname(abspath(__file__)), 'http_server.py')

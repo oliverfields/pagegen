@@ -100,7 +100,7 @@ class Common:
 
     def get_file_list(self, path):
         '''
-        Return list of all files and directories
+        Return list of all files
         '''
         logger.info(f'Get files in {path}')
 

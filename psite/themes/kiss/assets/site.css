@@ -152,17 +152,19 @@ font-size: .8rem;
 
 @media (min-width: 600px) {
 #content {
-margin-left: 26vw;
-width: 70vw;
+background-color: lime;
+margin-left: 31vw;
 max-width: 800px;
 }
 #menu {
+background-color: pink;
 position: fixed;
 top: 0;
 left: 0;
 height: 100%;
 overflow: auto;
-width: 26vw;
+width: 30vw;
+max-width: 300px;
 display: block;
 }
 #menu-toggle {
@@ -215,6 +217,7 @@ background-color: var(--cbg);
 max-width: 80%;
 margin: 1rem auto;
 display: block;
+list-style-type: none;
 }
 
 #menu ol {
@@ -222,10 +225,30 @@ list-style-type: none;
 padding: 0;
 }
 
-#menu ol li {
+#menu > ol li {
 white-space: nowrap;
 text-align: center;
 font-size: .8rem;
+}
+
+#site-menu ol {
+display: none;
+}
+
+#site-menu li {
+white-space: nowrap;
+font-size: .8rem;
+}
+
+#site-menu ol {
+margin: .5rem 0 0 1rem;
+}
+
+#site-menu a,
+#site-menu .toggle-expand {
+color: var(--clink);
+text-decoration: none;
+cursor: pointer;
 }
 
 .github-button-container {
