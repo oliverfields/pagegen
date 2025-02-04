@@ -1,3 +1,3 @@
 http://localhost:8000/index
-http://localhost:8000/manual/content-management/page-markup
 http://localhost:8000/manual/design-and-layout/templates-and-themes
+http://localhost:8000/manual/content-management/page-markup
