@@ -1,5 +1,5 @@
-from os.path import join, isdir, isfile
-from pagegen.constants import CACHE_DIR
+from os.path import join, isdir, isfile, dirname
+from pagegen.constants import CACHE_DIR, HOOK_PAGE_RENDER
 from pagegen.Common import Common
 from pagegen.Page import Page
 from hashlib import md5
@@ -22,19 +22,43 @@ class Plugin(Common):
         global c
         c = objects['site'].conf
 
+        if 'directory' in c['tags'].keys():
+            self.tag_build_dir_name = c['tags']['directory']
+        else:
+            self.tag_build_dir_name = 'tag'
+
+        if 'overview_template' in c['tags'].keys():
+            self.overview_template = c['tags']['overview_template']
+        else:
+            self.overview_template = 'tag_overview'
+
+        if 'tag_template' in c['tags'].keys():
+            self.tag_template = c['tags']['tag_template']
+        else:
+            self.tag_template = 'tag_page'
+
+        if 'overview_name' in c['tags'].keys():
+            self.overview_name = c['tags']['overview_name']
+        else:
+            self.overview_name = 'tags.html'
+
         self.cache_dir = join(s.site_dir, CACHE_DIR, 'Plugins', __name__)
+        self.page_cache_dir = join(self.cache_dir, 'tag_pages')
+        self.page_build_dir = join(s.build_dir, self.tag_build_dir_name)
         self.cache_file = 'tag_hashes'
         self.cache_path = join(self.cache_dir, self.cache_file)
 
-        # Check tag dir does not exist in build dir
-        try:
-            tag_dir = join(s.build_dir, c['tags']['tag_directory'])
+        self.make_dir(self.cache_dir)
+        self.make_dir(self.page_cache_dir)
 
-            if isdir(tag_dir):
-                logger.error(f'Tag directory already exists, can use setting tags section setting tag_directory to change: {tag_dir}')
-                raise Exception
-        except Exception as e:
-            print(type(e))
+        # Check tag dir does not exist in build dir
+        tag_dir = join(s.build_dir, self.tag_build_dir_name)
+
+        if isdir(tag_dir):
+            logger.error(f'Tag directory already exists, can use setting tags section setting tag_directory to change: {tag_dir}')
+            raise Exception
+
+        self.make_dir(self.page_build_dir)
 
         self.load_tags()
 
@@ -43,8 +67,6 @@ class Plugin(Common):
         self.generate_tag_pages()
 
         self.write_hash_cache()
-
-        print(self.tags)
 
 
     def hash(self, s):
@@ -71,9 +93,6 @@ class Plugin(Common):
         for k, v in self.tags.items():
             hash_cache[k] = v['hash']
 
-        # Add overview
-        hash_cache['__tags_overview'] = self.hash((c['tags']['tags']))
-
         self.pickle_object(self.cache_dir, self.cache_file, hash_cache)
 
 
@@ -82,41 +101,55 @@ class Plugin(Common):
         Generate one page per tag and one overview tag page
         '''
 
-        #if self.tag'__tags_overview':
-        if '__tags_overview' in self.cached_tag_hashes.keys() and self.hash(c['tags']['tags']) == self.cached_tag_hashes['__tags_overview']:
-            pass
-        else:
-            print('build tags overview page')
+        #Make tags available in templates
+        s.cache['tags'] = self.tags
 
+        overview_cache_path = join(self.page_cache_dir, self.overview_name)
+        overview_build_path = join(self.page_build_dir, self.overview_name)
+        logger.info('Building overview tag page')
+        p_content = ''
+        for t, data in dict(sorted(self.tags.items())).items():
+            p_content += f'<li><a href="{data["rel_url"]}">{["title"]}</a></li>\n'
+
+        p_content = f'template: {self.overview_template}\ntitle: Tags\n\n<ol>\n{p_content}</ol>\n'
+
+        self.build_tag_page(overview_cache_path, p_content)
+        self.copy_path(overview_cache_path, overview_build_path)
+
+
+        # Tag pages
         for tag, v in self.tags.items():
             if tag in self.cached_tag_hashes.keys() and v['hash'] == self.cached_tag_hashes[tag]:
                 build = False
-            elif v['pages'] == [] and isfile(v['source_path']):
+            elif v['pages'] == [] and isfile(v['target_path']):
                 build = False
             else:
                 build = True
 
             if build:
-                print(f'{tag}: build -> {build}')
-                p_content = f'template: tag\ntitle: {v["title"]}\n\n'
+                logger.info(f'Building tag page: {tag}')
+                p_content = ''
 
-                for p in v['pages']:
-                    p_content += f'- [{p["title"]}]({p["url"]})\n'
+                for p in sorted(v['pages'], key=lambda d: d['headers']['title']):
+                    p_content += f'<li><a href="{p["rel_url"]}">{p["headers"]["title"]}</a></li>\n'
 
-                self.build_tag_page(v, p_content)
-            # If build then write page content to cache dir, create Page object and call HOOK_PAGE_RENDER and save output in build dir
-            else:
-                
-                print(f'{tag}: copy ' + v['source_path'] + ' -> ' + v['target_path'])
+                p_content = f'template: {self.tag_template}\ntitle: {tag}\ntag_key: {tag}\n\n<ol>\n{p_content}</ol>\n'
+
+                self.build_tag_page(v['target_path'], p_content)
+
+            logger.info(f'Copying tag page to build dir: {tag}')
+            self.copy_path(v['target_path'], v['build_path'])
 
 
-    def build_tag_page(self, meta, content):
+    def build_tag_page(self, cache_path, content):
         '''
-        Save page content to cache and build page using HOOK_PAGE_RENDER, saving it to build dir
+        Generate page and save it to cache dir using HOOK_PAGE_RENDER
         '''
 
-        print('building')
-        #p = Page(content['source_path'], content['target_path'], s)
+        p = Page()
+        p.load(cache_path, s, raw_string=content)
+        s.exec_hooks(HOOK_PAGE_RENDER, {'site': s, 'page': p})
+        p.write()
 
 
     def load_tags(self):
@@ -133,10 +166,10 @@ class Plugin(Common):
                 t_url = t_url.replace(' ', '-')
 
                 self.tags[t_name] = {
-                    'url_part': f'/tag/{t_url}',
+                    'rel_url': f'/{self.tag_build_dir_name}/{t_url}',
                     'title': t_name,
-                    'target_path': join(s.build_dir, 'tag', t_url),
-                    'source_path': join(self.cache_dir, 'pages', t_url),
+                    'target_path': join(self.page_cache_dir, t_url),
+                    'build_path': join(s.build_dir, self.tag_build_dir_name, t_url), 
                     'pages': []
                 }
         except KeyError:
@@ -149,9 +182,6 @@ class Plugin(Common):
         for k, v in self.tags.items():
             tag_hash = self.hash(str(v))
             v['hash'] = tag_hash
-
-        # Generate tag hash for overview page
-        self.overview_hash = self.hash(c['tags']['tags'])
 
 
     def assign_pages_to_tags(self):
@@ -171,13 +201,14 @@ class Plugin(Common):
                 pt = pt.strip()
 
                 if not pt in self.tags.keys():
-                    logger.error(f'Page header contains unknown tag: {pt}: {url}')
+                    logger.error(f'Page header contains unknown tag, add it to site.config if you want to create the new tag: {pt}: {url}')
                     raise Exception('Unknown tag in header')
 
                 try:
                     self.tags[pt]['pages'].append({
                         'url': p_meta['url'],
-                        'title': p_meta['headers']['title']
+                        'rel_url': p_meta['url'][len(s.base_url):],
+                        'headers': p_meta['headers']
                     })
                 except AttributeError as e:
                     logger.error(f'Page missing {e.name} attribute: {url}')

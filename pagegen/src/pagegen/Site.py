@@ -106,8 +106,13 @@ class Site(Common):
         The index must contain same items as content list, remove any from index that no longer exist
         '''
 
-        for p_path in self._index.copy().keys():
+        for p_path, data in self._index.copy().items():
+            delete_path = False
+
             if not p_path in self.content_dir_list:
+                delete_path = True
+
+            if delete_path:
                 logger.info(f'Deleting from index: {p_path}')
                 del self._index[p_path]
 
@@ -184,10 +189,17 @@ class Site(Common):
             relative_path = content_path[len(self.content_dir):].lstrip(sep)
             build_path = join(self.build_dir, relative_path)
             for dep_path in depends_on_paths:
-                if getmtime(build_path) < getmtime(dep_path): # Yes, build path!
-                    logger.info(dep_path +' is newer than dependency ' + build_path)
+                try:
+                    if getmtime(build_path) < getmtime(dep_path): # Yes, build path!
+                        logger.info(dep_path +' is newer than dependency ' + build_path)
 
-                    self.pages_build_list[content_path] = build_path
+                        self.pages_build_list[content_path] = build_path
+                except NotADirectoryError:
+                    # Probably the content path is a directory in the cache, but now it is a file
+                    logger.error('Cache mismatch: ' + dep_path + ' : ' + build_path)
+                    raise Exception
+                except FileNotFoundError:
+                    pass
 
 
     def build_pages(self):
@@ -207,10 +219,13 @@ class Site(Common):
 
         # Generate pages
         for src, tgt in self.pages_build_list.items():
+            logger.info(f'Generating page: {src}')
 
-            self.exec_hooks(HOOK_PAGE_PRE_BUILD, {'site': self})
+            p = Page()
 
-            p = Page(src, tgt, self)
+            self.exec_hooks(HOOK_PAGE_PRE_BUILD, {'site': self, 'page': p})
+
+            p.load(tgt, self, source_path=src)
 
             self.exec_hooks(HOOK_PAGE_RENDER, {'site': self, 'page': p})
 
@@ -298,8 +313,13 @@ class Site(Common):
                 relative_content_path = content_path[len_content_dir:]
 
                 if relative_build_path == relative_content_path:
-                    delete_path = False
-                    break
+                    # Check the content and build paths are still of same type, if not the build path gotta go
+                    cp_type = 'f' if isfile(content_path) else 'd'
+                    bp_type = 'f' if isfile(build_path) else 'd'
+
+                    if cp_type == bp_type:
+                        delete_path = False
+                        break
 
             if delete_path:
                 self.delete_path(build_path)

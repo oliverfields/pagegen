@@ -42,7 +42,6 @@ def write_file(file, content):
 def live_reload(site, watch_elements, serve_base_url, serve_port):
 
     http_server_script = join(dirname(abspath(__file__)), 'http_server.py')
-    print(http_server_script)
 
     try:
         global hash_file

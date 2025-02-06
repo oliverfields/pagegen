@@ -9,7 +9,7 @@
     <title>${page.headers['title']}</title>
     <%
         # Meta description
-        if isinstance(page.headers['description'], str) > 0:
+        if 'description' in page.headers.keys() and isinstance(page.headers['description'], str) > 0:
             meta_desc = '<meta name="description" content="' + page.headers['description'].replace('"', '&quot;') + '" />'
         else:
             meta_desc = ''
@@ -51,7 +51,7 @@
     <meta property="og:title" content="${page.headers['title']}"/>
     <meta property="og:url" content="${page.absolute_url}"/>
     <meta property="og:type" content="website"/>
-    % if page.headers['description']:
+    % if 'description' in page.headers.keys() and page.headers['description']:
     <meta property="og:description" content="${page.headers['description']}"/>
     <meta name="description" content="${page.headers['description']}" />
     % endif

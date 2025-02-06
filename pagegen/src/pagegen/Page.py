@@ -15,17 +15,42 @@ class Page(Common):
     Page consists of optional headers (key: value) if first line is not header then it is considered content
     '''
 
-    def __init__(self, source_path, target_path, site):
-        self.source_path = source_path
-        self.target_path = target_path
+    def __init__(self):
         self.headers = {}
 
-        self.relative_url = self.source_path[len(site.content_dir):].rstrip('/')
+
+    def load(self, target_path, site, source_path=False, raw_string=False):
+        '''
+        Create page from source file or raw string
+        '''
+
+        self.target_path = target_path
+
+        self.relative_url = self.target_path[len(site.build_dir):].rstrip('/')
         self.absolute_url = f'{site.base_url.rstrip("/")}{self.relative_url}'
 
-        logger.info(f'Generating page {source_path}')
+        if raw_string:
+            self.raw = raw_string
+        elif source_path:
+            self.source_path = source_path
+            self.raw = self.read_file(self.source_path)
+        else:
+            logger.error(f'Must load page with either a string or source path: {self.relative_url}')
+            raise
 
         self.parse()
+
+
+    def load_page_string(self, target_path, raw_string, site):
+        '''
+        Create page from passed raw string
+        '''
+
+        self.target_path = target_path
+
+        self.set_urls(site)
+
+        self.raw = raw_string
 
 
     def write(self):
@@ -36,7 +61,10 @@ class Page(Common):
 
 
     def __str__(self):
-        return f'<page: {self.relative_url}: {self.source_path}>'
+        try:
+            return f'<page: {self.relative_url}: {self.source_path}>'
+        except AttributeError:
+            return f'<page: {self.relative_url}: <string>>'
 
 
     def __repr__(self):
@@ -120,7 +148,6 @@ class Page(Common):
         First line must either be header or content
         '''
 
-        self.raw = self.read_file(self.source_path)
         self.headers = {}
         self.body = ''
 

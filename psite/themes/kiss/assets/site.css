@@ -130,7 +130,8 @@ article h1:first-child {
 margin-top: 0;
 }
 
-article {
+article,
+footer {
 padding: 1rem 0;
 }
 
@@ -167,7 +168,7 @@ text-align: center;
 .side-content {
 width: 40%;
 }
-}
+} /* /@media */
 
 @media (min-width: 600px) {
 #content {
@@ -188,7 +189,7 @@ display: block;
 #menu-toggle {
 display: none;
 }
-}
+} /* /@media */
 
 @media (max-width: 599px) {
 #content {
@@ -217,10 +218,11 @@ top: .2rem;
 right: .2rem;
 cursor: pointer;
 }
-article {
+article,
+footer {
 padding: 1rem;
 }
-}
+} /* /@media */
 
 #search-form {
 text-align: center;

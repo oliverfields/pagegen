@@ -80,12 +80,24 @@ class Plugin(Common):
         '''
 
         p = objects['page']
+        s = objects['site']
 
         # If page has template header use it to render template
+        template = False
+
         if 'template' in p.headers.keys():
+            template = p.headers['template']
+        elif s.conf.has_option('mako_templates', 'default_template'):
+            template = s.conf['mako_templates']['default_template']
+        else:
+            logger.error('No template defined, set page template header or mako_templates default_template in site.conf: ' + str(p))
+            raise Exception
+
+        if template:
             self.template_context['page'] = p
 
-            t = self.mako_lookup.get_template(p.headers['template'] + '.mako')
+            t = self.mako_lookup.get_template(template + '.mako')
+
             p.out = t.render(**self.template_context)
 
 
