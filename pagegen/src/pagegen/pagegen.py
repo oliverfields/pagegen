@@ -178,8 +178,8 @@ def main():
         logger.warning('Cache could be inconsistent, recommend clearing it')
         logger.error('An unhandeld exception occoured, quitting..')
 
-        if a.verbose:
-            print_exception(type(e), e, e.__traceback__)
+        #if a.verbose:
+        print_exception(type(e), e, e.__traceback__)
 
         exit(1)
 

@@ -191,7 +191,7 @@ class Plugin(Common):
 
         for url, p_meta in i.items():
             try:
-                p_tags_csv = p_meta['headers']['tags']
+                p_tags_csv = p_meta.headers['tags']
             except KeyError:
                 continue
 
@@ -206,9 +206,11 @@ class Plugin(Common):
 
                 try:
                     self.tags[pt]['pages'].append({
-                        'url': p_meta['url'],
-                        'rel_url': p_meta['url'][len(s.base_url):],
-                        'headers': p_meta['headers']
+                        'relative_url': p_meta.relative_url,
+                        'absolute_url': p_meta.absolute_url,
+                        'rel_url': p_meta.url[len(s.base_url):],
+                        'headers': p_meta.headers
                     })
                 except AttributeError as e:
                     logger.error(f'Page missing {e.name} attribute: {url}')
+                    raise Exception

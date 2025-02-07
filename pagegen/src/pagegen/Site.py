@@ -1,5 +1,5 @@
 from os.path import basename, getmtime, join, isfile, isdir, sep, abspath, dirname, exists
-from os import walk, listdir, environ
+from os import walk, listdir, environ, linesep
 from pagegen.constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR, SITE_CONF, HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD, THEME_ASSET_SOURCE_DIR, THEME_ASSET_TARGET_DIR, PGN_LIVE_RELOAD
 from pagegen.Common import Common
 from pagegen.Page import Page
@@ -63,15 +63,12 @@ class Site(Common):
         )
         self.plugins = plugin_module.plugins
 
-        self.load_index()
 
         self.exec_hooks(HOOK_PRE_BUILD, {'site': self})
 
         self.sync_asset_dirs()
 
         self.content_dir_list = self.get_file_list(self.content_dir)
-
-        self.prune_index()
 
         self.exec_hooks(HOOK_PRE_BUILD_LISTS, {'site': self})
 
@@ -87,18 +84,14 @@ class Site(Common):
 
         self.exec_hooks(HOOK_PAGE_DEPS, {'site': self})
 
+        self.load_index()
+
         self.build_pages()
 
-        # Sanity check that index and content list are equal
-        #print(self._index.keys())
-        #print(self.content_dir_list)
-        #if list(self._index.keys()) != self.content_dir_list:
-        #    raise Exception('Index does not match content list, maybe clear cache and try again?')
-
-        self.exec_hooks(HOOK_POST_BUILD, {'site': self, 'index': self._index})
+        self.exec_hooks(HOOK_POST_BUILD, {'site': self})
 
         self.dep_graph.write_cache()
-        self.pickle_object(self.cache_dir, self.index_cache_file_name, self._index)
+        self.pickle_object(self.cache_dir, self.index_cache_file_name, self.index)
 
 
     def prune_index(self):
@@ -106,7 +99,7 @@ class Site(Common):
         The index must contain same items as content list, remove any from index that no longer exist
         '''
 
-        for p_path, data in self._index.copy().items():
+        for p_path, data in self.index.copy().items():
             delete_path = False
 
             if not p_path in self.content_dir_list:
@@ -114,20 +107,37 @@ class Site(Common):
 
             if delete_path:
                 logger.info(f'Deleting from index: {p_path}')
-                del self._index[p_path]
+                del self.index[p_path]
+
+
+    def refresh_index(self):
+        '''
+        For all pages in build list, refresh the index with new front matter
+        '''
+        for src in self.pages_build_list:
+            logger.info(f'Refreshing index: {src}')
+            build_path = join(self.build_dir, src[len(self.content_dir):].lstrip(sep))
+
+            p = Page()
+            p.load(build_path, self, source_path=src, get_content=False)
+            self.index[src] = p
 
 
     def load_index(self):
         '''
-        Site index is meta data of all pages, it is only garuanteed to be complete AFTER all pages have been generated, and as such is only made available to plugins in the hooks after page generation
+        Site index is meta data of all pages
         '''
 
         try:
             logger.info('Loading index from cache')
-            self._index = self.load_pickle(self.index_cache_path)
+            self.index = self.load_pickle(self.index_cache_path)
         except FileNotFoundError:
-            logger.info('rss index cache not found')
-            self._index = {}
+            logger.info('Index cache not found')
+            self.index = {}
+
+        self.prune_index()
+
+        self.refresh_index()
 
 
     def sync_asset_dirs(self):
@@ -225,7 +235,7 @@ class Site(Common):
 
             self.exec_hooks(HOOK_PAGE_PRE_BUILD, {'site': self, 'page': p})
 
-            p.load(tgt, self, source_path=src)
+            p.load(tgt, self, source_path=src, get_headers=False, headers=self.index[src].headers)
 
             self.exec_hooks(HOOK_PAGE_RENDER, {'site': self, 'page': p})
 
@@ -236,11 +246,6 @@ class Site(Common):
             p.write()
 
             self.exec_hooks(HOOK_PAGE_POST_BUILD, {'site': self, 'page': p})
-
-            self._index[p.source_path] = {
-                'url': p.absolute_url,
-                'headers': p.headers
-            }
 
 
     def set_build_lists(self):
