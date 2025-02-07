@@ -37,7 +37,6 @@ class Plugin:
         return self.shortcodes[shortcode]
 
 
-    #def load_shortcodes(self, module_name, file_path, built_in_shortcodes):
     def load_shortcodes(self, custom_shortcodes, built_in_shortcodes):
         '''
         Load built in shortcodes and then custom shortcodes if shortcodes.py exists
