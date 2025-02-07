@@ -63,7 +63,6 @@ class Site(Common):
         )
         self.plugins = plugin_module.plugins
 
-
         self.exec_hooks(HOOK_PRE_BUILD, {'site': self})
 
         self.sync_asset_dirs()
@@ -86,12 +85,23 @@ class Site(Common):
 
         self.load_index()
 
+        self.uncache_pages()
+
         self.build_pages()
 
         self.exec_hooks(HOOK_POST_BUILD, {'site': self})
 
         self.dep_graph.write_cache()
         self.pickle_object(self.cache_dir, self.index_cache_file_name, self.index)
+
+
+    def uncache_pages(self):
+        '''
+        Add any pages with header Cache: False to build list
+        '''
+        for p in self.index.values():
+            if 'cache' in p.headers.keys() and p.headers['cache'] == False:
+                self.pages_build_list[p.source_path] = p.target_path
 
 
     def prune_index(self):
@@ -174,7 +184,15 @@ class Site(Common):
                 if plugin_name in self.plugins.keys():
                     if hasattr(self.plugins[plugin_name], hook_name):
                         logger.info(f'{plugin_name}: Executing hook: {hook_name}')
-                        getattr(self.plugins[plugin_name], hook_name)(objects)
+                        try:
+                            getattr(self.plugins[plugin_name], hook_name)(objects)
+                        except KeyError as e:
+                            if 'page' in objects.keys():
+                                logger.error(f'Unknown key "{e.args[0]}": {objects["page"].source_path}')
+                            else:
+                                logger.error(f'Unknown key "{e.args[0]}"')
+
+                            raise
                 else:
                     logger.warning(f'Config setting site[{hook_name}] references {plugin_name}, but this plugin is not enabled, add it to site[enabled_plugins]?')
 
