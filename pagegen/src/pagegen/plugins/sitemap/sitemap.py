@@ -16,12 +16,11 @@ class Plugin(Common):
         '''
 
         s = objects['site']
-        i = objects['index']
 
         sitemap = ''
-        for p_path, p in i.items():
-            if not 'sitemap exclude' in p['headers'].keys() or not p['headers']['sitemap exclude']:
-                sitemap += p['url'] + '\n'
+        for p in s.index.values():
+            if not 'sitemap exclude' in p.headers.keys() or not p.headers['sitemap exclude']:
+                sitemap += p.absolute_url + '\n'
 
         logger.info('Writing sitemap.txt')
         self.write_file(join(s.build_dir, 'sitemap.txt'), sitemap)
