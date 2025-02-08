@@ -1,5 +1,5 @@
 from pagegen.Common import Common
-from os.path import join
+from os.path import join, exists
 import pagegen.logger_setup
 import logging
 
@@ -19,8 +19,13 @@ class Plugin(Common):
 
         sitemap = ''
         for p in s.index.values():
-            if not 'sitemap exclude' in p.headers.keys() or not p.headers['sitemap exclude']:
+            if not 'sitemap' in p.headers.keys() or p.headers['sitemap'] != False:
                 sitemap += p.absolute_url + '\n'
 
-        logger.info('Writing sitemap.txt')
-        self.write_file(join(s.build_dir, 'sitemap.txt'), sitemap)
+        sitemap_path = join(s.build_dir, 'sitemap.txt')
+
+        if not exists(sitemap_path):
+            logger.info(f'Writing sitemap: {sitemap_path}')
+            self.write_file(sitemap_path, sitemap)
+        else:
+            logger.warning(f'Sitemap already exists: {sitemap_path}')
