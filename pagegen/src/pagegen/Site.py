@@ -255,7 +255,7 @@ class Site(Common):
 
             p.load(tgt, self, source_path=src, get_headers=False, headers=self.index[src].headers)
 
-            if 'render' in p.headers.keys() and p.headers['render'] != False:
+            if not 'render' in p.headers.keys() or p.headers['render'] != False:
                 self.exec_hooks(HOOK_PAGE_RENDER, {'site': self, 'page': p})
 
             # If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated
