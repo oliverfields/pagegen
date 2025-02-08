@@ -255,11 +255,12 @@ class Site(Common):
 
             p.load(tgt, self, source_path=src, get_headers=False, headers=self.index[src].headers)
 
-            self.exec_hooks(HOOK_PAGE_RENDER, {'site': self, 'page': p})
+            if 'render' in p.headers.keys() and p.headers['render'] != False:
+                self.exec_hooks(HOOK_PAGE_RENDER, {'site': self, 'page': p})
 
             # If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated
-            if PGN_LIVE_RELOAD in environ.keys() and environ[PGN_LIVE_RELOAD] == 'yes':
-                p.out += '<script>' + js_reload_poll_script + '</script>'
+                if PGN_LIVE_RELOAD in environ.keys() and environ[PGN_LIVE_RELOAD] == 'yes':
+                    p.out += '<script>' + js_reload_poll_script + '</script>'
 
             p.write()
 
