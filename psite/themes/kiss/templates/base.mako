@@ -65,6 +65,7 @@
   <body>
     <div id="content">
       <article>
+        <%include file="crumb_trail.mako" args="site=site, page=page" />
         <h1>${page.headers['title']}</h1>
         <%block name="content" />
       </article>
