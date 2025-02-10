@@ -65,7 +65,8 @@
   <body>
     <div id="content">
       <article>
-        <%include file="crumb_trail.mako" args="site=site, page=page" />
+        <% crumbs = site.plugins['shortcodes']['crumb_trail'](site, page) %>
+        ${crumbs}
         <h1>${page.headers['title']}</h1>
         <%block name="content" />
       </article>

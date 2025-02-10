@@ -1,7 +1,10 @@
-<%page args = "page, site" />
-<%
-    from os.path import sep, join, isfile, isdir
-    from configparser import NoOptionError
+from os.path import sep, join, isfile, isdir
+from configparser import NoOptionError
+
+def crumb_trail(site, page):
+    '''
+    Make crumb trail, a leaf page ancestors will always be directories, for a directory to be included in the crumb trail it must have a directory index (default file) set
+    '''
 
     try:
         dir_index = site.conf.get('site', 'directory_index')
@@ -36,5 +39,5 @@
             path_parts.pop()
 
         crumbs = f'<ol><li><a href="/">{crumb_home_title}</a></li>{crumbs}</ol>'
-%>
-${crumbs}
+
+    return crumbs

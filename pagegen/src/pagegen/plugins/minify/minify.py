@@ -31,7 +31,7 @@ class Plugin():
             return
 
         p = objects['page']
-        exclude_header = 'exclude html minify'
+        exclude_header = 'minify html'
 
         if not exclude_header in p.headers.keys() or not p.headers[exclude_header]:
             logger.info(f'Minifying: {p}')
