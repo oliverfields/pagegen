@@ -1,4 +1,5 @@
 from os.path import basename, getmtime, join, isfile, isdir, sep, abspath, dirname, exists
+from configparser import NoOptionError
 from os import walk, listdir, environ, linesep
 from pagegen.constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR, SITE_CONF, HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD, THEME_ASSET_SOURCE_DIR, THEME_ASSET_TARGET_DIR, PGN_LIVE_RELOAD
 from pagegen.Common import Common
@@ -65,7 +66,11 @@ class Site(Common):
 
         self.exec_hooks(HOOK_PRE_BUILD, {'site': self})
 
-        self.sync_asset_dirs()
+        try:
+            if self.conf.getboolean('site', 'copy_assets_to_build_dir'):
+                self.sync_asset_dirs()
+        except NoOptionError:
+            self.sync_asset_dirs()
 
         self.content_dir_list = self.get_file_list(self.content_dir)
 

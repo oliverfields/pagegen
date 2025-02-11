@@ -56,7 +56,6 @@ def find_site_dir(path=False):
 
 
 def main():
-
     site_dir = find_site_dir()
 
     system('') # Enable ansi escape codes
