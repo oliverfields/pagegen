@@ -173,7 +173,9 @@ class Page(Common):
         for line in self.raw.split(linesep):
             # As long as we can set header values do so, after that add raw content to body property
 
-            if in_headers == None or self.is_header(line):
+            if in_headers == None and self.is_header(line):
+                in_headers = True
+            elif in_headers and self.is_header(line):
                 in_headers = True
             else:
                 in_headers = False
