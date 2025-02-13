@@ -28,7 +28,7 @@ class Config():
         for section in c:
             for name, value in c[ds].items():
                 env_name = f'PGN_{section}_{name}'.upper()
-                if env_name in environ.keys(): 
+                if env_name in environ.keys():
                     c[section][name] = environ[env_name]
 
         self.configparser = c
