@@ -46,6 +46,7 @@ The figure shortcode above could be written in `shortcodes.py` as follows.
 
 Pagegen ships with ready to use built in shortcodes. Built in shortcodes will be overridden if a shortcode defined in `shortcodes.py` has the same name.
 
-<sc>list_shortcodes()</sc>
+| Name | Description | Example |
+| ---- | ----------- | ------- |
+| quote | Markup a quote in HTML | &lt;sc&gt;quote('Somthing very clever', 'Someone')&lt;/sc&gt; |
 
-In addition `pgn --init` will include `shortcodes.py_example` to illustrate further.
