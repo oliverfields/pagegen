@@ -24,8 +24,7 @@ setup(name = 'pagegen',
         'pagegen.plugins.pgn_markdown',
         'pagegen.plugins.rss',
         'pagegen.plugins.shortcodes',
-        'pagegen.plugins.sitemap',
-        'pagegen.plugins.tags'
+        'pagegen.plugins.sitemap'
     ],
     package_dir={'':'src'},
     include_package_data=True,
