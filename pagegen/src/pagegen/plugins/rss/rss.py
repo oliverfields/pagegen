@@ -38,7 +38,6 @@ class Plugin(Common):
 
         except KeyError as e:
             logger.error(f'RSS config is missing mandatory setting: {e.args[0]}')
-            raise
 
 
         # Feed items
