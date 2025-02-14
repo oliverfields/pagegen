@@ -1,3 +1,0 @@
-http://localhost/what-is-mysticism
-http://localhost/about
-http://localhost/the-world-of-reality

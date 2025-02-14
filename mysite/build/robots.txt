@@ -1,4 +1,0 @@
-<p>User-agent: *
-Disallow: /?tracking=on
-Disallow: /?tracking=off
-Sitemap: https://tidesofsea.com/sitemap.xml</p>
