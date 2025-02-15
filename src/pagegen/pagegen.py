@@ -3,7 +3,7 @@ from sys import exit, stdout
 from os import system, open, O_CREAT, O_EXCL, remove, environ, getcwd, listdir
 from os.path import join, isfile, dirname, abspath
 from traceback import print_exception
-from pagegen.constants import SITE_CONF, LOCK_FILE, CACHE_DIR, BUILD_DIR, DRY_RUN_MSG, PGN_LIVE_RELOAD, PGN_DRY_RUN, PAGEGEN_VERSION
+from pagegen.constants import SITE_CONF, LOCK_FILE, CACHE_DIR, BUILD_DIR, PGN_LIVE_RELOAD, PAGEGEN_VERSION
 from pagegen.Site import Site
 from pathlib import Path
 from pagegen.Config import Config
@@ -29,11 +29,8 @@ def init_pgn_dir():
         exit(1)
 
     try:
-        if PGN_DRY_RUN in environ.keys() and environ[PGN_DRY_RUN] == 'yes':
-            logger.info(f'{DRY_RUN_MSG} Would copy directory {skel_dir} to {root_dir}')
-        else:
-            c = Common()
-            c.dir_sync(skel_dir, root_dir)
+        c = Common()
+        c.dir_sync(skel_dir, root_dir)
     except:
         logger.error("Unable to copy '%s' to '%s'" % (skel_dir, root_dir))
         exit(1)
@@ -64,7 +61,6 @@ def main():
 
     p.add_argument('-g', '--generate', action='store_true', help='Generate site')
     p.add_argument('-V', '--verbose', action='store_true', help='Increase verbosity')
-    p.add_argument('-d', '--dry-run', action='store_true', help='Do not write to disk')
     p.add_argument('-i', '--ignore-lock', action='store_true', help='Ignore lock file')
     p.add_argument('-n', '--init', action='store_true', help='Initiate current directory as pagegen site')
     p.add_argument('-c', '--clear-cache', action='store_true', help='Clear caches before building')
@@ -79,9 +75,6 @@ def main():
 
     if a.verbose:
         logger.setLevel(logging.INFO)
-
-    if a.dry_run:
-        environ[PGN_DRY_RUN] = 'yes'
 
     if a.init:
         init_pgn_dir()
@@ -98,21 +91,18 @@ def main():
         if a.clear_cache:
             cache_dir = join(site_dir, CACHE_DIR)
             build_dir = join(site_dir, BUILD_DIR)
-            if a.dry_run:
-                logger.info(f'{DRY_RUN_MSG}: Would delete {cache_dir}')
-                logger.info(f'{DRY_RUN_MSG}: Would delete {build_dir}')
-            else:
-                try:
-                    rmtree(cache_dir)
-                    logger.warning(f'Deleting {cache_dir}')
-                except FileNotFoundError:
-                    pass
 
-                try:
-                    rmtree(build_dir)
-                    logger.warning(f'Deleting {build_dir}')
-                except FileNotFoundError:
-                    pass
+            try:
+                rmtree(cache_dir)
+                logger.warning(f'Deleting {cache_dir}')
+            except FileNotFoundError:
+                pass
+
+            try:
+                rmtree(build_dir)
+                logger.warning(f'Deleting {build_dir}')
+            except FileNotFoundError:
+                pass
 
         site_conf_file = join(site_dir, SITE_CONF)
 

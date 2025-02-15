@@ -1,4 +1,4 @@
-from pagegen.constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES, DRY_RUN_MSG, PGN_DRY_RUN
+from pagegen.constants import CONTENT_DIR, BUILD_DIR, ESCAPECODES
 from sys import stderr, stdout
 from os.path import isdir, isfile, join, getmtime, relpath, exists
 from os import system, remove, makedirs, walk, environ
@@ -9,8 +9,6 @@ import pagegen.logger_setup
 import logging
 
 logger = logging.getLogger('pagegen.' + __name__)
-
-DRY_RUN = environ.get(PGN_DRY_RUN, False)
 
 class Common:
     '''
@@ -31,19 +29,16 @@ class Common:
         Delete a file, while honoring settings
         '''
 
-        if DRY_RUN:
-            logger.notice(f'{DRY_RUN_MSG}: Would delete: {path}')
-        else:
-            logger.info(f'Deleting {path}')
+        logger.info(f'Deleting {path}')
 
-            try:
-                if isfile(path):
-                    remove(path)
-                elif isdir(path):
-                    rmtree(path)
-            except Exception as e:
-                log_error(f'Unable to delete {path}): {str(e)}')
-                raise
+        try:
+            if isfile(path):
+                remove(path)
+            elif isdir(path):
+                rmtree(path)
+        except Exception as e:
+            log_error(f'Unable to delete {path}): {str(e)}')
+            raise
 
 
     def copy_path(self, source, target):
@@ -51,16 +46,13 @@ class Common:
         Copy a file or directory, while honoring settings
         '''
 
-        if DRY_RUN:
-            logger.notice(f'{DRY_RUN_MSG}: Would copy: {source} to {target}')
-        else:
-            logger.info(f'Copying {source} to {target}')
+        logger.info(f'Copying {source} to {target}')
 
-            try:
-                copyfile(source, target)
-            except Exception as e:
-                logger.error(f'Unable to copy {source} to {target}): {str(e)}')
-                raise
+        try:
+            copyfile(source, target)
+        except Exception as e:
+            logger.error(f'Unable to copy {source} to {target}): {str(e)}')
+            raise
 
 
     def write_file(self, file_path, content):
@@ -68,17 +60,14 @@ class Common:
         Write contents to given file path
         '''
 
-        if DRY_RUN:
-            logger.notice(f'{DRY_RUN_MSG}: Would write: {file_path}')
-        else:
-            logger.info(f'Writing {file_path}')
+        logger.info(f'Writing {file_path}')
 
-            try:
-                with open(file_path, 'w') as f:
-                    f.write(content)
-            except Exception as e:
-                logger.error(f'Unable to write file: {file_path}): {str(e)}')
-                raise
+        try:
+            with open(file_path, 'w') as f:
+                f.write(content)
+        except Exception as e:
+            logger.error(f'Unable to write file: {file_path}): {str(e)}')
+            raise
 
 
     def make_dir(self, dir_path):
@@ -86,16 +75,13 @@ class Common:
         Make directory
         '''
         if not isdir(dir_path):
-            if DRY_RUN:
-                logger.notice(f'{DRY_RUN_MSG}: Would make {dir_path}')
-            else:
-                logger.info(f'Making {dir_path}')
+            logger.info(f'Making {dir_path}')
 
-                try:
-                    makedirs(dir_path)
-                except Exception as e:
-                    logger.error(f'Unable to create directory {dir_path}): {str(e)}')
-                    raise
+            try:
+                makedirs(dir_path)
+            except Exception as e:
+                logger.error(f'Unable to create directory {dir_path}): {str(e)}')
+                raise
 
 
     def get_file_list(self, path):
@@ -123,12 +109,9 @@ class Common:
         self.make_dir(cache_dir)
         path = join(cache_dir, cache_file)
 
-        if DRY_RUN:
-            logger.notice(f'{DRY_RUN_MSG}: Would create cache: {path}')
-        else:
-            logger.info(f'Writing cache {path}')
-            with open(path, 'wb') as f:
-                dump(obj, f)
+        logger.info(f'Writing cache {path}')
+        with open(path, 'wb') as f:
+            dump(obj, f)
 
 
     def load_pickle(self, path):
@@ -136,6 +119,7 @@ class Common:
             obj = load(f)
 
         return obj
+
 
     def is_newer_than(self, file_path, dir_path):
         '''
