@@ -141,11 +141,17 @@ def main():
             environ[PGN_LIVE_RELOAD] = 'yes'
             c = Config(site_conf_file)
             s = Site(site_dir=site_dir, site_conf=c.configparser)
+
+            serve_base_url='http://localhost'
+            serve_port = '8000'
+
+            # Override these settings
+            s.base_url = f'{serve_base_url}:{serve_port}'
+            s.conf['site']['copy_assets_to_build_dir'] = 'True'
+
             s.build_site()
 
             exclude_hooks=['deploy','post_deploy']
-            serve_base_url='http://localhost'
-            serve_port = '8000'
 
             watch_elements = [
                 s.content_dir,
