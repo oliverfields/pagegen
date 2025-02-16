@@ -60,7 +60,7 @@ def main():
     p = argparse.ArgumentParser()
 
     p.add_argument('-g', '--generate', action='store_true', help='Generate site')
-    p.add_argument('-V', '--verbose', action='store_true', help='Increase verbosity')
+    p.add_argument('-V', '--verbosity', action='store', help='Increase verbosity, levels are DEBUG, INFO, WARNING, ERROR or CRITICAL', default='WARNING')
     p.add_argument('-i', '--ignore-lock', action='store_true', help='Ignore lock file')
     p.add_argument('-n', '--init', action='store_true', help='Initiate current directory as pagegen site')
     p.add_argument('-c', '--clear-cache', action='store_true', help='Clear caches before building')
@@ -68,20 +68,30 @@ def main():
     p.add_argument('-v', '--version', action='store_true', help='Show version')
     a = p.parse_args()
 
-
     if a.version:
         print(PAGEGEN_VERSION)
         exit(0)
 
-    if a.verbose:
+    if a.verbosity == 'DEBUG':
+        logger.setLevel(logging.DEBUG)
+    elif a.verbosity == 'INFO':
         logger.setLevel(logging.INFO)
+    elif a.verbosity == 'WARNING':
+        logger.setLevel(logging.WARNING)
+    elif a.verbosity == 'ERROR':
+        logger.setLevel(logging.ERROR)
+    elif a.verbosity == 'CRITICAL':
+        logger.setLevel(logging.CRITICAL)
+    else:
+        logger.critical('Unknown verbosity level ' + a.verbosity + ': Must be DEBUG, INFO, WARNING, ERROR or CRITICAL')
+        exit(1)
 
     if a.init:
         init_pgn_dir()
         exit(0)
 
     if site_dir is None:
-        logger.error(f'Unable to find {SITE_CONF}')
+        logger.critical(f'Unable to find {SITE_CONF}')
         exit(1)
 
     lock_file = join(site_dir, LOCK_FILE)
@@ -94,13 +104,13 @@ def main():
 
             try:
                 rmtree(cache_dir)
-                logger.warning(f'Deleting {cache_dir}')
+                logger.info(f'Deleting {cache_dir}')
             except FileNotFoundError:
                 pass
 
             try:
                 rmtree(build_dir)
-                logger.warning(f'Deleting {build_dir}')
+                logger.info(f'Deleting {build_dir}')
             except FileNotFoundError:
                 pass
 
@@ -171,7 +181,7 @@ def main():
         exit(1)
     except Exception as e:
         logger.warning('Cache could be inconsistent, recommend clearing it')
-        logger.error('An unhandeld exception occoured, quitting..')
+        logger.critical('An unhandeld exception occoured, quitting..')
 
         #if a.verbose:
         print_exception(type(e), e, e.__traceback__)

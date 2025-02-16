@@ -18,7 +18,7 @@ class DepGraph(Common):
         self.cache_path = join(cache_dir, cache_file)
 
         try:
-            logger.info('Loading dependency graph from file: ' + self.cache_path)
+            logger.debug('Loading dependency graph from file: ' + self.cache_path)
             self.deps = self.load_pickle(self.cache_path)
         except FileNotFoundError:
             self.deps = {}

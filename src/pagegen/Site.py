@@ -12,7 +12,7 @@ from pagegen.Plugins import Plugins
 import pagegen.logger_setup
 import logging
 
-logger = logging.getLogger('pagegen.' + __name__)
+logger = logging.getLogger(__name__)
 
 class Site(Common):
     '''
@@ -48,9 +48,9 @@ class Site(Common):
         self.index_cache_file_name = 'index'
         self.index_cache_path = join(self.cache_dir, self.index_cache_file_name)
 
-        logger.info(f'site_dir: {self.site_dir}')
-        logger.info(f'content_dir: {self.content_dir}')
-        logger.info(f'build_dir: {self.build_dir}')
+        logger.debug(f'site_dir: {self.site_dir}')
+        logger.debug(f'content_dir: {self.content_dir}')
+        logger.debug(f'build_dir: {self.build_dir}')
 
 
     def build_site(self):
@@ -121,7 +121,7 @@ class Site(Common):
                 delete_path = True
 
             if delete_path:
-                logger.info(f'Deleting from index: {p_path}')
+                logger.debug(f'Deleting from index: {p_path}')
                 del self.index[p_path]
 
 
@@ -130,7 +130,7 @@ class Site(Common):
         For all pages in build list, refresh the index with new front matter
         '''
         for src in self.pages_build_list:
-            logger.info(f'Refreshing index: {src}')
+            logger.debug(f'Refreshing index: {src}')
             build_path = join(self.build_dir, src[len(self.content_dir):].lstrip(sep))
 
             p = Page()
@@ -144,10 +144,10 @@ class Site(Common):
         '''
 
         try:
-            logger.info('Loading index from cache')
+            logger.debug('Loading index from cache')
             self.index = self.load_pickle(self.index_cache_path)
         except FileNotFoundError:
-            logger.info('Index cache not found')
+            logger.debug('Index cache not found')
             self.index = {}
 
         self.prune_index()
@@ -180,7 +180,7 @@ class Site(Common):
         Run plugin hooks
         '''
 
-        logger.info('Executing hooks: ' + hook_name)
+        logger.debug('Executing hooks: ' + hook_name)
 
         # If hook queue specified in site conf then execute according to it
         if hook_name in self.conf['site'].keys():
@@ -188,14 +188,14 @@ class Site(Common):
                 plugin_name = plugin_name.strip()
                 if plugin_name in self.plugins.keys():
                     if hasattr(self.plugins[plugin_name], hook_name):
-                        logger.info(f'{plugin_name}: Executing hook: {hook_name}')
+                        logger.debug(f'{plugin_name}: Executing hook: {hook_name}')
                         try:
                             getattr(self.plugins[plugin_name], hook_name)(objects)
                         except KeyError as e:
                             if 'page' in objects.keys():
-                                logger.error(f'Unknown key "{e.args[0]}": {objects["page"].source_path}')
+                                logger.critical(f'Unknown key "{e.args[0]}": {objects["page"].source_path}')
                             else:
-                                logger.error(f'Unknown key "{e.args[0]}"')
+                                logger.critical(f'Unknown key "{e.args[0]}"')
 
                             raise
                 else:
@@ -205,7 +205,7 @@ class Site(Common):
         else:
             for plugin_name, plugin_module in self.plugins.items():
                 if hasattr(plugin_module, hook_name):
-                    logger.info(f'{plugin_name}: Executing hook: {hook_name}')
+                    logger.debug(f'{plugin_name}: Executing hook: {hook_name}')
                     getattr(plugin_module, hook_name)(objects)
 
 
@@ -214,7 +214,7 @@ class Site(Common):
         Pages may have dependencies, add page to build list dependency not satisfied and page needs building
         '''
 
-        logger.info('Analyzing dependencies')
+        logger.debug('Analyzing dependencies')
         self.dep_graph = DepGraph(self.cache_dir, 'dep_graph')
 
         # Add path to build list whene source is newer than its dependancies
@@ -229,7 +229,7 @@ class Site(Common):
                         self.pages_build_list[content_path] = build_path
                 except NotADirectoryError:
                     # Probably the content path is a directory in the cache, but now it is a file
-                    logger.error('Cache mismatch: ' + dep_path + ' : ' + build_path)
+                    logger.critical('Cache mismatch: ' + dep_path + ' : ' + build_path)
                     raise Exception
                 except FileNotFoundError:
                     pass
@@ -240,7 +240,7 @@ class Site(Common):
         Build pages according to build_list
         '''
 
-        logger.info(f'Building content {self.build_dir}')
+        logger.debug(f'Building content {self.build_dir}')
 
         # Create directories
         for target_path in self.directories_build_list:
@@ -252,7 +252,7 @@ class Site(Common):
 
         # Generate pages
         for src, tgt in self.pages_build_list.items():
-            logger.info(f'Generating page: {src}')
+            logger.info(f'Generating: {src}')
 
             p = Page()
 
@@ -281,7 +281,7 @@ class Site(Common):
         self.pages_build_list = {}
         self.directories_build_list = []
 
-        logger.info(f'Making build lists {self.build_dir}')
+        logger.debug(f'Making build lists {self.build_dir}')
 
         # content_dir
         for content_path in self.content_dir_list:
@@ -304,7 +304,7 @@ class Site(Common):
 
             if path_type == 'dir':
                 if not isdir(build_path):
-                    logger.info(f'Adding to directories_build_list: {content_path}')
+                    logger.debug(f'Adding to directories_build_list: {content_path}')
                     self.directories_build_list.append(build_path)
 
             else:
@@ -312,7 +312,7 @@ class Site(Common):
                 if not isfile(build_path) or getmtime(content_path) > getmtime(build_path):
 
                     if path_type == 'page':
-                        logger.info(f'Adding to page_build_list: {content_path}')
+                        logger.debug(f'Adding to page_build_list: {content_path}')
                         self.pages_build_list[content_path] = build_path
 
 
@@ -321,7 +321,7 @@ class Site(Common):
         Remove all directories and files from build_dir that do not exist in content_dir
         '''
 
-        logger.info(f'Pruning {self.build_dir}')
+        logger.debug(f'Pruning {self.build_dir}')
 
         # When compare paths we need to disgard the prefix
         len_build_dir = len(self.build_dir)

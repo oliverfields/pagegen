@@ -44,14 +44,14 @@ class Plugin(Common):
         # Work out template deps
         try:
             if self.is_newer_than(self.plugin_cache_path, self.theme_template_dir):
-                logger.info('Loading template dependencies from cache')
+                logger.debug('Loading template dependencies from cache')
 
                 self.template_deps = self.load_pickle(self.plugin_cache_path)
                 return
         except FileNotFoundError:
             pass
 
-        logger.info('Template dependency cache not found: Initalizing')
+        logger.debug('Template dependency cache not found: Initalizing')
 
         # Collect dependencies between templates
         for t in listdir(self.theme_template_dir):
@@ -90,7 +90,7 @@ class Plugin(Common):
         elif s.conf.has_option('mako_templates', 'default_template'):
             template = s.conf['mako_templates']['default_template']
         else:
-            logger.error('No template defined, set page template header or mako_templates default_template in site.conf: ' + str(p))
+            logger.critical('No template defined, set page template header or mako_templates default_template in site.conf: ' + str(p))
             raise Exception
 
         if template:

@@ -34,7 +34,7 @@ class Plugin():
         exclude_header = 'minify html'
 
         if not exclude_header in p.headers.keys() or not p.headers[exclude_header]:
-            logger.info(f'Minifying: {p}')
+            logger.debug(f'Minifying: {p}')
             p.out = minify(p.out)
 
 
@@ -74,7 +74,7 @@ class Plugin():
                     continue
 
                 if is_css or is_js:
-                    logger.info(f'Minifying: {f}')
+                    logger.debug(f'Minifying: {f}')
                     with open(f, 'r+') as ff:
                         text = cssmin(ff.read()) if is_css else jsmin(ff.read())
                         ff.seek(0)

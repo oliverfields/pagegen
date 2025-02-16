@@ -20,7 +20,7 @@ class Common:
             with codecs.open (path, "r", 'utf-8') as f:
                 return f.read()
         except Exception as e:
-            logger.error('Unable to load file %s: %s' % (path, e))
+            logger.critical('Unable to load file %s: %s' % (path, e))
             raise
 
 
@@ -29,7 +29,7 @@ class Common:
         Delete a file, while honoring settings
         '''
 
-        logger.info(f'Deleting {path}')
+        logger.debug(f'Deleting {path}')
 
         try:
             if isfile(path):
@@ -46,12 +46,12 @@ class Common:
         Copy a file or directory, while honoring settings
         '''
 
-        logger.info(f'Copying {source} to {target}')
+        logger.debug(f'Copying {source} to {target}')
 
         try:
             copyfile(source, target)
         except Exception as e:
-            logger.error(f'Unable to copy {source} to {target}): {str(e)}')
+            logger.critical(f'Unable to copy {source} to {target}): {str(e)}')
             raise
 
 
@@ -60,13 +60,13 @@ class Common:
         Write contents to given file path
         '''
 
-        logger.info(f'Writing {file_path}')
+        logger.debug(f'Writing {file_path}')
 
         try:
             with open(file_path, 'w') as f:
                 f.write(content)
         except Exception as e:
-            logger.error(f'Unable to write file: {file_path}): {str(e)}')
+            logger.debug(f'Unable to write file: {file_path}): {str(e)}')
             raise
 
 
@@ -75,12 +75,12 @@ class Common:
         Make directory
         '''
         if not isdir(dir_path):
-            logger.info(f'Making {dir_path}')
+            logger.debug(f'Making {dir_path}')
 
             try:
                 makedirs(dir_path)
             except Exception as e:
-                logger.error(f'Unable to create directory {dir_path}): {str(e)}')
+                logger.critical(f'Unable to create directory {dir_path}): {str(e)}')
                 raise
 
 
@@ -88,7 +88,7 @@ class Common:
         '''
         Return list of all files
         '''
-        logger.info(f'Get files in {path}')
+        logger.debug(f'Get files in {path}')
 
         l = []
 
@@ -109,7 +109,7 @@ class Common:
         self.make_dir(cache_dir)
         path = join(cache_dir, cache_file)
 
-        logger.info(f'Writing cache {path}')
+        logger.debug(f'Writing cache {path}')
         with open(path, 'wb') as f:
             dump(obj, f)
 
@@ -146,7 +146,7 @@ class Common:
         Thanks! https://developer-service.blog/synchronizing-files-between-two-directories-using-python/
         '''
 
-        logger.info(f'Syncing {src_dir} -> {tgt_dir}')
+        logger.debug(f'Syncing {src_dir} -> {tgt_dir}')
 
         if not isdir(src_dir):
             return False
@@ -169,13 +169,13 @@ class Common:
             # Check if path is a directory and create it in the replica directory if it does not exist
             if isdir(source_path):
                 if not exists(replica_path):
-                    logger.info(f"Creating directory {replica_path}")
+                    logger.debug(f"Creating directory {replica_path}")
                     makedirs(replica_path)
             # Copy all files from the source directory to the replica directory
             else:
                 # Check if the file exists in the replica directory and if it is different from the source file
                 if not exists(replica_path) or getmtime(source_path) > getmtime(replica_path):
-                    logger.info(f"Copying {source_path} to {replica_path}")
+                    logger.debug(f"Copying {source_path} to {replica_path}")
 
                     # Copy the file from the source directory to the replica directory
                     copyfile(source_path, replica_path)

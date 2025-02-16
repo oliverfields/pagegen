@@ -24,7 +24,7 @@ class Plugin(Common):
         for p_path, p in i.items():
             if not 'rss' in p.headers.keys() or p.headers['rss'] != False:
                 if not 'date' in p.headers.keys():
-                    logger.error(f'Page is missing mandatory date header: {p_path}')
+                    logger.critical(f'Page is missing mandatory date header: {p_path}')
                     raise Exception(f'Page is missing mandatory date header: {p_path}')
                 feed_pages.append(p)
 
@@ -37,7 +37,7 @@ class Plugin(Common):
             feed += f'<description>{s.conf["rss"]["description"]}</description>\n'
 
         except KeyError as e:
-            logger.error(f'RSS config is missing mandatory setting: {e.args[0]}')
+            logger.critical(f'RSS config is missing mandatory setting: {e.args[0]}')
 
 
         # Feed items
@@ -49,7 +49,7 @@ class Plugin(Common):
                 feed += f'<description>{p.headers["description"]}</description>\n'
 
             except KeyError as e:
-                logger.error(f'Page is missing mandatory {e.args[0]}: {p_path}')
+                logger.critical(f'Page is missing mandatory {e.args[0]}: {p_path}')
                 raise
 
             feed += '</item>\n'
@@ -59,9 +59,9 @@ class Plugin(Common):
         rss_path = join(s.build_dir, 'feed.rss')
 
         if not exists(rss_path):
-            logger.info(f'Writing RSS: {rss_path}')
+            logger.debug(f'Writing RSS: {rss_path}')
             self.write_file(rss_path, feed)
         else:
-            logger.warning(f'RSS already exists: {rss_path}')
+            logger.debug(f'RSS already exists: {rss_path}')
 
 

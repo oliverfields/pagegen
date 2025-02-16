@@ -77,22 +77,22 @@ class Plugins(Common):
         try:
             cache_mtime = getmtime(self.plugin_cache_path)
             if cache_mtime >= last_plugins_change and cache_mtime >= getmtime(self.site_conf_path):
-                logger.info('Loading plugins from cache')
+                logger.debug('Loading plugins from cache')
 
                 with open(self.plugin_cache_path, 'rb') as f:
                     self.plugins = load(f)
 
                 return
             else:
-                logger.info('Plugin cache stale: Initalizing plugins')
+                logger.debug('Plugin cache stale: Initalizing plugins')
         except NotADirectoryError:
-            logger.info('No plugin directory found: Initalizing plugins')
+            logger.debug('No plugin directory found: Initalizing plugins')
         except ModuleNotFoundError:
-            logger.info('Plugin module not found: Initalizing plugins')
+            logger.debug('Plugin module not found: Initalizing plugins')
         except FileNotFoundError:
-            logger.info('No plugin cache found: Initalizing plugins')
+            logger.debug('No plugin cache found: Initalizing plugins')
         except EOFError:
-            logger.info('Corrupted plugin cache: Initalizing plugins')
+            logger.warning('Corrupted plugin cache: Initalizing plugins')
 
         self.find_and_load_plugins(all_plugins)
 
@@ -124,7 +124,7 @@ class Plugins(Common):
         for path in plugin_paths:
             plugin_name = basename(path).replace('.py', '')
 
-            logger.info('Loading plugin: ' + path)
+            logger.debug('Loading plugin: ' + path)
 
             module = import_module(plugin_name)
             plugin_class = getattr(module, 'Plugin')

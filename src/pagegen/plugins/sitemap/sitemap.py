@@ -25,7 +25,7 @@ class Plugin(Common):
         sitemap_path = join(s.build_dir, 'sitemap.txt')
 
         if not exists(sitemap_path):
-            logger.info(f'Writing sitemap: {sitemap_path}')
+            logger.debug(f'Writing sitemap: {sitemap_path}')
             self.write_file(sitemap_path, sitemap)
         else:
-            logger.warning(f'Sitemap already exists: {sitemap_path}')
+            logger.error(f'Sitemap already exists: {sitemap_path}')

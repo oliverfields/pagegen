@@ -32,4 +32,4 @@ class Config():
                     c[section][name] = environ[env_name]
 
         self.configparser = c
-        logger.info('Config loaded from: ' + conf_file)
+        logger.debug('Config loaded from: ' + conf_file)
