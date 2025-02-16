@@ -1,12 +1,7 @@
 pagegen.egg-info
 dist/
 pypi_details
-bin/
 pyvenv.cfg
-lib/
 __pycache__/
 *.py[cod]
-venv
-pgn4venv
-.cache/
-build/
+pgnvenv

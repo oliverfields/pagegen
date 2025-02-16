@@ -149,6 +149,8 @@ def main():
             s.base_url = f'{serve_base_url}:{serve_port}'
             s.conf['site']['copy_assets_to_build_dir'] = 'True'
 
+            logger.setLevel(logging.INFO)
+
             s.build_site()
 
             exclude_hooks=['deploy','post_deploy']

@@ -3,7 +3,7 @@ import importlib.util
 from inspect import getmembers, isfunction
 import shortcodes_built_in
 import re
-from inspect import getargspec, signature
+from inspect import signature
 import pagegen.logger_setup
 import logging
 

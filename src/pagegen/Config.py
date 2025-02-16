@@ -22,7 +22,7 @@ class Config():
 
         # Open the file with the correct encoding
         with codecs.open(conf_file, 'r', encoding='utf-8') as f:
-            c.readfp(f)
+            c.read_file(f)
 
         # Overwrite any settings from environment variables
         for section in c:
