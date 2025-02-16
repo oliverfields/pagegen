@@ -66,11 +66,17 @@ if [ "$do_test" = "y" ]; then
   pip install "$package"
 
   # Init pagegen test site
+<<<<<<< Updated upstream:pypi_build.sh
   set -x
   mkdir "$pg_dir"
   cd "$pg_dir"
   pgn --init
   set +x
+=======
+  mkdir "$pg_dir"
+  cd "$pg_dir"
+  pgn --init
+>>>>>>> Stashed changes:build.sh
 
   echo
   echo "Starting test environment, type exit to continue build.."
