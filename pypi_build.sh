@@ -66,17 +66,11 @@ if [ "$do_test" = "y" ]; then
   pip install "$package"
 
   # Init pagegen test site
-<<<<<<< Updated upstream:pypi_build.sh
   set -x
   mkdir "$pg_dir"
   cd "$pg_dir"
   pgn --init
   set +x
-=======
-  mkdir "$pg_dir"
-  cd "$pg_dir"
-  pgn --init
->>>>>>> Stashed changes:build.sh
 
   echo
   echo "Starting test environment, type exit to continue build.."
@@ -91,9 +85,9 @@ fi
 echo "Package built, upload it to pypi? [y|N]"
 read release
 if [ "$release" = "y" ]; then
-  #TWINE_USERNAME=__token__ twine upload $package -p "$token" will do it
-  # Token in ~/.pypirc
-  twine upload "$package"
+  read -p "Pipy access token: " pypi_token
+  echo $pypi_token
+  TWINE_USERNAME=__token__ twine upload $package -p "$pypi_token"
 fi
 
 echo "Build done, remember to create github release"
