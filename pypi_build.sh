@@ -86,7 +86,6 @@ echo "Package built, upload it to pypi? [y|N]"
 read release
 if [ "$release" = "y" ]; then
   read -p "Pipy access token: " pypi_token
-  echo $pypi_token
   TWINE_USERNAME=__token__ twine upload $package -p "$pypi_token"
 fi
 
