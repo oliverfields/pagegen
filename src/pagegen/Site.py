@@ -129,6 +129,7 @@ class Site(Common):
         '''
         For all pages in build list, refresh the index with new front matter
         '''
+
         for src in self.pages_build_list:
             logger.debug(f'Refreshing index: {src}')
             build_path = join(self.build_dir, src[len(self.content_dir):].lstrip(sep))

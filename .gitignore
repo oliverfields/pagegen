@@ -1,4 +1,5 @@
 pagegen.egg-info
+build/**
 dist/
 pypi_details
 pyvenv.cfg
