@@ -30,7 +30,7 @@ setup(name = 'pagegen',
     include_package_data=True,
     long_description="""Python static site generator""",
     install_requires=[
-        #'lxml==4.6.3',
+        'lxml==4.6.3',
         'htmlmin==0.1.12',
         'rcssmin==1.1.2',
         'jsmin==3.0.1',

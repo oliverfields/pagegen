@@ -20,8 +20,7 @@ class Common:
             with codecs.open (path, "r", 'utf-8') as f:
                 return f.read()
         except Exception as e:
-            logger.critical('Unable to load file %s: %s' % (path, e))
-            raise
+            raise e
 
 
     def delete_path(self, path):

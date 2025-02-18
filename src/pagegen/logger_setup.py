@@ -7,6 +7,7 @@ class CustomFormatter(logging.Formatter):
     """Logging colored formatter, adapted from https://stackoverflow.com/a/56944256/3638629"""
 
     grey = '\x1b[38;21m'
+    brown = '\x1b[35;1m'
     blue = '\x1b[38;5;39m'
     yellow = '\x1b[38;5;226m'
     red = '\x1b[38;5;196m'
@@ -17,7 +18,7 @@ class CustomFormatter(logging.Formatter):
         super().__init__()
         self.fmt = fmt
         self.FORMATS = {
-            logging.DEBUG: self.grey + self.fmt + self.reset,
+            logging.DEBUG: self.brown + self.fmt + self.reset,
             logging.INFO: self.blue + self.fmt + self.reset,
             logging.WARNING: self.yellow + self.fmt + self.reset,
             logging.ERROR: self.red + self.fmt + self.reset,
