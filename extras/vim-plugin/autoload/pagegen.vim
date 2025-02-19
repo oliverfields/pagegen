@@ -134,14 +134,27 @@ function! pagegen#PageLink(pagegen_dir)
 
   if f != ''
     let url = f
-    let file_name = substitute(f, ".*/", "", "g")
-    let title = substitute(file_name, "-", " ", "g")
-    let Title = substitute(title, ".", "\\U\\0", "")
+    let title = pagegen#TitleifyFilename(f)
 
-    execute 'normal! i[' . Title . '](/' . url . ')'
+    execute 'normal! i[' . title . '](/' . url . ')'
     execute "normal! F[l"
     :startinsert
   endif
+endfunction
+
+
+function! pagegen#TitleifyFilename(name)
+
+    let title = substitute(a:name, ".*/", "", "g")
+
+    if title == 'index'
+        let title = expand("%:p:h:t")
+    endif
+
+    let title = substitute(title, "-", " ", "g")
+    let title = substitute(title, ".", "\\U\\0", "")
+
+    return title
 endfunction
 
 
@@ -152,11 +165,9 @@ function! pagegen#Templates(template_dir)
   if t == ''
     echomsg 'No template selected'
   else
-    let title = substitute(expand("%:t"), "-", " ", "g")
-    let Title = substitute(title, ".", "\\U\\0", "")
-
+    let title = pagegen#TitleifyFilename(expand("%:t"))
     " execute template and pass titleified file name as argument
-    let template = system(a:template_dir . '/' . t . ' "' . Title . '"')
+    let template = system(a:template_dir . '/' . t . ' "' . title . '"')
     execute "normal! ggdGi" . template
   endif
 endfunction
