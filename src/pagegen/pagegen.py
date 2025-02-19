@@ -60,7 +60,7 @@ def main():
     p = argparse.ArgumentParser()
 
     p.add_argument('-g', '--generate', action='store_true', help='Generate site')
-    p.add_argument('-V', '--verbosity', action='store', help='Increase verbosity, levels are DEBUG, INFO, WARNING, ERROR or CRITICAL', default='WARNING')
+    p.add_argument('-V', '--verbosity', action='store', help='Increase verbosity, levels are DEBUG, INFO, WARNING, ERROR or CRITICAL')
     p.add_argument('-i', '--ignore-lock', action='store_true', help='Ignore lock file')
     p.add_argument('-n', '--init', action='store_true', help='Initiate current directory as pagegen site')
     p.add_argument('-c', '--clear-cache', action='store_true', help='Clear caches before building')
@@ -72,12 +72,12 @@ def main():
         print(PAGEGEN_VERSION)
         exit(0)
 
-    if a.verbosity == 'DEBUG':
+    if a.verbosity == None or a.verbosity == 'WARNING':
+        logger.setLevel(logging.WARNING)
+    elif a.verbosity == 'DEBUG':
         logger.setLevel(logging.DEBUG)
     elif a.verbosity == 'INFO':
         logger.setLevel(logging.INFO)
-    elif a.verbosity == 'WARNING':
-        logger.setLevel(logging.WARNING)
     elif a.verbosity == 'ERROR':
         logger.setLevel(logging.ERROR)
     elif a.verbosity == 'CRITICAL':
@@ -116,6 +116,26 @@ def main():
 
         site_conf_file = join(site_dir, SITE_CONF)
 
+        c = Config(site_conf_file)
+
+        try:
+            # Only set debug level if 
+            if a.verbosity == None:
+                log_level = c.configparser['site']['log_level']
+
+                if log_level == 'DEBUG':
+                    logger.setLevel(logging.DEBUG)
+                elif log_level == 'INFO':
+                    logger.setLevel(logging.INFO)
+                elif log_level == 'WARNING':
+                    logger.setLevel(logging.WARNING)
+                elif log_level == 'ERROR':
+                    logger.setLevel(logging.ERROR)
+                elif log_level == 'CRITICAL':
+                    logger.setLevel(logging.CRITICAL)
+        except KeyError:
+            pass
+
         if a.generate:
 
             if isfile(lock_file):
@@ -132,8 +152,6 @@ def main():
             else:
                 open(lock_file, O_CREAT | O_EXCL)
 
-
-            c = Config(site_conf_file)
             s = Site(site_dir=site_dir, site_conf=c.configparser)
             s.build_site()
 
@@ -148,8 +166,6 @@ def main():
             # Override these settings
             s.base_url = f'{serve_base_url}:{serve_port}'
             s.conf['site']['copy_assets_to_build_dir'] = 'True'
-
-            logger.setLevel(logging.INFO)
 
             s.build_site()
 
