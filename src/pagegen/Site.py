@@ -86,11 +86,11 @@ class Site(Common):
 
         self.add_broken_page_deps_to_build_list()
 
-        self.exec_hooks(HOOK_PAGE_DEPS, {'site': self})
-
         self.load_index()
 
         self.uncache_pages()
+
+        self.exec_hooks(HOOK_PAGE_DEPS, {'site': self})
 
         self.build_pages()
 

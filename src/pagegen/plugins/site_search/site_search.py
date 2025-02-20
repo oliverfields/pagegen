@@ -1,4 +1,5 @@
 from pagegen.Common import Common
+from json import dumps
 from re import sub
 from pagegen.constants import CACHE_DIR
 from os.path import join
@@ -18,9 +19,10 @@ class Plugin(Common):
     '''
 
 
-    def hook_pre_build(self, objects):
+    def hook_page_deps(self, objects):
         '''
         load search_index from cache, if exist (pickle object)
+        prune any pages not in site index from search index
         '''
 
         self.cache_dir = join(objects['site'].site_dir, CACHE_DIR, 'site_search')
@@ -65,22 +67,21 @@ class Plugin(Common):
         if 'search' in p.headers.keys() and p.headers['search'] == False:
             return
 
-        self.search_index[p.relative_url] = {}
-        si = self.search_index[p.relative_url]
+        self.search_index[p.source_path] = {}
+        si = self.search_index[p.source_path]
 
         tree = etree.HTML(p.out)
 
-        # Loop over meta tags
+        # Look for terms in meta tags
         for search_attribute in self.meta_tags:
             try:
                 result = tree.xpath("//meta[@name='"+search_attribute+"']")
                 for tag in result:
                     self.index_string(si, tag.attrib['content'], 5)
             except:
-                raise
-                pass # No meta tags found, fair enough
+                raise # No meta tags found, fair enough
 
-        # Index page title
+        # Look for terms in title tag
         try:
             result = tree.xpath("/html/head/title")
             for tag in result:
@@ -92,9 +93,10 @@ class Plugin(Common):
 
                 self.index_string(si, text, 5)
         except:
-            pass # Unable to find a title
+            raise # Unable to find a title
 
 
+        # Look for terms in content
         for content_tag in self.index_xpaths:
             for search_tag in self.content_tags:
                 xpath = content_tag + "//" + search_tag
@@ -130,11 +132,16 @@ class Plugin(Common):
 
     def hook_post_build(self, objects):
         '''
-        convert search_index to /search.json
+        prune search_index of deleted pages
+        save cache
         '''
 
-        from pprint import pprint
-        pprint(self.search_index)
+        # Prune terms for any pages that no longer exist in site.index
+        for source_path in list(self.search_index.keys()):
+            if not source_path in objects['site'].index.keys():
+                del self.search_index[source_path]
+
+        self.write_search_index()
 
         # update cache
         self.pickle_object(self.cache_dir, self.index_cache_file_name, self.search_index)
@@ -178,3 +185,41 @@ class Plugin(Common):
                 terms[word] = term_weight
 
         return terms
+
+
+
+    def write_search_index(self):
+        '''
+        convert search_index to /search.json
+        '''
+
+        i = {
+            'urls': {
+                '1': ['url', 'title', 'description']
+            },
+            'terms': {
+                'static': [1,15,2,8,18,19,23,24],
+                'web': [25,23,1,3,9]
+            }
+        }
+
+        json = dumps(i)
+        self.write_file(join(objects['site'].build_dir, 'site-search-index.json'), json)
+
+        '''
+{
+  "urls": {
+    "1": [
+      "/",
+      "Pagegen static site generator",
+      "Pagegen is a static web site generator, it creates web sites from    text files and directories. Manage your site from the command line."
+    ]
+  },
+  "terms": {
+    "static": [1,15,2,8,18,19,23,24],
+    "web": [25,23,1,3,9,11,18,22,24]
+  }
+}
+        '''
+
+        print('Writing /search.json')
