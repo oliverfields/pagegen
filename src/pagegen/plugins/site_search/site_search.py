@@ -133,6 +133,9 @@ class Plugin(Common):
         convert search_index to /search.json
         '''
 
+        from pprint import pprint
+        pprint(self.search_index)
+
         # update cache
         self.pickle_object(self.cache_dir, self.index_cache_file_name, self.search_index)
 
