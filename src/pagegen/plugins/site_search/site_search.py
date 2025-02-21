@@ -36,7 +36,7 @@ class Plugin(Common):
             self.index_xpaths = ['/html/body']
 
 
-        stop_words_path = join(objects['site'].site_dir, 'search_site_stopwords.txt')
+        stop_words_path = join(objects['site'].site_dir, 'site_search_stopwords.txt')
         try:
             stop_words = self.read_file(stop_words_path)
             self.stop_words = stop_words.rstrip().split(linesep)
@@ -77,7 +77,7 @@ class Plugin(Common):
             try:
                 result = tree.xpath("//meta[@name='"+search_attribute+"']")
                 for tag in result:
-                    self.index_string(si, tag.attrib['content'], 5)
+                    self.index_string(si, tag.attrib['content'], 5, p.source_path)
             except:
                 raise # No meta tags found, fair enough
 
@@ -91,7 +91,7 @@ class Plugin(Common):
                 if tag.tail:
                     text += tag.tail
 
-                self.index_string(si, text, 5)
+                self.index_string(si, text, 5, p.source_path)
         except:
             raise # Unable to find a title
 
@@ -127,7 +127,7 @@ class Plugin(Common):
                         else:
                             weight=0
 
-                        self.index_string(si, text, weight)
+                        self.index_string(si, text, weight, p.source_path)
 
 
     def hook_post_build(self, objects):
@@ -141,13 +141,14 @@ class Plugin(Common):
             if not source_path in objects['site'].index.keys():
                 del self.search_index[source_path]
 
-        self.write_search_index()
+        json_path = join(objects['site'].build_dir, 'site-search-index.json')
+        self.write_search_index(objects['site'].index, json_path)
 
         # update cache
         self.pickle_object(self.cache_dir, self.index_cache_file_name, self.search_index)
 
 
-    def index_string(self, terms, string, weight):
+    def index_string(self, terms, string, weight, source_path):
         '''
         For each word in string add to terms with given weight, if not a stop word
         '''
@@ -174,26 +175,35 @@ class Plugin(Common):
                 continue
 
             term_weight = weight
+            term_data = {
+                'weight': weight,
+                'source_path': source_path # Important for making json later
+            }
 
             # Update weight if is indexed
             if word in terms.keys():
-                if terms[word] < term_weight:
+                if terms[word]['weight'] < term_weight:
                     #print("Increasing weight for term '%s'" % word)
-                    terms[word] = term_weight
+                    terms[word]['weight'] = term_weight
             else:
                 #print('Adding term "%s" to index (weight %s)' % (word, term_weight))
-                terms[word] = term_weight
+                terms[word] = term_data
 
         return terms
 
 
 
-    def write_search_index(self):
+    def write_search_index(self, site_index, json_path):
         '''
         convert search_index to /search.json
-        '''
 
-        i = {
+        the json contains to main keys, urls and terms.
+
+        urls keys are numbers (automatically generated) and values are a list containing url, title and description (in that order).
+
+        terms keys are the actual words and the values are a list of numbers that reference back to the urls key numbers. the list is ordered according to the weight of the term in the particular page/url
+
+        {
             'urls': {
                 '1': ['url', 'title', 'description']
             },
@@ -202,24 +212,62 @@ class Plugin(Common):
                 'web': [25,23,1,3,9]
             }
         }
-
-        json = dumps(i)
-        self.write_file(join(objects['site'].build_dir, 'site-search-index.json'), json)
-
-        '''
-{
-  "urls": {
-    "1": [
-      "/",
-      "Pagegen static site generator",
-      "Pagegen is a static web site generator, it creates web sites from    text files and directories. Manage your site from the command line."
-    ]
-  },
-  "terms": {
-    "static": [1,15,2,8,18,19,23,24],
-    "web": [25,23,1,3,9,11,18,22,24]
-  }
-}
         '''
 
-        print('Writing /search.json')
+        urls = {}
+        url_number_map = {}
+        n = 0
+        for p in site_index.values():
+
+            # Ignore pages with header search: False
+            if 'search' in p.headers.keys() and p.headers['search'] == False:
+                continue
+
+
+            # urls
+            n += 1
+            try:
+                urls[n] = [
+                    p.relative_url,
+                    p.headers['title'],
+                    p.headers['description']
+                ]
+                url_number_map[p.source_path] = n
+            except KeyError as e:
+                logger.critical(f'Page missing {e.args[0]}: {p.source_path}')
+
+
+        # terms
+        # add terms
+        terms = {}
+        for p_src, p_terms in self.search_index.items():
+            url_number = url_number_map[p_src]
+            for p_term, p_term_meta in p_terms.items():
+                p_term_meta['url_number'] = url_number
+                try:
+                    terms[p_term]['unsorted'].append(p_term_meta)
+                except KeyError:
+                    terms[p_term] = {}
+                    terms[p_term]['unsorted'] = []
+                    terms[p_term]['unsorted'].append(p_term_meta)
+
+
+        # Sort terms pages by weight (i.e. a term found in page X <h1> is ranked before same term found in page Y <p> etc)
+        for term, term_data in terms.items():
+            term_data['url_numbers'] = []
+            for st in sorted(term_data['unsorted'], key=lambda x: x['weight'], reverse=True):
+                term_data['url_numbers'].append(st['url_number'])
+
+        json = {
+            'urls': urls,
+            'terms': {}
+        }
+
+        for term, term_data in terms.items():
+            json['terms'][term] = term_data['url_numbers']
+
+        json = dumps(json)
+
+        self.write_file(json_path, json)
+
+        logger.debug('Writing ' + json_path)
