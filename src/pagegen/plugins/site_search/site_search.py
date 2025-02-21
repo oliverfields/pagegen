@@ -2,7 +2,7 @@ from pagegen.Common import Common
 from json import dumps
 from re import sub
 from pagegen.constants import CACHE_DIR
-from os.path import join
+from os.path import join, basename
 from os import linesep
 from lxml import etree
 import pagegen.logger_setup
@@ -227,13 +227,31 @@ class Plugin(Common):
             # urls
             n += 1
             try:
+                if 'title' in p.headers.keys():
+                    title = p.headers['title']
+                else:
+                    title = basename(p.source_path)
+                    logger.debug('No title header defined, using file name instead: ' + p.source_path)
+
+                if 'description' in p.headers.keys():
+                    description = p.headers['description']
+                else:
+                    description = ''
+                    logger.debug('No description header defined, using empty string instead: ' + p.source_path)
+
                 urls[n] = [
                     p.relative_url,
-                    p.headers['title'],
-                    p.headers['description']
+                    title,
+                    description
                 ]
                 url_number_map[p.source_path] = n
             except KeyError as e:
+                if e.args[0] == 'title':
+                    title = ''
+
+                if e.args[0] == 'title':
+                    title = ''
+
                 logger.critical(f'Page missing {e.args[0]}: {p.source_path}')
 
 
