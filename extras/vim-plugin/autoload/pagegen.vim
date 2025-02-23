@@ -1,5 +1,5 @@
 function! pagegen#Figure(pagegen_dir)
-  let search_path = a:pagegen_dir . '/content/assets'
+  let search_path = a:pagegen_dir . '/assets'
   let f = system('find "' . search_path . '" -type f | sed "s#^' . search_path . '/##" | fzy "--prompt=Media > " --lines=' . &lines)[:-2]
   redraw!
 
