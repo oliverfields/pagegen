@@ -98,7 +98,7 @@ def main():
 
     try:
 
-        if a.clear_cache:
+        if a.clear_cache or a.live_reload:
             cache_dir = join(site_dir, CACHE_DIR)
             build_dir = join(site_dir, BUILD_DIR)
 

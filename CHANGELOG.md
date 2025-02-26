@@ -11,3 +11,8 @@
 ### Fixes
 
 - Create build dir if not exist
+- live reload clears cache ensuring base_url etc are right
+
+### Removed
+
+- Excerpt plugin, suggest using headers instead
