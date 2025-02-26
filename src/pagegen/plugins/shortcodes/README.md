@@ -48,5 +48,6 @@ Pagegen ships with ready to use built in shortcodes. Built in shortcodes will be
 
 | Name | Description | Example |
 | ---- | ----------- | ------- |
+| image | Resize image and return img tag | <code>&lt;sc&gt;image(source_path, alt_attribute, image_class=None, image_size=None)</code>. Image class is set in <code>site.conf</code> section <code>shortcodes</code> setting <code>image_named_dimensions=&lt;name&gt;:&lt;width&gt;x&lt;height&gt;[,..]</code> |
 | quote | Markup a quote in HTML | &lt;sc&gt;quote('Somthing very clever', 'Someone')&lt;/sc&gt; |
 
