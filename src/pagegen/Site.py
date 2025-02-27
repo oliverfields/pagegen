@@ -1,7 +1,7 @@
 from os.path import basename, getmtime, join, isfile, isdir, sep, abspath, dirname, exists
 from configparser import NoOptionError
 from os import walk, listdir, environ, linesep, mkdir
-from pagegen.constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR, SITE_CONF, HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD, THEME_ASSET_SOURCE_DIR, THEME_ASSET_TARGET_DIR, PGN_LIVE_RELOAD
+from pagegen.constants import CONTENT_DIR, BUILD_DIR, ASSET_DIR, CACHE_DIR, THEME_DIR, THEME_TEMPLATE_DIR, PLUGIN_DIR, SITE_CONF, HOOK_PRE_BUILD, HOOK_PRE_BUILD_LISTS, HOOK_POST_BUILD_LISTS, HOOK_PAGE_DEPS, HOOK_PAGE_PRE_BUILD, HOOK_PAGE_RENDER, HOOK_PAGE_POST_BUILD, HOOK_POST_BUILD, THEME_ASSET_SOURCE_DIR, THEME_ASSET_TARGET_DIR
 from pagegen.Common import Common
 from pagegen.Page import Page
 from pickle import load, dump
@@ -247,10 +247,6 @@ class Site(Common):
         for target_path in self.directories_build_list:
             self.make_dir(target_path)
 
-        # If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated
-        if PGN_LIVE_RELOAD in environ.keys() and environ[PGN_LIVE_RELOAD] == 'yes':
-            js_reload_poll_script = self.read_file(join(dirname(__file__), 'live-reload.js'))
-
         # Generate pages
         for src, tgt in self.pages_build_list.items():
             logger.info(f'Generating: {src}')
@@ -263,10 +259,6 @@ class Site(Common):
 
             if not 'render' in p.headers.keys() or p.headers['render'] != False:
                 self.exec_hooks(HOOK_PAGE_RENDER, {'site': self, 'page': p})
-
-            # If argument --serve(serve_mode) then add javascript script to each page that reloads page if site is regenerated
-                if PGN_LIVE_RELOAD in environ.keys() and environ[PGN_LIVE_RELOAD] == 'yes':
-                    p.out += '<script>' + js_reload_poll_script + '</script>'
 
             try:
                 p.write()

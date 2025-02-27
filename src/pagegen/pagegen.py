@@ -1,15 +1,17 @@
 import argparse
+from functools import partial
+from http.server import HTTPServer
 from sys import exit, stdout
 from os import system, open, O_CREAT, O_EXCL, remove, environ, getcwd, listdir
 from os.path import join, isfile, dirname, abspath
 from traceback import print_exception
-from pagegen.constants import SITE_CONF, LOCK_FILE, CACHE_DIR, BUILD_DIR, PGN_LIVE_RELOAD, PAGEGEN_VERSION
+from pagegen.PgnHandler import PgnHandler
+from pagegen.constants import SITE_CONF, LOCK_FILE, CACHE_DIR, BUILD_DIR, PAGEGEN_VERSION, ASSET_DIR, THEME_DIR
 from pagegen.Site import Site
 from pathlib import Path
 from pagegen.Config import Config
 from shutil import rmtree
 from pagegen.Common import Common
-from pagegen.live_reload import live_reload
 import pagegen.logger_setup
 import logging
 
@@ -64,7 +66,7 @@ def main():
     p.add_argument('-i', '--ignore-lock', action='store_true', help='Ignore lock file')
     p.add_argument('-n', '--init', action='store_true', help='Initiate current directory as pagegen site')
     p.add_argument('-c', '--clear-cache', action='store_true', help='Clear caches before building')
-    p.add_argument('-l', '--live-reload', action='store_true', help='Serve site on localhost and rebuild on change')
+    p.add_argument('-s', '--serve', action='store_true', help='Serve site on localhost')
     p.add_argument('-v', '--version', action='store_true', help='Show version')
     a = p.parse_args()
 
@@ -98,7 +100,7 @@ def main():
 
     try:
 
-        if a.clear_cache or a.live_reload:
+        if a.clear_cache:
             cache_dir = join(site_dir, CACHE_DIR)
             build_dir = join(site_dir, BUILD_DIR)
 
@@ -136,6 +138,7 @@ def main():
         except KeyError:
             pass
 
+
         if a.generate:
 
             if isfile(lock_file):
@@ -155,38 +158,48 @@ def main():
             s = Site(site_dir=site_dir, site_conf=c.configparser)
             s.build_site()
 
-        if a.live_reload:
-            environ[PGN_LIVE_RELOAD] = 'yes'
-            c = Config(site_conf_file)
-            s = Site(site_dir=site_dir, site_conf=c.configparser)
 
-            serve_base_url='http://localhost'
-            serve_port = '8000'
+        if a.serve:
+            try:
+                site_base_url = c.configparser['site']['base_url']
+                theme_name = c.configparser['site']['theme']
+            except KeyError as e:
+                logger.critical(f'Missing mandatory setting: {e.args[0]}')
+                raise
 
-            # Override these settings
-            s.base_url = f'{serve_base_url}:{serve_port}'
-            s.conf['site']['copy_assets_to_build_dir'] = 'True'
+            try:
+                serve_ip = c.configparser['site']['serve_ip']
+            except:
+                serve_ip = '127.0.0.1'
 
-            s.build_site()
+            try:
+                serve_port = c.configparser['site']['serve_port']
+            except:
+                serve_port = 8000
 
-            exclude_hooks=['deploy','post_deploy']
+            try:
+                directory_index = c.configparser['site']['directory_index']
+            except:
+                directory_index = 'index.html'
 
-            watch_elements = [
-                s.content_dir,
-                s.asset_source_dir,
-                s.theme_dir,
-                s.plugin_dir,
-                site_conf_file,
-                join(s.site_dir, 'shortcodes.py'),
+            serve_base_url = f'http://localhost:{serve_port}'
+
+            serve_routes = [
+                (f'/assets/', join(site_dir, ASSET_DIR)),
+                (f'/theme/', join(site_dir, THEME_DIR, theme_name, ASSET_DIR))
             ]
 
-            live_reload(
-                s,
-                watch_elements,
-                serve_base_url,
-                serve_port
-            )
+            serve_dir = join(site_dir, BUILD_DIR)
 
+            handler = partial(PgnHandler, serve_dir, site_base_url, serve_base_url, serve_routes, directory_index)
+
+            print(f'Serving {serve_dir} on {serve_base_url}')
+
+            httpd = HTTPServer((serve_ip, serve_port), handler)
+            httpd.serve_forever()
+
+
+        # Tidy lock file
         try:
             remove(lock_file)
         except FileNotFoundError:
