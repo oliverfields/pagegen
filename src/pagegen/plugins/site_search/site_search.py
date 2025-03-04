@@ -288,4 +288,4 @@ class Plugin(Common):
 
         self.write_file(json_path, json)
 
-        logger.debug('Writing ' + json_path)
+        logger.info('Writing ' + json_path)

@@ -162,6 +162,8 @@ function! pagegen#Templates(template_dir)
   let t = system('[ -d "' . a:template_dir . '" ] && ls -1 "' . a:template_dir . '" | fzy "--prompt=Templates > " --lines=' . &lines)[:-2]
   redraw!
 
+  echomsg a:template_dir
+
   if t == ''
     echomsg 'No template selected'
   else
