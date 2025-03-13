@@ -12,6 +12,7 @@
 ### Fixes
 
 - Create build dir if not exist
+- RSS plugin now produces valid xml/rss
 
 ### Removed
 

@@ -46,6 +46,8 @@ class Plugin(Common):
             try:
                 feed += f'<title>{p.headers["title"]}</title>\n'
                 feed += f'<link>{p.absolute_url}</link>\n'
+                feed += f'<guid>{p.absolute_url}</guid>\n'
+                feed += f'<pubDate>{p.headers["date"]}T06:00:00-02:00</pubDate>\n'
                 feed += f'<description>{p.headers["description"]}</description>\n'
 
             except KeyError as e:
@@ -54,12 +56,12 @@ class Plugin(Common):
 
             feed += '</item>\n'
 
-        feed = '<?xml version="1.0" encoding="UTF-8" ?>\n<rss version="2.0">\n<channel>\n' + feed + '</channel>'
+        feed = f'<?xml version="1.0" encoding="UTF-8" ?>\n<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n<channel>\n<atom:link href="{s.base_url}/feed.rss" rel="self" type="application/rss+xml" />\n' + feed + '</channel></rss>'
 
         rss_path = join(s.build_dir, 'feed.rss')
 
         if not exists(rss_path):
-            logger.debug(f'Writing RSS: {rss_path}')
+            logger.info(f'Writing RSS: {rss_path}')
             self.write_file(rss_path, feed)
         else:
             logger.debug(f'RSS already exists: {rss_path}')
