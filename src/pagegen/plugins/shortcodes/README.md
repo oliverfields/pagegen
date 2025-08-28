@@ -8,7 +8,7 @@ In content they are as follows.
 
 Or they can be used in Mako templates like so.
 
-    <% f = objects['site'].shortcodes['figure'](site, page, 'A bald eagle observes', 'Eagle', '/assets/images/eagle.jpg') %>
+    <% f = site.plugins['shortcodes']['figure'](site, page, 'A bald eagle observes', 'Eagle', '/assets/images/eagle.jpg') %>
     ${f}
 
 The shortcode `figure` will generate the following HTML.
