@@ -1,7 +1,7 @@
 import argparse
 from functools import partial
 from http.server import HTTPServer
-from sys import exit, stdout
+from sys import exit, stdout, stdin
 from os import system, open, O_CREAT, O_EXCL, remove, environ, getcwd, listdir
 from os.path import join, isfile, dirname, abspath
 from traceback import print_exception
@@ -14,8 +14,17 @@ from shutil import rmtree
 from pagegen.Common import Common
 import pagegen.logger_setup
 import logging
+from termios import tcgetattr, TCSADRAIN, tcsetattr
+from tty import setcbreak
+import select
+from threading import Thread
+from time import sleep
 
 logger = logging.getLogger('pagegen')
+
+
+class ReusableHTTPServer(HTTPServer):
+    allow_reuse_address = True
 
 
 def init_pgn_dir():
@@ -193,11 +202,26 @@ def main():
 
             handler = partial(PgnHandler, serve_dir, site_base_url, serve_base_url, serve_routes, directory_index)
 
-            print(f'Serving {serve_dir} on {serve_base_url}')
+            fd, old_term_settings = setup_raw_mode()
 
-            httpd = HTTPServer((serve_ip, serve_port), handler)
-            httpd.serve_forever()
+            while True:
+                logger.warning(f'Serving {serve_dir} on {serve_base_url}')
+                httpd, thread = run_server(serve_ip, serve_port, handler)
 
+                action = wait_for_ctrl_r_or_exit()
+
+                httpd.shutdown()
+                thread.join()
+                httpd.server_close()
+
+                restore_terminal(fd, old_term_settings)
+
+                if action == 'exit':
+                    break
+                elif action == 'reload':
+                    s = Site(site_dir=site_dir, site_conf=c.configparser)
+                    s.build_site()
+                    continue
 
         # Tidy lock file
         try:
@@ -218,6 +242,48 @@ def main():
         print_exception(type(e), e, e.__traceback__)
 
         exit(1)
+
+
+def run_server(serve_ip, serve_port, handler):
+    httpd = ReusableHTTPServer((serve_ip, serve_port), handler)
+    server_thread = Thread(target=httpd.serve_forever)
+    server_thread.start()
+    return httpd, server_thread
+
+
+def get_keypress():
+    """Returns 'ctrl_r' if Ctrl+R is pressed, None otherwise."""
+    dr, _, _ = select.select([stdin], [], [], 0)
+    if dr:
+        ch = stdin.read(1)
+        if ord(ch) == 18:  # ASCII 18 = Ctrl+R
+            return 'ctrl_r'
+    return None
+
+
+def wait_for_ctrl_r_or_exit():
+    print("Press Ctrl+C to stop, or Ctrl+R to reload.")
+    try:
+        while True:
+            key = get_keypress()
+            if key == 'ctrl_r':
+                return 'reload'
+            sleep(0.1)
+    except KeyboardInterrupt:
+        return 'exit'
+
+
+def setup_raw_mode():
+    """Put stdin into raw mode and return original settings."""
+    fd = stdin.fileno()
+    old_settings = tcgetattr(fd)
+    setcbreak(fd)
+    return fd, old_settings
+
+
+def restore_terminal(fd, old_settings):
+    """Restore original terminal settings."""
+    tcsetattr(fd, TCSADRAIN, old_settings)
 
 
 if __name__ == '__main__':
