@@ -158,7 +158,10 @@ def main():
 
                     if stdout.isatty() and input('Delete lock file and continue? [N|y] ') == 'y':
 
-                        remove(lock_file)
+                        try:
+                            remove(lock_file)
+                        except FileNotFoundError:
+                            pass
                     else:
                         exit()
             else:
