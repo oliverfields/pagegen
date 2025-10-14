@@ -70,6 +70,10 @@ class InlineConvoCompiler(markdown.preprocessors.Preprocessor):
                             profile_left_understanding = '<div class="convo-left-understanding">' + profile_left_avatar + '</div>'
                             continue
 
+                        if msg.startswith('[understanding-avatar]:'):
+                            profile_left_understanding = '<div class="convo-left-understanding">' + msg[23:] + '</div>'
+
+                            continue
                         if msg.startswith('[name]:'):
                             html = '<div class="convo-header"><div class="convo-header-profile">' + profile_left_avatar + '</div><strong>' + msg[7:] + '</strong></div>'
                             continue

@@ -205,9 +205,9 @@ def main():
 
             handler = partial(PgnHandler, serve_dir, site_base_url, serve_base_url, serve_routes, directory_index)
 
-            fd, old_term_settings = setup_raw_mode()
 
             while True:
+                fd, old_term_settings = setup_raw_mode()
                 logger.warning(f'Serving {serve_dir} on {serve_base_url}')
                 httpd, thread = run_server(serve_ip, serve_port, handler)
 
