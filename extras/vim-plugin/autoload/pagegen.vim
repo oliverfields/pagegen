@@ -152,7 +152,8 @@ function! pagegen#TitleifyFilename(name)
     endif
 
     let title = substitute(title, "-", " ", "g")
-    let title = substitute(title, ".", "\\U\\0", "")
+    "let title = substitute(title, ".", "\\U\\0", "")
+    let title = substitute(title, '\v<.', '\u&', 'g')
 
     return title
 endfunction
