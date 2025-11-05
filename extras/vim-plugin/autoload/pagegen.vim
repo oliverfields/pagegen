@@ -167,9 +167,9 @@ function! pagegen#Templates(template_dir)
   if t == ''
     echomsg 'No template selected'
   else
-    let title = pagegen#TitleifyFilename(expand("%:t"))
+    "let title = pagegen#TitleifyFilename(expand("%:t"))
     " execute template and pass titleified file name as argument
-    let template = system(a:template_dir . '/' . t . ' "' . title . '"')
+    let template = system(a:template_dir . '/' . t . ' "' . fnamemodify(expand('%'), ':t') . '"')
     execute "normal! ggdGi" . template
   endif
 endfunction
