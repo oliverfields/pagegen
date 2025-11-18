@@ -1,0 +1,177 @@
+DONE comment stripper plugin for tides of sea (remove // lines)
+WONT bcuz sc is a plugin it won't be able to find all plugins shortcodes unless can garantee all plugins are loaded before it, and that requires a bogger change -> shortcodes searches plugins for shortcode_* defs
+WONT not feeling it -> write articles on site gh pages
+DONE RSS feed must validate
+DONE upgrade benker to pgn4
+WONT just put those pages in own folder outside content -> plugin: draft pages
+WONT not portable, do this yourself -> option to just symlink assets and theme/asset dirs in build dir
+WONT removed live reload -> changing stuff deep in the content dir tree seems not to trigger live rebuilds
+DONE when generateing tidesofsea the tags page that is not cached starts a regeneration loop. remove live reload, and setup local webserver instead?
+DONE upgrade tidesofsea to pgn4
+WONT not so simple, if want to manage from multiple places, set up central generation -> Caches should save only relative paths, then cache would be portable between systems
+DONE plugin: search
+DONE building on different devices requires cache to be same, either make cache portable so it can live in git or move building to server if want to build from multiple machines.
+DONE Set loglevel in site.conf
+DONE make debug msg drab, so print stands out
+WONT no need for this yet -> plugins can provide templates
+DONE vim plugin titleify should get parent folder if file is index
+WONT just gen pg site without caches -> live reload seems to not reload sitemenu plugin when changing conf.py, even though it detects that a change has happened
+DONE threads needs vim templates and functionality to add title tag from file name
+DONE write articles on site vim plugin
+DONE review vim plugin
+DONE threads gen needs to update at least list/front page and tags page
+DONE realease pgn4 to pypi
+DONE manual/site-structure site.conf make link to github skel site.conf that is fully commented
+DONE archive pagegen 3 site
+DONE new pagegen 4 documentation site. https://github.com/dohliam/dropin-minimal-css/blob/gh-pages/src/classless.css
+DONE copy current pagegen main branch to pagegen3 and rename pgn4 branch to master/main
+DONE when opening a page the sitemenu opens correctly, but the show/hide arrow should be pointing up, not down
+WONT so simple this is just inclueded extra -> Add text about bash completion
+DONE devpgn not setting base url?
+DONE live reload must set base_url to http://localhost:8000
+DONE Ensure all pages in new pgn4 site have descriptions and all Todos are done (e.g github links)
+DONE Move pagegen pgn4 branch to master in github
+DONE get trzn swinging on iphone
+DONE Make pg_site deploy to domeneshop (conf bare repo there with hook)
+[remote "pgn4"]
+	url = phnd@login.domeneshop.no:~/pg_site/git
+	fetch = +refs/heads/*:refs/remotes/pgn4/*
+DONE get trzn swinging
+WONT just go tags page, and save the poor cpu some cycles -> article meta: show other pages tagged with same tags?
+DONE implemented as shortcode -> plugin crumbtrail -> make plugin that registeres template
+WONT already works -> plugin sitemap -> make plugin that registeres template
+WONT already works -> plugin rss -> make plugin that registeres template
+DONE change plugin exclude headers to plugin true/false
+DONE add crumbtrail, sitemap and rss plugins
+DONE plugin: tags
+DONE bash completion
+DONE package to pypi
+DONE init mode
+DONE implement live reload js polling in pages
+DONE plugin: minify
+DONE plugin: excerpt
+DONE TemplateDeps cache, only reparse template if changed since cached version. save all results in big cache file, iterate and only update where needed
+DONE core: make meta list of pages meta and headers, mainly for use by other plugins (link chain, crumb trail, rss, search, sitemap and tags). basically dict of key url and header values ++
+DONE plugin: rss
+DONE plugin: sitemap
+DONE each page is a file and template, even rss feed, sitemap, 404s, robots and tag pages
+DONE make dir structure be same as web dir, eg dir structure will become the urls as is. use title tag for human readable and drop the sort prefixing, this is handled in templates
+DONE incremental/cacheable builds?
+DONE incremental builds using dependency tree to figure out what files to rebuild. use url and pickle page objects
+DONE Does it require the entire site fits in memory at build time, or can it generate terabyte-sized sites without breaking a sweat?
+WONT #bug If site config setting absolute_urls False then sitemap contains double urls
+WONT allow to ignore files when building, e.g aspell creates .new and .bak files, could be great to ignore them so pgn -s test don't break
+DONE Convo relace think bubbles with * meta
+WONT Just use vim indent functionality (visual select + >) -> Vimplugin visually select lines and markdown indent them
+DONE Document as example how to setup deploy with git push on pagegen.phnd.net
+WONT If empty tag we want to fail -> If Tag header is empty build fails, handle this and print file with empty Tag header before exploding
+DONE vimplugin leader o also open media files. eg from figure shortcod
+DONE vimplugin needs to know where to look for media files, it shouldn't be hardcoded
+DONE Document new command name pgn
+DONE URLs should not contain multiple -, e.g Title, with comma should become title-with-comma, not title--with-title
+DONE leader b finds all backlinks to file and allows to open them using fzy
+WONT Not using mouse in vim -> mouse click in vim on a relative link opens file. Bonus if use syntax to underline link https://superuser.com/questions/713830/better-mouse-click-behavior-with-gvims-virtual-edit/714587#714587
+DONE snippets same as templates, but pastes snippet under cursor instead of replacing whole doc like templates does
+DONE Add quote shortcode to vim-plugin <leader>q ? Maybe more generic select shortcode from list and insert it? Already have leader+m templates?
+WONT Can solve in mako templates (len("Geeksforgeeks is best Computer Science Portal".split())) -> vim add Word count header with rough word count
+WONT nah, good enough -> vim link to page shortcut from insert mode as well
+DONE Remove pkg dep version as constant updated by build script
+DONE Remove glob dep
+DONE print pip cmd to install extras if rst not working
+WONT keeping rst as option for now -> remove rst from shortcodes
+DONE Title in vimplug link needs stripping prefix etc
+DONE update pg site wrt md/rst esp instslling rst extras in install guide
+DONE Markdown now default markup and rst is extra dependency
+WONT Remove rst. Tag pages also use rst #n2p
+WONT No, it is correct, closing -> Absolute-urls setting is wrong if not set explicitly to False
+DONE Document --serve and look into if something needs done to auto refresh page when serving locally on change
+WONT Don't think this is in scope -> git sync using hooks? #n2p
+DONE vim link should put title in []
+DONE vimplugin templates as shrll scriptsloaded from pg site dir
+DONE vim plugin cache/tmp/var folder? 
+DONE implement imports close to execution (lazy loading) to minimize startup time. Do this at least for dependencies
+DONE pg site deploy needs fixing
+DONE remove libsass dependency and update doc
+DONE update pg site re reemoved libsass dependency
+DONE COMPLETION FOR PG #n2p
+DONE vim plugin (templates and tag and url map in pg dir) #n2p
+DONE pg fzy select only if fzy installed, maybe use fzf if there? #n2p
+DONE Document vim plugin install symlink vim dir in .vim/pack/start
+DONE Document pagegen command
+  pagegen -> fzy or fzf select file if available
+  pagegen dir1/dir2/file -> create directories and/or file and edit file
+  pagegen dir1/ -> create dir1 and edit dir1/index file
+DONE Update CHANGELOG wrt ndl
+DONE Skel re add .html ext
+DONE create dir and files in python #n2p
+DONE Document page header number headings
+WONT Too complex -> Page caching: setting. If true if content or templates changed newer than site/cache/prod then cooy from cache to site/prod, else regen? Caveat structure changes in menu, sitemap, feeds etc may not be correct if using cached version
+DONE Error:  Unable to generate site: Unable to find home page 'index': access: path should be string, bytes or os.PathLike, not bool -> only occurs on domeneshop server and only if default_extension setting is not set in site.conf
+DONE Document image_class setting in site.conf
+DONE Og:image - test ok
+DONE Search bar on mobile view is not aligned
+DONE Add padding if not title on mobile frontpage
+DONE Implement hide header on homepage to hide h1 tag, are custom headers allowed?
+DONE Github action does not add source links
+DONE Release next version
+DONE Sc: social sharing, facebook, twitter, instagram, pinterest, linkedin, email, copy link, rss link
+WONT DO THIS IF BUILD NEW SITE html linters run from post_generate hook on build. Pip install html-linter
+DONE Document themes
+DONE Ensure backtick/code is formatted nicely, replace **'s
+DONE Document how search works in skel, maybe some graphviz
+DONE Sc: series. Page series are chronological, must have both headers series and published. Oldest published header series blurb is used as blurb. Save result to site. Shortcode.cache, subsequent lookups get cached version
+DONE Sc: tags and categories
+WONT Rst/markdown2html, add error handling to function WONTFIX GOOD ENOUGH FOR NOW
+DONE New article: blogging. Page hiearchy, how to list newest articles(page_list sort by date header?)-> template bloghomepage on frontpage. Define authors somehow, need to be able to link to authors, perhsps shortcode? Support gravatar. Blog share image. Rememer publish date header. List auther posts on their page. If authors header in page create author page? Gravatar, name, email, facebook, github, twitter, insta, linkedin, blurb. Link chain exclude on all but blog post pages
+DONE Add categories and tag pages to page list?
+DONE Excerpts need doc
+DONE Add authors to page headers doc,and remove header profile
+DONE Pagegen cmd typo(capital P) on Site generation page
+DONE &lt; typos on https://pagegen.phnd.net/user-manual/hooks
+DONE Add author templates to https://pagegen.phnd.net/user-manual/design-and-layout/templates-and-themes
+DONE Typos in 1st table of https://pagegen.phnd.net/user-manual/design-and-layout/site-menu
+DONE Remove page_titles in https://pagegen.phnd.net/user-manual/site-generation
+DONE Sc list pages(url part, number)
+DONE If wanna use excerpt in scs then must happen before scs are run
+DONE Page header template, check still works and that doc in headers list is still right
+DONE Read more blog post functionality. If tag found in content, then assign conten until tag to page.excerpt, then can use in templates
+WONT Sc Facebook comments WONTFIX
+DONE Sc gh avatar
+WONT Git workflow use git repo instead of pip install WONTFIX good to use offical pip package wrt testing
+DONE Blog author profiles
+WONT Publish until date header, WONTFIX already considered, function that needs user to manually schedule build anyway
+DONE Sc image: S1) rel source and target dir 2) abs src and rel target 3) abs src and abs target
+DONE Create /pagegen_site_hash file on start serve to avoid 404s
+DONE Move shortcode page up one level
+DONE Template context, pass just site and remove the other site.attribs, update ske theme
+DONE Remove Sc: js and css link and integrety, only valid for stuff hosted elsewhere, as such it needs to be provided
+WONT Plotting support? WONTFIX TOO SPECIALIZED
+DONE Sc: image(file, alt, type='', size=''). If type lookup from site.conf image_types: thumb:120x120, portrait:400x200 and resize if required, if size then resize if required. If resize maintain ratio, and crop from middle and add padding. If resize check cache first. Resize also renames img to name-image-type.
+DONE Custom sc for view source
+DONE Stop event bubbling on scroll menu page when viwing on small screen
+DONE Sc: Menu
+DONE Sc: youtube
+DONE Sc: figure
+DONE Can sc's be overwritten?
+DONE Site.page_list <- easy lookup of page objects in shortcodes and templates
+DONE Sc: site link
+DONE Document shortcodes
+DONE Using shortcode <sc>name(arg1, arg2 .. argN)</sc> will replace string with return value of def name(1, 2 .. N) from shortcodes.py. Shortcodes are run either before markup compilation (rst or md) or in html output. Sc object deals with managing built in shortcodes and importing shortcode.py. Further more it replaces shortcodescontent with their return value. In <sc> tag self.site as argument will give access to site object🤩 Shortcodes are responsible for outputting valid mk and/or rst. Builtin helper funtion to get markup?
+DONE Do themes have own shortcodes? NO, ONLY FOR USE IN CONTENT FOR NOW
+WONT IF WANT SC IN MAKO, just import. Make site.shortcodes available in mako context as regular python functions.
+DONE Bash wizard script to build pg release
+DONE Style pgsite toc
+DONE Whats on this page Toc in pg site pages, after html is created, make toc from headings and make available as page.toc, toc depth header in page? Toc: True page level header. Also need to insert anchors in text
+DONE Title numbering, 1, 1.1, 1.2 etc
+DONE View source icon, only show if source available. Template can check.
+DONE https://pagegen.phnd.net/articles/pipeline-with-github-actions angle brackets
+DONE Tip on template page to view page source
+DONE Templates and themes template variables table..
+DONE Increase menu width and nobr to down arrow toggle, maybe sassify? Move site.css to assets/css/site.sass start with colors and widths
+DONE Consider rewrite of standard theme, using sass. Especially nesting, variables and includes, and perhaps partials.
+WONT Links in content break if use extension setting. Could do a pre gen hook to look for relative links and update?
+WONT Content types for http serve. Requires running server as thread, instead of current subprocess? Only useful for test site. Workaround could use .html ext on prod, and alternatively done a rewrite to remove ext.
+TODO make save pickle handle a path so dont need to deal with dir variables elsewhere
+TODO minify css and js should cache minified files, and perhaps also add hash to filename?
+TODO plugin: link chain?
+TODO image builtin shortcode should support webp format
