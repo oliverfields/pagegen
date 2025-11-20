@@ -19,6 +19,14 @@ class Common:
         try:
             with codecs.open (path, "r", 'utf-8') as f:
                 return f.read()
+        except UnicodeDecodeError as e:
+            raise UnicodeDecodeError(
+                e.encoding,
+                e.object,
+                e.start,
+                e.end,
+                f"{e.reason} (File: {path})"
+            ) from e
         except Exception as e:
             raise e
 

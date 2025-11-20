@@ -15,6 +15,7 @@
 - Create build dir if not exist
 - RSS plugin now produces valid xml/rss
 - If lock file found, but deleted before continuing then silently ignore the exception
+- File decode error now prints file path that caused error
 
 ### Removed
 
