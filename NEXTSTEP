@@ -171,7 +171,7 @@ DONE Increase menu width and nobr to down arrow toggle, maybe sassify? Move site
 DONE Consider rewrite of standard theme, using sass. Especially nesting, variables and includes, and perhaps partials.
 WONT Links in content break if use extension setting. Could do a pre gen hook to look for relative links and update?
 WONT Content types for http serve. Requires running server as thread, instead of current subprocess? Only useful for test site. Workaround could use .html ext on prod, and alternatively done a rewrite to remove ext.
-TODO make save pickle handle a path so dont need to deal with dir variables elsewhere
-TODO minify css and js should cache minified files, and perhaps also add hash to filename?
-TODO plugin: link chain?
-TODO image builtin shortcode should support webp format
+NEXTSTEP make save pickle handle a path so dont need to deal with dir variables elsewhere
+NEXTSTEP minify css and js should cache minified files, and perhaps also add hash to filename?
+NEXTSTEP plugin: link chain?
+NEXTSTEP image builtin shortcode should support webp format
