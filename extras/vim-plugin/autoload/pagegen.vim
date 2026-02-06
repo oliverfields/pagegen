@@ -171,7 +171,7 @@ function! pagegen#Templates(template_dir)
     "let title = pagegen#TitleifyFilename(expand("%:t"))
     " execute template and pass titleified file name as argument
     let template = system(a:template_dir . '/' . t . ' "' . fnamemodify(expand('%'), ':t') . '"')
-    execute "normal! ggdGi" . template
+    call append(0, split(template . "\n", "\n"))
   endif
 endfunction
 
