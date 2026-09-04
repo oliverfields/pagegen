@@ -1,4 +1,4 @@
-from htmlmin import minify
+from minify_html import minify
 from jsmin import jsmin
 from rcssmin import cssmin
 from glob import glob

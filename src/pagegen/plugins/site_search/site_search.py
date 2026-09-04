@@ -1,6 +1,6 @@
 from pagegen.Common import Common
 from json import dumps
-from re import sub
+from re import compile as re_compile
 from pagegen.constants import CACHE_DIR
 from os.path import join, basename
 from os import linesep
@@ -10,6 +10,9 @@ import logging
 
 
 logger = logging.getLogger('pagegen.' + __name__)
+
+# Strip non-alphanumerics from a word; compiled once, '+' avoids the empty matches '*' produced
+_WORD_CLEAN = re_compile(r'[^a-z0-9]+')
 
 
 class Plugin(Common):
@@ -28,6 +31,8 @@ class Plugin(Common):
         self.cache_dir = join(objects['site'].site_dir, CACHE_DIR, 'site_search')
         self.content_tags=['p','li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'th', 'strong', 'em', 'i', 'b', 'a', 'blockquote', 'div', 'span', 'pre', 'abbr', 'address', 'cite', 'code', 'del', 'dfn', 'ins', 'kbd', 'q', 'samp', 'small', 'sub', 'sup', 'var', 'dt', 'dd', 'legend', 'caption', 'article', 'aside', 'details', 'figcaption', 'section', 'summary', 'title'] # HTML tags that may contain searchable content
         self.meta_tags = ['description'] # Meta tags attributes that may contain searchable content
+        self.content_tags_set = set(self.content_tags) # For O(1) membership test when walking the tree
+        self.tag_weights = {'h1': 7, 'h2': 6, 'h3': 5, 'h4': 4, 'h5': 3, 'h6': 2, 'strong': 1, 'em': 1, 'b': 1, 'i': 1} # Term weight by tag, default 0
 
         try:
             self.index_xpaths = objects['site'].conf['site_search']['index_xpaths'].replace(' ', '').split(',') # Xpath to nodes to look for indexable content in
@@ -39,11 +44,11 @@ class Plugin(Common):
         stop_words_path = join(objects['site'].site_dir, 'site_search_stopwords.txt')
         try:
             stop_words = self.read_file(stop_words_path)
-            self.stop_words = stop_words.rstrip().split(linesep)
+            self.stop_words = set(stop_words.rstrip().split(linesep))
             logger.debug('Stop words loaded: ' + stop_words_path)
         except FileNotFoundError:
             logger.debug('No stop words found: ' + stop_words_path)
-            self.stop_words = []
+            self.stop_words = set()
 
         self.index_cache_file_name = 'search_index'
         self.index_cache_path = join(self.cache_dir, self.index_cache_file_name)
@@ -97,12 +102,14 @@ class Plugin(Common):
 
 
         # Look for terms in content
-        for content_tag in self.index_xpaths:
-            for search_tag in self.content_tags:
-                xpath = content_tag + "//" + search_tag
+        # Walk each indexed subtree once, picking out content tags, instead of
+        # running a separate xpath query per tag (same result, far fewer traversals).
+        for content_xpath in self.index_xpaths:
+            for root in tree.xpath(content_xpath):
+                for tag in root.iter():
+                    if tag.tag not in self.content_tags_set:
+                        continue
 
-                result = tree.xpath(xpath)
-                for tag in result:
                     text = ''
                     if tag.text:
                         text += tag.text+' '
@@ -110,22 +117,7 @@ class Plugin(Common):
                         text += tag.tail
 
                     if text:
-                        if tag.tag == 'h1':
-                            weight = 7
-                        elif tag.tag == 'h2':
-                            weight = 6
-                        elif tag.tag == 'h3':
-                            weight = 5
-                        elif tag.tag == 'h4':
-                            weight = 4
-                        elif tag.tag == 'h5':
-                            weight = 3
-                        elif tag.tag == 'h6':
-                            weight = 2
-                        elif tag.tag == 'strong' or tag.tag == 'em' or tag.tag == 'b' or tag.tag == 'i':
-                            weight=1
-                        else:
-                            weight=0
+                        weight = self.tag_weights.get(tag.tag, 0)
 
                         self.index_string(si, text, weight, p.source_path)
 
@@ -164,8 +156,7 @@ class Plugin(Common):
 
         for word in string.split(' '):
 
-            word = sub('[^a-z0-9]*', '', word)
-            word = word.strip()
+            word = _WORD_CLEAN.sub('', word).strip()
 
             if len(word) == 0:
                 continue
@@ -174,20 +165,17 @@ class Plugin(Common):
                 #print('Word "%s" is stop word' % (word))
                 continue
 
-            term_weight = weight
-            term_data = {
-                'weight': weight,
-                'source_path': source_path # Important for making json later
-            }
-
-            # Update weight if is indexed
-            if word in terms.keys():
-                if terms[word]['weight'] < term_weight:
+            # Update weight if already indexed, otherwise add the term
+            if word in terms:
+                if terms[word]['weight'] < weight:
                     #print("Increasing weight for term '%s'" % word)
-                    terms[word]['weight'] = term_weight
+                    terms[word]['weight'] = weight
             else:
-                #print('Adding term "%s" to index (weight %s)' % (word, term_weight))
-                terms[word] = term_data
+                #print('Adding term "%s" to index (weight %s)' % (word, weight))
+                terms[word] = {
+                    'weight': weight,
+                    'source_path': source_path # Important for making json later
+                }
 
         return terms
 

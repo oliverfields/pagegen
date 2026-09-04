@@ -1,6 +1,8 @@
 # Changelog
 
+
 ## 4.x.x
+
 
 ### Added
 
@@ -10,12 +12,17 @@
 - Plugin site_search provides json index and javascript to implement a basic site search
 - Serve build dir locally managing base_url without changes to build dir. Replaces live reload
 
+
 ### Fixes
 
+- Replaced htmlmin library with minify-html
+- Disabled pygments import for Mako
+- Increased performance of site search plugin
 - Create build dir if not exist
 - RSS plugin now produces valid xml/rss
 - If lock file found, but deleted before continuing then silently ignore the exception
 - File decode error now prints file path that caused error
+
 
 ### Removed
 
