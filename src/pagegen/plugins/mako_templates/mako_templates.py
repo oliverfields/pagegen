@@ -1,3 +1,6 @@
+import sys
+sys.modules.setdefault('pygments', None)   # performance -> skips Mako's optional pygments import (only used to color its HTML error pages)
+
 from os import listdir
 from pagegen.constants import CACHE_DIR
 from datetime import date
